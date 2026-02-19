@@ -1,0 +1,1 @@
+﻿// Announcement card widget

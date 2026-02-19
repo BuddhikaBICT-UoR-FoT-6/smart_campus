@@ -1,0 +1,1 @@
+﻿// TimetableEntry model
