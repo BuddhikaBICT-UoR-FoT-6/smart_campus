@@ -7,7 +7,6 @@
 // the stale MyApp reference from the Flutter starter template.
 // =============================================================================
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smart_campus/main.dart';
 
