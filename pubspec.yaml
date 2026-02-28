@@ -29,6 +29,9 @@ dependencies:
   # Generates QR code widgets — used for event registration passes (offline, no camera needed)
   qr_flutter: ^4.1.0
 
+  # Generates universally unique IDs for registration rows in SQLite
+  uuid: ^4.5.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
