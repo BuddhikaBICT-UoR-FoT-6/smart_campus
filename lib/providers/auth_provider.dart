@@ -1,4 +1,4 @@
-﻿// =============================================================================
+// =============================================================================
 // providers/auth_provider.dart
 // =============================================================================
 // CLEAN ARCHITECTURE — Presentation Layer (State Management)
@@ -25,6 +25,7 @@
 // =============================================================================
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../domain/models/user.dart';
 
 class AuthProvider extends ChangeNotifier {
@@ -70,6 +71,32 @@ class AuthProvider extends ChangeNotifier {
   // Auth operations
   // ---------------------------------------------------------------------------
 
+  /// Checks local storage for a saved session.
+  /// If found, restores the currentUser without requiring a password.
+  Future<bool> checkLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedEmail = prefs.getString('user_email');
+
+    if (savedEmail != null) {
+      final match = _mockUsers.firstWhere(
+        (u) => u['email'] == savedEmail,
+        orElse: () => {},
+      );
+
+      if (match.isNotEmpty) {
+        _currentUser = User(
+          id: match['id'] as String,
+          name: match['name'] as String,
+          email: match['email'] as String,
+          role: UserRole.values.byName(match['role'] as String),
+        );
+        notifyListeners();
+        return true;
+      }
+    }
+    return false;
+  }
+
   /// Attempts to log in with the given [email] and [password].
   ///
   /// Returns true on success, false if credentials do not match.
@@ -96,6 +123,10 @@ class AuthProvider extends ChangeNotifier {
       role: UserRole.values.byName(match['role'] as String),
     );
 
+    // Save session
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('user_email', _currentUser!.email);
+
     notifyListeners(); // rebuilds every widget watching AuthProvider
     return true;
   }
@@ -104,8 +135,13 @@ class AuthProvider extends ChangeNotifier {
   ///
   /// Clears _currentUser and notifies listeners so the app redirects
   /// back to the Login screen.
-  void logout() {
+  Future<void> logout() async {
     _currentUser = null;
+    
+    // Clear session
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('user_email');
+
     notifyListeners();
   }
 }

@@ -36,7 +36,9 @@ class SmartCampusApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Smart Campus',
         debugShowCheckedModeBanner: false,
-        theme: AppTheme.light,        // ← Apply centralised theme
+        theme: AppTheme.light,        // ← Apply centralised light theme
+        darkTheme: AppTheme.dark,     // ← Apply centralised dark theme
+        themeMode: ThemeMode.system,  // ← Automatically switch based on OS
         routes: AppRoutes.routes,
         initialRoute: AppRoutes.login,
       ),
