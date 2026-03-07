@@ -1,4 +1,4 @@
-﻿// =============================================================================
+// =============================================================================
 // app/routes.dart
 // =============================================================================
 // CLEAN ARCHITECTURE — Presentation Layer (Navigation)
@@ -20,6 +20,7 @@ import '../presentation/screens/announcements_screen.dart';
 import '../presentation/screens/timetable_screen.dart';
 import '../presentation/screens/events_screen.dart';
 import '../presentation/screens/qr_display_screen.dart';
+import '../presentation/screens/splash_screen.dart';
 
 class AppRoutes {
   AppRoutes._(); // prevent instantiation — utility class
@@ -28,23 +29,27 @@ class AppRoutes {
   // Route name constants
   // ---------------------------------------------------------------------------
 
-  static const String login         = '/';
-  static const String home          = '/home';
-  static const String announcements = '/announcements';
-  static const String timetable     = '/timetable';
-  static const String events        = '/events';
-  static const String qrDisplay     = '/qr-display';
+  static const String splash          = '/';
+  static const String login           = '/login';
+  static const String home            = '/home';
+  static const String announcements   = '/announcements';
+  static const String timetable       = '/timetable';
+  static const String events          = '/events';
+  static const String qrDisplay       = '/qr-display';
 
   // ---------------------------------------------------------------------------
   // Route map — passed to MaterialApp.routes
   // ---------------------------------------------------------------------------
 
-  static final Map<String, WidgetBuilder> routes = {
-    login:         (_) => const LoginScreen(),
-    home:          (_) => const HomeScreen(),
-    announcements: (_) => const AnnouncementsScreen(),
-    timetable:     (_) => const TimetableScreen(),
-    events:        (_) => const EventsScreen(),
-    qrDisplay:     (_) => const QrDisplayScreen(),
-  };
+  static Map<String, WidgetBuilder> get routes {
+    return {
+      splash:        (context) => const SplashScreen(),
+      login:         (context) => const LoginScreen(),
+      home:          (context) => const HomeScreen(),
+      announcements: (context) => const AnnouncementsScreen(),
+      timetable:     (context) => const TimetableScreen(),
+      events:        (context) => const EventsScreen(),
+      qrDisplay:     (context) => const QrDisplayScreen(),
+    };
+  }
 }

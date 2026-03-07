@@ -1,4 +1,4 @@
-﻿// =============================================================================
+// =============================================================================
 // providers/announcement_provider.dart
 // =============================================================================
 // CLEAN ARCHITECTURE — Presentation Layer (State Management)
@@ -81,5 +81,25 @@ class AnnouncementProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners(); // triggers rebuild with data or error
     }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Mutations
+  // ---------------------------------------------------------------------------
+
+  /// Simulates adding a new announcement locally without an API request.
+  void addAnnouncement(String title, String body, String posterName) {
+    final newId = DateTime.now().millisecondsSinceEpoch;
+    final newAnnouncement = Announcement(
+      id: newId,
+      title: title,
+      body: body,
+      postedBy: posterName,
+      date: DateTime.now().toString().split(' ')[0], // YYYY-MM-DD
+    );
+
+    // Insert at top of list
+    _announcements.insert(0, newAnnouncement);
+    notifyListeners();
   }
 }

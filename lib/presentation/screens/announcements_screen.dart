@@ -92,9 +92,7 @@ class AnnouncementsScreen extends StatelessWidget {
       floatingActionButton: isStaff
           ? FloatingActionButton.extended(
               onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Staff feature: Add Announcement dialog')),
-                );
+                _showAddAnnouncementDialog(context, user!.name);
               },
               backgroundColor: AppTheme.primary,
               foregroundColor: AppTheme.onPrimary,
@@ -102,6 +100,61 @@ class AnnouncementsScreen extends StatelessWidget {
               label: const Text('Post'),
             )
           : null,
+    );
+  }
+
+  void _showAddAnnouncementDialog(BuildContext context, String posterName) {
+    final titleController = TextEditingController();
+    final bodyController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('New Announcement'),
+        content: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: titleController,
+                decoration: const InputDecoration(labelText: 'Title'),
+                validator: (v) => v!.isEmpty ? 'Required' : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: bodyController,
+                decoration: const InputDecoration(labelText: 'Message Body'),
+                maxLines: 3,
+                validator: (v) => v!.isEmpty ? 'Required' : null,
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (formKey.currentState!.validate()) {
+                context.read<AnnouncementProvider>().addAnnouncement(
+                      titleController.text,
+                      bodyController.text,
+                      posterName,
+                    );
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Announcement posted successfully!')),
+                );
+              }
+            },
+            child: const Text('Publish'),
+          ),
+        ],
+      ),
     );
   }
 }
