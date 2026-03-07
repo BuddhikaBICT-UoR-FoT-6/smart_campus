@@ -40,7 +40,7 @@ class SmartCampusApp extends StatelessWidget {
         darkTheme: AppTheme.dark,     // ← Apply centralised dark theme
         themeMode: ThemeMode.system,  // ← Automatically switch based on OS
         routes: AppRoutes.routes,
-        initialRoute: AppRoutes.login,
+        initialRoute: AppRoutes.splash,
       ),
     );
   }
