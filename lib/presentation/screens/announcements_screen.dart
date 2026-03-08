@@ -1,16 +1,76 @@
-﻿// =============================================================================
-// presentation/screens/announcements_screen.dart — Scaffold stub
 // =============================================================================
+// presentation/screens/announcements_screen.dart
+// =============================================================================
+// Displays campus announcements fetched from the REST API.
+//
+// STATE HANDLING (3-state pattern):
+//   isLoading = true  → CircularProgressIndicator
+//   errorMessage ≠ null → error message + retry button
+//   else              → ListView of AnnouncementCards
+// =============================================================================
+
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../providers/announcement_provider.dart';
+import '../widgets/announcement_card.dart';
+import '../../app/theme.dart';
 
 class AnnouncementsScreen extends StatelessWidget {
   const AnnouncementsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Announcements')),
-      body: const Center(child: Text('Announcements Screen — coming soon')),
+    final provider = context.watch<AnnouncementProvider>();
+
+    // ---------- Loading ----------
+    if (provider.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    // ---------- Error ----------
+    if (provider.errorMessage != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.wifi_off_rounded,
+                  size: 56, color: AppTheme.textSecondary),
+              const SizedBox(height: 16),
+              Text(
+                provider.errorMessage!,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: AppTheme.textSecondary),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton.icon(
+                icon: const Icon(Icons.refresh),
+                label: const Text('Retry'),
+                onPressed: () =>
+                    context.read<AnnouncementProvider>().fetchAnnouncements(),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // ---------- Empty ----------
+    if (provider.announcements.isEmpty) {
+      return const Center(
+        child: Text('No announcements available.',
+            style: TextStyle(color: AppTheme.textSecondary)),
+      );
+    }
+
+    // ---------- List ----------
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      itemCount: provider.announcements.length,
+      itemBuilder: (_, i) =>
+          AnnouncementCard(announcement: provider.announcements[i]),
     );
   }
 }
