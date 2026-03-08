@@ -25,7 +25,7 @@
 // =============================================================================
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // Added for production-grade secure storage
 import '../domain/models/user.dart';
 
 class AuthProvider extends ChangeNotifier {
@@ -33,6 +33,10 @@ class AuthProvider extends ChangeNotifier {
   // State
   // ---------------------------------------------------------------------------
 
+  // Initialize the secure storage instance. This encrypts data on disk.
+  static const _secureStorage = FlutterSecureStorage();
+
+  // Holds the active user object during runtime
   User? _currentUser;
 
   /// The currently authenticated user, or null if logged out.
@@ -71,29 +75,36 @@ class AuthProvider extends ChangeNotifier {
   // Auth operations
   // ---------------------------------------------------------------------------
 
-  /// Checks local storage for a saved session.
+  /// Checks local secure storage for a saved session.
   /// If found, restores the currentUser without requiring a password.
   Future<bool> checkLoginStatus() async {
-    final prefs = await SharedPreferences.getInstance();
-    final savedEmail = prefs.getString('user_email');
+    // Asynchronously read the encrypted 'user_email' key from device keychain/keystore
+    final savedEmail = await _secureStorage.read(key: 'user_email');
 
+    // If a saved email exists, it implies the user didn't log out
     if (savedEmail != null) {
+      // Look up the user matching the securely stored email
       final match = _mockUsers.firstWhere(
-        (u) => u['email'] == savedEmail,
-        orElse: () => {},
+        (u) => u['email'] == savedEmail, // Check email match
+        orElse: () => {},                // Return empty map if not found
       );
 
+      // Verify the match is valid and not an empty map
       if (match.isNotEmpty) {
+        // Hydrate the User domain model with data from our mock DB
         _currentUser = User(
-          id: match['id'] as String,
-          name: match['name'] as String,
-          email: match['email'] as String,
-          role: UserRole.values.byName(match['role'] as String),
+          id: match['id'] as String,             // Explicit cast to String
+          name: match['name'] as String,         // Explicit cast to String
+          email: match['email'] as String,       // Explicit cast to String
+          role: UserRole.values.byName(match['role'] as String), // Enum parser
         );
+        // Trigger a rebuild across the app so routers know we are logged in
         notifyListeners();
+        // Return true indicating the session was restored successfully
         return true;
       }
     }
+    // Return false if no saved session was found
     return false;
   }
 
@@ -116,6 +127,7 @@ class AuthProvider extends ChangeNotifier {
       return false; // invalid credentials
     }
 
+    // Hydrate the runtime User object
     _currentUser = User(
       id: match['id'] as String,
       name: match['name'] as String,
@@ -123,11 +135,12 @@ class AuthProvider extends ChangeNotifier {
       role: UserRole.values.byName(match['role'] as String),
     );
 
-    // Save session
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('user_email', _currentUser!.email);
+    // Write the email to secure storage to persist the session securely encrypted
+    await _secureStorage.write(key: 'user_email', value: _currentUser!.email);
 
-    notifyListeners(); // rebuilds every widget watching AuthProvider
+    // Notify all UI listeners to switch from LoginScreen to HomeScreen
+    notifyListeners(); 
+    // Return success
     return true;
   }
 
@@ -136,12 +149,13 @@ class AuthProvider extends ChangeNotifier {
   /// Clears _currentUser and notifies listeners so the app redirects
   /// back to the Login screen.
   Future<void> logout() async {
+    // 1. Wipe the in-memory user object
     _currentUser = null;
     
-    // Clear session
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('user_email');
+    // 2. Cryptographically delete the session key from device storage
+    await _secureStorage.delete(key: 'user_email');
 
+    // 3. Inform the app router to immediately navigate to the Login screen
     notifyListeners();
   }
 }
