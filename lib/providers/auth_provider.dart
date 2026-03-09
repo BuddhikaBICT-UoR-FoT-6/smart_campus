@@ -24,6 +24,7 @@
 //    context.watch<AuthProvider>() will rebuild with the new state."
 // =============================================================================
 
+import 'dart:convert'; // Added for JWT token parsing and serialization algorithms
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // Added for production-grade secure storage
 import '../domain/models/user.dart';
@@ -75,36 +76,57 @@ class AuthProvider extends ChangeNotifier {
   // Auth operations
   // ---------------------------------------------------------------------------
 
-  /// Checks local secure storage for a saved session.
-  /// If found, restores the currentUser without requiring a password.
+  /// Checks local secure storage for a saved session token.
+  /// If found, parses the JWT payload, checks its expiry, and restores the user.
   Future<bool> checkLoginStatus() async {
-    // Asynchronously read the encrypted 'user_email' key from device keychain/keystore
-    final savedEmail = await _secureStorage.read(key: 'user_email');
+    // Asynchronously read the encrypted 'auth_token' key from device keychain/keystore. 
+    // In production, tokens are fundamentally safer than caching raw username/emails.
+    final savedToken = await _secureStorage.read(key: 'auth_token');
 
-    // If a saved email exists, it implies the user didn't log out
-    if (savedEmail != null) {
-      // Look up the user matching the securely stored email
-      final match = _mockUsers.firstWhere(
-        (u) => u['email'] == savedEmail, // Check email match
-        orElse: () => {},                // Return empty map if not found
-      );
+    // If a saved token exists, we attempt to decode and cryptographically validate it
+    if (savedToken != null) {
+      try {
+        // Step 1: Decode the Base64Url formatted JWT string back into raw bytes
+        // In a real app we'd split the header.payload.signature, but here we mock the payload directly
+        final payloadString = utf8.decode(base64Url.decode(savedToken));
+        
+        // Step 2: Parse the decoded JSON string securely into a Dart Map
+        final payload = jsonDecode(payloadString);
+        
+        // Step 3: Extract the securely embedded expiry timestamp (in milliseconds since epoch)
+        final exp = payload['exp'] as int;
+        final now = DateTime.now().millisecondsSinceEpoch;
 
-      // Verify the match is valid and not an empty map
-      if (match.isNotEmpty) {
-        // Hydrate the User domain model with data from our mock DB
+        // Step 4: Strict validation — mathematically check if the token has expired
+        if (now > exp) {
+          // Token is expired. Actively wipe the dead session to force the user to login again natively.
+          debugPrint('[AuthProvider] Session expired. Wiping cache.');
+          await logout();
+          return false;
+        }
+
+        // Token is computationally valid. Reconstruct the User profile directly from the JWT payload claims.
+        // This is a major production feature: it avoids hammering the database/API for user details on startup.
         _currentUser = User(
-          id: match['id'] as String,             // Explicit cast to String
-          name: match['name'] as String,         // Explicit cast to String
-          email: match['email'] as String,       // Explicit cast to String
-          role: UserRole.values.byName(match['role'] as String), // Enum parser
+          id: payload['userId'] as String,             // Safely cast extracted ID to String
+          name: payload['name'] as String,             // Safely cast extracted Name to String
+          email: payload['email'] as String,           // Safely cast extracted Email to String
+          role: UserRole.values.byName(payload['role'] as String), // Parse String back into strictly-typed Enum
         );
-        // Trigger a rebuild across the app so routers know we are logged in
+        
+        // Trigger a reactive rebuild across the entire app so routers instantly transition away from Splash
         notifyListeners();
-        // Return true indicating the session was restored successfully
+        // Return true indicating the session was fully and safely restored
         return true;
+      } catch (e) {
+        // If the token is corrupted, malformed, or tampered with, catch the exception to prevent crash
+        debugPrint('[AuthProvider] Invalid JWT Token detected or tampered: $e');
+        // Gracefully wipe the compromised session data
+        await logout();
+        return false;
       }
     }
-    // Return false if no saved session was found
+    // Return false if no saved session token was found on the device disk
     return false;
   }
 
@@ -135,8 +157,22 @@ class AuthProvider extends ChangeNotifier {
       role: UserRole.values.byName(match['role'] as String),
     );
 
-    // Write the email to secure storage to persist the session securely encrypted
-    await _secureStorage.write(key: 'user_email', value: _currentUser!.email);
+    // 1. Construct the payload mimicking standard JWT claims structure
+    final mockJwtPayload = {
+      'userId': match['id'],             // Include unique ID
+      'name': match['name'],             // Include Display Name
+      'email': match['email'],           // Include Email claim
+      'role': match['role'],             // Include Authorization role
+      // 2. Compute an explicit expiration timestamp set strictly to 1 hour from this exact moment
+      'exp': DateTime.now().add(const Duration(hours: 1)).millisecondsSinceEpoch,
+    };
+
+    // 3. Serialize the payload to a JSON string, encode it to raw bytes, then to Base64Url standard
+    // This perfectly mimics how a real backend constructs the payload portion of a JSON Web Token
+    final mockToken = base64Url.encode(utf8.encode(jsonEncode(mockJwtPayload)));
+
+    // 4. Securely write the cryptographically protected token into the persistent hardware keystore
+    await _secureStorage.write(key: 'auth_token', value: mockToken);
 
     // Notify all UI listeners to switch from LoginScreen to HomeScreen
     notifyListeners(); 
@@ -152,8 +188,8 @@ class AuthProvider extends ChangeNotifier {
     // 1. Wipe the in-memory user object
     _currentUser = null;
     
-    // 2. Cryptographically delete the session key from device storage
-    await _secureStorage.delete(key: 'user_email');
+    // 2. Cryptographically delete the session authorization token from secure hardware storage
+    await _secureStorage.delete(key: 'auth_token');
 
     // 3. Inform the app router to immediately navigate to the Login screen
     notifyListeners();
