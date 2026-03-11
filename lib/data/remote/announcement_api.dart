@@ -1,4 +1,4 @@
-﻿// =============================================================================
+// =============================================================================
 // data/remote/announcement_api.dart
 // =============================================================================
 // CLEAN ARCHITECTURE — Data Layer (Remote)
@@ -19,9 +19,12 @@
 //    which the Provider catches and stores as an error message."
 // =============================================================================
 
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'dart:async';             // Required to intercept TimeoutException during hung networks
+import 'dart:convert';           // Required to serialize raw network strings to JSON graphs
+import 'dart:io';                // Required to natively intercept 'SocketException' on offline devices
+import 'package:http/http.dart' as http; // HTTP client
 
+import '../../core/error/app_exceptions.dart'; // Standardized app exceptions for UI safety
 import '../../domain/models/announcement.dart';
 
 class AnnouncementApi {
@@ -64,26 +67,41 @@ class AnnouncementApi {
   /// }
   /// ```
   Future<List<Announcement>> fetchAnnouncements() async {
+    // 1. Convert the hardcoded string into a parsed universally native URI object
     final uri = Uri.parse(_endpoint);
 
-    // async/await pauses here until the HTTP response arrives.
-    // The rest of the app keeps running (UI stays responsive).
-    final response = await _client.get(uri);
+    try {
+      // 2. Enforce a strict 10-second timeout. If the server doesn't reply, abort the hanging network socket.
+      // This protects the application UI from "spinning forever" if backend servers go down ungracefully.
+      final response = await _client.get(uri).timeout(const Duration(seconds: 10));
 
-    if (response.statusCode == 200) {
-      // jsonDecode converts the raw String body into a Dart List<dynamic>
-      final List<dynamic> jsonList = jsonDecode(response.body) as List<dynamic>;
+      // 3. Mathematically check if the response status is strictly 200 OK.
+      if (response.statusCode == 200) {
+        // 4. Securely decode the string payload assuming the shape is a List structure
+        final List<dynamic> jsonList = jsonDecode(response.body) as List<dynamic>;
 
-      // Map each JSON object to an Announcement domain model.
-      return jsonList
-          .map((json) => Announcement.fromJson(json as Map<String, dynamic>))
-          .toList();
-    } else {
-      // Non-200: surface a readable error so the UI can display it.
-      throw Exception(
-        'Failed to load announcements. '
-        'Status: ${response.statusCode}',
-      );
+        // 5. Initialize iterative map conversion transforming raw un-typed maps into validated Domain model objects
+        return jsonList
+            .map((json) => Announcement.fromJson(json as Map<String, dynamic>))
+            .toList();
+      } else {
+        // 6. Explicitly bundle any bad REST response into our standardized UI-facing exception.
+        throw ServerException('Invalid Response: ${response.statusCode}');
+      }
+    } on SocketException {
+      // 7. Explicitly catch offline devices hitting physical hardware connectivity failures.
+      // We shield the raw native stacktrace by converting it to our domain NetworkException.
+      throw NetworkException();
+    } on TimeoutException {
+      // 8. Explicitly catch our forced 10-second timer expiring, resulting in a Timeout.
+      throw ServerTimeoutException();
+    } catch (e) {
+      // 9. Implement an architectural catch-all for unknown edge cases (like JSON parser failures).
+      // If it's already one of our structured exceptions, immediately bubble it upwards natively.
+      if (e is AppException) rethrow; 
+      
+      // Otherwise, wrap the unrecognized error to guarantee the UI doesn't crash on unhandled types.
+      throw AppException('An unexpected error occurred during fetch.');
     }
   }
 }
