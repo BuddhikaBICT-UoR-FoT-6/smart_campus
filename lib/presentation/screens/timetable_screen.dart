@@ -34,9 +34,37 @@ class TimetableScreen extends StatelessWidget {
 
     // ---------- Error ----------
     if (provider.errorMessage != null) {
+      // 1. If an error is detected, bypass the main UI rendering and surface the Error boundary
       return Center(
-        child: Text(provider.errorMessage!,
-            style: const TextStyle(color: AppTheme.textSecondary)),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 2. Render a visually commanding error icon to signal immediate system failure
+              const Icon(Icons.error_outline_rounded,
+                  size: 56, color: AppTheme.textSecondary),
+              const SizedBox(height: 16),
+              // 3. Output the exact exception message bubbled up from the Provider layer
+              Text(
+                provider.errorMessage!,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: AppTheme.textSecondary),
+              ),
+              const SizedBox(height: 20),
+              // 4. Implement a distinct Retry button to fulfill Tri-State bounds requirement
+              ElevatedButton.icon(
+                icon: const Icon(Icons.refresh),
+                label: const Text('Retry'),
+                onPressed: () {
+                  // 5. Safely extract the globally authenticated UserId to re-trigger the data fetch
+                  final userId = context.read<AuthProvider>().currentUser?.id ?? '';
+                  context.read<TimetableProvider>().loadTimetable(userId);
+                },
+              ),
+            ],
+          ),
+        ),
       );
     }
 
