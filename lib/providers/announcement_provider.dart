@@ -48,6 +48,9 @@ class AnnouncementProvider extends ChangeNotifier {
   List<Announcement> _announcements = [];
   bool _isLoading = false;
   String? _errorMessage;
+  
+  // 1. Maintain a memory cache timestamp. This prevents the app from hammering external APIs on tab switches.
+  DateTime? _lastFetchTime;
 
   // Public getters — widgets read these, never access _private fields directly
   List<Announcement> get announcements => List.unmodifiable(_announcements);
@@ -66,13 +69,29 @@ class AnnouncementProvider extends ChangeNotifier {
   ///   3a. On success: store list, isLoading = false
   ///   3b. On failure: store error message, isLoading = false
   ///   4. notifyListeners() in both cases so UI updates
-  Future<void> fetchAnnouncements() async {
+  /// 
+  /// The [forceRefresh] flag bypasses the 5-minute memory cache constraint.
+  Future<void> fetchAnnouncements({bool forceRefresh = false}) async {
+    // 2. Performance Engineering: Ensure we do not refetch if data is < 5 minutes old
+    if (!forceRefresh && _lastFetchTime != null) {
+      final age = DateTime.now().difference(_lastFetchTime!);
+      if (age.inMinutes < 5) {
+        // Cache is considered warm and strictly valid. Skip network processing.
+        debugPrint('[AnnouncementProvider] Cache warm (${age.inSeconds}s old). Skipping API.');
+        return;
+      }
+    }
+
+    // 3. Purge existing UI states to immediately display loading boundary
     _isLoading = true;
     _errorMessage = null;
     notifyListeners(); // triggers loading spinner in UI
 
     try {
+      // 4. Delegate to the architectural Use-Case bridging the Domain block
       _announcements = await _getAnnouncements();
+      // 5. Success! Record the atomic timestamp to strictly anchor the new 5-minute cache lifespan
+      _lastFetchTime = DateTime.now();
     } catch (e) {
       // Surface a user-friendly message, log the technical detail
       _errorMessage = 'Could not load announcements. Check your connection.';

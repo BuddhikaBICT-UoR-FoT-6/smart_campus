@@ -51,7 +51,8 @@ class AnnouncementsScreen extends StatelessWidget {
                 icon: const Icon(Icons.refresh),
                 label: const Text('Retry'),
                 onPressed: () =>
-                    context.read<AnnouncementProvider>().fetchAnnouncements(),
+                    // Allow the user to manually overcome broken caches during an error bounds failure
+                    context.read<AnnouncementProvider>().fetchAnnouncements(forceRefresh: true),
               ),
             ],
           ),
@@ -86,7 +87,8 @@ class AnnouncementsScreen extends StatelessWidget {
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: () =>
-            context.read<AnnouncementProvider>().fetchAnnouncements(),
+            // Force the underlying Provider to ignore the 5 minute strict bounds and fetch newest payload
+            context.read<AnnouncementProvider>().fetchAnnouncements(forceRefresh: true),
         child: content,
       ),
       floatingActionButton: isStaff
