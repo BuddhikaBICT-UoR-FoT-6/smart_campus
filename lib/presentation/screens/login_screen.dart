@@ -19,6 +19,7 @@ import 'package:provider/provider.dart';
 
 import '../../app/routes.dart';
 import '../../app/theme.dart';
+import '../../app/constants.dart'; // 1. Added structured production constants import
 import '../../providers/auth_provider.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -80,53 +81,56 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 40),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // ---------- Logo / branding ----------
-                Center(
-                  child: Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      color: AppTheme.primary,
-                      borderRadius: BorderRadius.circular(20),
+            // 2. Refactored hardcoded numeric borders mapping to symmetric AppSpacing architectures
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.xxl),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ---------- Logo / branding ----------
+                  Center(
+                    child: Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        color: AppTheme.primary,
+                        // 3. Implemented consistent radiuses mapped to AppSizes
+                        borderRadius: BorderRadius.circular(AppSizes.cardRadius),
+                      ),
+                      child: const Icon(Icons.school,
+                          color: AppTheme.onPrimary, size: 44),
                     ),
-                    child: const Icon(Icons.school,
-                        color: AppTheme.onPrimary, size: 44),
                   ),
-                ),
-                const SizedBox(height: 28),
+                  const SizedBox(height: AppSpacing.lg), // Refactored magic number
 
-                const Text(
-                  'Smart Campus',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.textPrimary,
+                  const Text(
+                    // 4. Refactored bare string to unified system string mapping
+                    AppStrings.appName,
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.textPrimary,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 6),
-                const Text(
-                  'Sign in to continue',
-                  style: TextStyle(
-                      fontSize: 15, color: AppTheme.textSecondary),
-                ),
-                const SizedBox(height: 36),
+                  const SizedBox(height: AppSpacing.sm), // Refactored magic number
+                  const Text(
+                    'Sign in to continue',
+                    style: TextStyle(
+                        fontSize: 15, color: AppTheme.textSecondary),
+                  ),
+                  const SizedBox(height: AppSpacing.xl), // Refactored magic number
 
-                // ---------- Email ----------
-                TextFormField(
-                  controller: _emailCtrl,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(
-                    labelText: 'Email address',
-                    prefixIcon: Icon(Icons.email_outlined),
-                  ),
-                  validator: (v) {
-                    // 1. Immediately reject null or empty strings
+                  // ---------- Email ----------
+                  TextFormField(
+                    controller: _emailCtrl,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: const InputDecoration(
+                      labelText: 'Email address',
+                      prefixIcon: Icon(Icons.email_outlined),
+                    ),
+                    validator: (v) {
+                      // 1. Immediately reject null or empty strings
                     if (v == null || v.trim().isEmpty) return 'Enter a valid email';
                     
                     // 2. Define a production-grade Regex pattern for RFC 5322 standard email validation
@@ -142,7 +146,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 16),
+                // 6. Replacing spacer magic integers with structured logical spacing increments
+                const SizedBox(height: AppSpacing.md),
 
                 // ---------- Password ----------
                 TextFormField(
