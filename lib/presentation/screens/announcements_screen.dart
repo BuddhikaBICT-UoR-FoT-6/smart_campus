@@ -17,6 +17,7 @@ import '../../domain/models/user.dart';
 import '../../providers/announcement_provider.dart';
 import '../widgets/announcement_card.dart';
 import '../../app/theme.dart';
+import 'package:shimmer/shimmer.dart'; // Extracted package for advanced loading skeletons
 
 class AnnouncementsScreen extends StatelessWidget {
   const AnnouncementsScreen({super.key});
@@ -27,7 +28,24 @@ class AnnouncementsScreen extends StatelessWidget {
 
     // ---------- Loading ----------
     if (provider.isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      // 1. We completely rip out the legacy `CircularProgressIndicator` which causes "jumpy" UI rendering.
+      // Instead, we use `Shimmer` skeletons to outline the structural bounds of the incoming DOM elements.
+      return ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: 5, // 2. Render exactly 5 ghost elements to fill standard screen vertical real-estate
+        itemBuilder: (_, __) => Shimmer.fromColors(
+          baseColor: AppTheme.primary.withValues(alpha: 0.1), // 3. Tint the base wireframe using brand language
+          highlightColor: AppTheme.onPrimary,                 // 4. Highlight sweep geometry mapped to light mode colors
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            height: 110, // 5. Hardcoded mock height matching the geometric footprint of an AnnouncementCard
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16), // 6. Card Radiuses enforced on ghost components
+            ),
+          ),
+        ),
+      );
     }
 
     // ---------- Error ----------

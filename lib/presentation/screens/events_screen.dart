@@ -18,6 +18,7 @@ import '../../providers/auth_provider.dart';
 import '../../domain/models/event.dart';
 import '../../app/routes.dart';
 import '../../app/theme.dart';
+import 'package:shimmer/shimmer.dart'; // Advanced declarative skeleton framework component package
 
 class EventsScreen extends StatelessWidget {
   const EventsScreen({super.key});
@@ -28,7 +29,23 @@ class EventsScreen extends StatelessWidget {
 
     // ---------- Loading ----------
     if (provider.isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      // 1. Implementing structural Shimmer lists prevents Layout Shift (CLS) when network payloads eventually resolve
+      return ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: 4, // 2. Generating 4 synthetic event blocks
+        itemBuilder: (_, __) => Shimmer.fromColors(
+          baseColor: AppTheme.primary.withValues(alpha: 0.08), // 3. Base wireframe layout color bounds mapped to theme
+          highlightColor: Colors.white, // 4. White flash overlay mapping
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            height: 180, // 5. Simulating the much larger 180px height footprint of an Event Card vs an Announcement
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+        ),
+      );
     }
 
     // ---------- Error ----------
