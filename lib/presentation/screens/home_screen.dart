@@ -18,10 +18,10 @@ import '../../providers/auth_provider.dart';
 import '../../providers/announcement_provider.dart';
 import '../../providers/event_provider.dart';
 import '../../providers/timetable_provider.dart';
-import '../../app/routes.dart';
 import 'announcements_screen.dart';
 import 'timetable_screen.dart';
 import 'events_screen.dart';
+import 'profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -41,6 +41,8 @@ class _HomeScreenState extends State<HomeScreen> {
         activeIcon: Icons.calendar_month),
     _TabItem(label: 'Events', icon: Icons.event_outlined,
         activeIcon: Icons.event),
+    _TabItem(label: 'Profile', icon: Icons.person_outline,
+        activeIcon: Icons.person),
   ];
 
   @override
@@ -69,6 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
     AnnouncementsScreen(),
     TimetableScreen(),
     EventsScreen(),
+    ProfileScreen(),
   ];
 
   // ---------------------------------------------------------------------------
@@ -76,45 +79,10 @@ class _HomeScreenState extends State<HomeScreen> {
   // ---------------------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
-    final user = context.watch<AuthProvider>().currentUser;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Smart Campus'),
-        actions: [
-          // User avatar + name
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: Row(
-              children: [
-                if (user != null)
-                  Text(
-                    user.name.split(' ').first, // first name only
-                    style: const TextStyle(
-                        fontSize: 14, color: AppTheme.onPrimary),
-                  ),
-                const SizedBox(width: 6),
-                CircleAvatar(
-                  radius: 16,
-                  backgroundColor: AppTheme.onPrimary.withValues(alpha: 0.2),
-                  child: const Icon(Icons.person,
-                      size: 18, color: AppTheme.onPrimary),
-                ),
-              ],
-            ),
-          ),
-          // Logout
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: 'Log out',
-            onPressed: () {
-              // Clear providers then go back to login
-              context.read<AuthProvider>().logout();
-              context.read<EventProvider>().reset();
-              Navigator.pushReplacementNamed(context, AppRoutes.login);
-            },
-          ),
-        ],
+        // AppBar logout removed — now handled in ProfileScreen
       ),
 
       // IndexedStack keeps all screens mounted — tab switches are instant

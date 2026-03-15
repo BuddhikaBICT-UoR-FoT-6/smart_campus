@@ -39,18 +39,31 @@ class EventsScreen extends StatelessWidget {
       );
     }
 
-    // ---------- Empty ----------
+    // ---------- Main Content ----------
+    Widget content;
     if (provider.events.isEmpty) {
-      return const Center(
-          child: Text('No upcoming events.',
-              style: TextStyle(color: AppTheme.textSecondary)));
+      content = ListView(
+        children: const [
+          SizedBox(height: 100),
+          Center(
+              child: Text('No upcoming events.',
+                  style: TextStyle(color: AppTheme.textSecondary))),
+        ],
+      );
+    } else {
+      content = ListView.builder(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        itemCount: provider.events.length,
+        itemBuilder: (_, i) => _EventCard(event: provider.events[i]),
+      );
     }
 
-    // ---------- List ----------
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      itemCount: provider.events.length,
-      itemBuilder: (_, i) => _EventCard(event: provider.events[i]),
+    return RefreshIndicator(
+      onRefresh: () {
+        final userId = context.read<AuthProvider>().currentUser?.id ?? '';
+        return context.read<EventProvider>().loadEvents(userId);
+      },
+      child: content,
     );
   }
 }
