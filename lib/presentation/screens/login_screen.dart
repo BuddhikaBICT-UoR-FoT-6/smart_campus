@@ -186,37 +186,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           style: TextStyle(fontSize: 16)),
                 ),
 
-                const SizedBox(height: 36),
-
-                // ---------- Demo credentials hint ----------
-                Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: AppTheme.secondary.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                        color: AppTheme.secondary.withValues(alpha: 0.3)),
-                  ),
-                  child: const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Demo credentials',
-                          style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13,
-                              color: AppTheme.primary)),
-                      SizedBox(height: 6),
-                      Text('Student: student@campus.lk / 1234',
-                          style: TextStyle(
-                              fontSize: 12,
-                              color: AppTheme.textSecondary)),
-                      Text('Staff:   staff@campus.lk / 1234',
-                          style: TextStyle(
-                              fontSize: 12,
-                              color: AppTheme.textSecondary)),
-                    ],
-                  ),
-                ),
               ],
             ),
           ),
@@ -225,3 +194,4 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+
