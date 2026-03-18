@@ -24,6 +24,7 @@ import 'dart:convert';           // Required to serialize raw network strings to
 import 'dart:io';                // Required to natively intercept 'SocketException' on offline devices
 import 'package:http/http.dart' as http; // HTTP client
 
+import '../../app/config.dart'; // 1. Inject Environment Flavor bindings
 import '../../core/error/app_exceptions.dart'; // Standardized app exceptions for UI safety
 import '../../domain/models/announcement.dart';
 
@@ -42,10 +43,11 @@ class AnnouncementApi {
   // API Endpoint
   // ---------------------------------------------------------------------------
 
-  static const String _baseUrl = 'https://jsonplaceholder.typicode.com';
+  // 2. Remove hardcoded Dev URL and point strictly to the dynamic compiled Environment Config
+  static String get _baseUrl => AppConfig.apiBaseUrl;
 
-  // Limit to 10 posts so the list doesn't overwhelm the screen.
-  static const String _endpoint = '$_baseUrl/posts?_limit=10';
+  // 3. Build the endpoint dynamically combining Flavor Host and Route parameters
+  static String get _endpoint => '$_baseUrl/posts?_limit=10';
 
   // ---------------------------------------------------------------------------
   // Fetch
