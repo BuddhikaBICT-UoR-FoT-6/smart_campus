@@ -1,0 +1,38 @@
+name: Smart Campus Production CI/CD
+
+# 1. Trigger the workflow dynamically on any merge into the master deployment branch
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  build_test_release:
+    # 2. Execute on isolated pristine cloud hardware
+    runs-on: ubuntu-latest
+
+    steps:
+    # 3. Pull the specific architectural commit
+    - uses: actions/checkout@v4
+    
+    # 4. Inject the Flutter framework directly into the Runner
+    - uses: subosito/flutter-action@v2
+      with:
+        channel: 'stable'
+        
+    # 5. Hydrate the pubspec.yaml lockfiles
+    - name: Resolve project dependencies
+      run: flutter pub get
+      
+    # 6. Strictly enforce Dart linting rules (fail build if warnings exist)
+    - name: Verify architectural consistency
+      run: flutter analyze
+      
+    # 7. Execute all core logic tests to prevent regression
+    - name: Execute Domain Unit Tests
+      run: flutter test
+      
+    # 8. Compile the final obfuscated binary mapped to the 'prod' Flavor
+    - name: Build Android Deployment Artifact
+      run: flutter build apk --release --obfuscate --split-debug-info=./debug_info --dart-define=ENV=prod
