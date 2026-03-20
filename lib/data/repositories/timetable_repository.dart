@@ -1,4 +1,4 @@
-﻿// =============================================================================
+// =============================================================================
 // data/repositories/timetable_repository.dart
 // =============================================================================
 // CLEAN ARCHITECTURE — Data Layer (Repository Implementation)
@@ -14,16 +14,16 @@
 //    WHERE to get it from. Right now it uses the local DAO."
 // =============================================================================
 
-import '../../data/local/timetable_dao.dart';
+import '../../data/remote/mysql_timetable_dao.dart';
 import '../../domain/models/timetable_entry.dart';
 
 class TimetableRepository {
-  final TimetableDao _dao;
+  final MysqlTimetableDao _dao;
 
-  TimetableRepository({TimetableDao? dao})
-      : _dao = dao ?? TimetableDao();
+  TimetableRepository({MysqlTimetableDao? dao})
+      : _dao = dao ?? MysqlTimetableDao();
 
-  /// Delegates to [TimetableDao] to get all timetable entries for [userId].
+  /// Delegates to [MysqlTimetableDao] to get all timetable entries for [userId] from MySQL.
   Future<List<TimetableEntry>> getTimetableForUser(String userId) {
     return _dao.getEntriesForUser(userId);
   }

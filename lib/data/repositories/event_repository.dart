@@ -7,13 +7,13 @@
 //   All event and registration data operations, delegated to [EventDao].
 // =============================================================================
 
-import '../../data/local/event_dao.dart';
+import '../../data/remote/mysql_event_dao.dart';
 import '../../domain/models/event.dart';
 
 class EventRepository {
-  final EventDao _dao;
+  final MysqlEventDao _dao;
 
-  EventRepository({EventDao? dao}) : _dao = dao ?? EventDao();
+  EventRepository({MysqlEventDao? dao}) : _dao = dao ?? MysqlEventDao();
 
   /// Returns all campus events stored locally.
   Future<List<Event>> getAllEvents() => _dao.getAllEvents();
