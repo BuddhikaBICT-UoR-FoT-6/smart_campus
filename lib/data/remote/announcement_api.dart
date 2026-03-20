@@ -26,6 +26,7 @@ import 'package:http/http.dart' as http; // HTTP client
 
 import '../../app/config.dart'; // 1. Inject Environment Flavor bindings
 import '../../core/error/app_exceptions.dart'; // Standardized app exceptions for UI safety
+import '../../core/telemetry/crashlytics_service.dart'; // Inject Telemetry
 import '../../domain/models/announcement.dart';
 
 class AnnouncementApi {
@@ -102,6 +103,9 @@ class AnnouncementApi {
       // If it's already one of our structured exceptions, immediately bubble it upwards natively.
       if (e is AppException) rethrow; 
       
+      // 9.5 Send unknown edge cases critically to telemetry servers before UI crashes
+      CrashlyticsService.logCrash(e, StackTrace.current);
+
       // Otherwise, wrap the unrecognized error to guarantee the UI doesn't crash on unhandled types.
       throw AppException('An unexpected error occurred during fetch.');
     }
