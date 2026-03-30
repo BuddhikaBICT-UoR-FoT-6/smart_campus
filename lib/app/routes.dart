@@ -29,6 +29,7 @@ import '../presentation/screens/admin/admin_dashboard_screen.dart';
 import '../presentation/screens/admin/user_management_screen.dart';
 import '../presentation/screens/admin/calendar_admin_screen.dart';
 import '../presentation/screens/admin/reporting_screen.dart';
+import '../presentation/screens/admin/event_admin_screen.dart';
 
 class AppRoutes {
   AppRoutes._(); // prevent instantiation — utility class
@@ -80,7 +81,7 @@ class AppRoutes {
       adminCalendar: (context) => const CalendarAdminScreen(),
       adminReporting: (context) => const ReportingScreen(),
       adminTimetable: (context) => const Scaffold(body: Center(child: Text('Timetable Admin Placeholder'))),
-      adminEvents:    (context) => const Scaffold(body: Center(child: Text('Events Admin Placeholder'))),
+      adminEvents:    (context) => const EventAdminScreen(),
       adminResults:   (context) => const Scaffold(body: Center(child: Text('Results Admin Placeholder'))),
       adminAnnouncements: (context) => const Scaffold(body: Center(child: Text('Announcements Admin Placeholder'))),
       adminConfig:    (context) => const Scaffold(body: Center(child: Text('System Config Placeholder'))),
