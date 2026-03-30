@@ -40,6 +40,14 @@ class EventDao {
     return rows.map((row) => Event.fromMap(row)).toList();
   }
 
+  /// Returns a single event by its [id].
+  Future<Event?> getEventById(String id) async {
+    final db = await _dbHelper.database;
+    final rows = await db.query('events', where: 'id = ?', whereArgs: [id]);
+    if (rows.isEmpty) return null;
+    return Event.fromMap(rows.first);
+  }
+
   // ---------------------------------------------------------------------------
   // Registrations — Read
   // ---------------------------------------------------------------------------
@@ -91,5 +99,46 @@ class EventDao {
       },
       conflictAlgorithm: ConflictAlgorithm.ignore,
     );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Events — Write (Admin/Staff)
+  // ---------------------------------------------------------------------------
+
+  Future<void> insertEvent(Event event) async {
+    final db = await _dbHelper.database;
+    await db.insert(
+      'events',
+      event.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<void> updateEvent(Event event) async {
+    final db = await _dbHelper.database;
+    await db.update(
+      'events',
+      event.toMap(),
+      where: 'id = ?',
+      whereArgs: [event.id],
+    );
+  }
+
+  Future<void> deleteEvent(String id) async {
+    final db = await _dbHelper.database;
+    await db.delete(
+      'events',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  /// Returns registration count for a specific event.
+  Future<int> getRegistrationCount(String eventId) async {
+    final db = await _dbHelper.database;
+    final result = await db.rawQuery(
+        'SELECT COUNT(*) as count FROM registrations WHERE eventId = ?',
+        [eventId]);
+    return Sqflite.firstIntValue(result) ?? 0;
   }
 }

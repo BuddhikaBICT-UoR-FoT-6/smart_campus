@@ -1,4 +1,4 @@
-﻿// =============================================================================
+// =============================================================================
 // data/local/timetable_dao.dart
 // =============================================================================
 // CLEAN ARCHITECTURE — Data Layer (Local)
@@ -36,8 +36,8 @@ class TimetableDao {
 
     final rows = await db.query(
       'timetable',
-      where: 'userId = ?',
-      whereArgs: [userId],
+      where: 'userId = ? OR userId = ?',
+      whereArgs: [userId, 'all'],
       orderBy: 'dayOfWeek ASC, startTime ASC', // deterministic sort order
     );
 
@@ -56,6 +56,25 @@ class TimetableDao {
       'timetable',
       entry.toMap(),
       conflictAlgorithm: ConflictAlgorithm.ignore,
+    );
+  }
+
+  Future<void> updateEntry(TimetableEntry entry) async {
+    final db = await _dbHelper.database;
+    await db.update(
+      'timetable',
+      entry.toMap(),
+      where: 'id = ?',
+      whereArgs: [entry.id],
+    );
+  }
+
+  Future<void> deleteEntry(String id) async {
+    final db = await _dbHelper.database;
+    await db.delete(
+      'timetable',
+      where: 'id = ?',
+      whereArgs: [id],
     );
   }
 }

@@ -47,12 +47,16 @@ class TimetableProvider extends ChangeNotifier {
     }
   }
 
-  void addEntry(TimetableEntry entry) {
+  final TimetableRepository _repository = TimetableRepository();
+
+  void addEntry(TimetableEntry entry) async {
+    await _repository.insertEntry(entry);
     _entries = [..._entries, entry];
     notifyListeners();
   }
 
-  void updateEntry(TimetableEntry entry) {
+  void updateEntry(TimetableEntry entry) async {
+    await _repository.updateEntry(entry);
     final i = _entries.indexWhere((e) => e.id == entry.id);
     if (i != -1) {
       _entries[i] = entry;
@@ -60,7 +64,8 @@ class TimetableProvider extends ChangeNotifier {
     }
   }
 
-  void deleteEntry(String id) {
+  void deleteEntry(String id) async {
+    await _repository.deleteEntry(id);
     _entries.removeWhere((e) => e.id == id);
     notifyListeners();
   }

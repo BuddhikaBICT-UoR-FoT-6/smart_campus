@@ -29,4 +29,12 @@ class EventRepository {
   /// Returns the set of all event IDs that [userId] has registered for.
   Future<Set<String>> getRegisteredEventIds(String userId) =>
       _dao.getRegisteredEventIds(userId);
+
+  Future<void> insertEvent(Event event) => _dao.insertEvent(event);
+
+  Future<void> updateEvent(Event event) => _dao.updateEvent(event);
+
+  Future<void> deleteEvent(String id) => _dao.deleteEvent(id);
+
+  Future<int> getRegistrationCount(String eventId) => _dao.getRegistrationCount(eventId);
 }

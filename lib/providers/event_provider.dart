@@ -108,13 +108,15 @@ class EventProvider extends ChangeNotifier {
 
   int getRegistrationCount(String eventId) => _registrationCounts[eventId] ?? 0;
 
-  void createEvent(Event event) {
+  Future<void> createEvent(Event event) async {
+    await _repository.insertEvent(event);
     _events = [event, ..._events];
     _registrationCounts[event.id] = 0;
     notifyListeners();
   }
 
-  void updateEvent(Event event) {
+  Future<void> updateEvent(Event event) async {
+    await _repository.updateEvent(event);
     final i = _events.indexWhere((e) => e.id == event.id);
     if (i != -1) {
       _events[i] = event;
@@ -122,7 +124,8 @@ class EventProvider extends ChangeNotifier {
     }
   }
 
-  void deleteEvent(String eventId) {
+  Future<void> deleteEvent(String eventId) async {
+    await _repository.deleteEvent(eventId);
     _events.removeWhere((e) => e.id == eventId);
     _registrationCounts.remove(eventId);
     notifyListeners();

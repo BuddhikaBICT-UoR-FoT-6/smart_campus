@@ -27,4 +27,11 @@ class TimetableRepository {
   Future<List<TimetableEntry>> getTimetableForUser(String userId) {
     return _dao.getEntriesForUser(userId);
   }
+
+  Future<void> insertEntry(TimetableEntry entry) => _dao.insertEntry(entry);
+
+  Future<void> updateEntry(TimetableEntry entry) => _dao.updateEntry(entry);
+
+  Future<void> deleteEntry(String id) => _dao.deleteEntry(id);
+}
 }
