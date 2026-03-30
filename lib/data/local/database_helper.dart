@@ -67,10 +67,10 @@ class DatabaseHelper {
 
     return openDatabase(
       fullPath,
-      version: 5,
+      version: 6,
       onCreate: _onCreate,
       onUpgrade: (db, oldV, newV) async {
-        if (oldV < 5) {
+        if (oldV < 6) {
           // Destructive upgrade for demo
           await db.execute('DROP TABLE IF EXISTS timetable');
           await db.execute('DROP TABLE IF EXISTS users');
@@ -170,7 +170,8 @@ class DatabaseHelper {
         description TEXT NOT NULL,
         date        TEXT NOT NULL,
         venue       TEXT NOT NULL,
-        organizer   TEXT NOT NULL
+        organizer   TEXT NOT NULL,
+        capacity    INTEGER DEFAULT 50
       )
     ''');
 
@@ -331,6 +332,7 @@ class DatabaseHelper {
         date: '2026-03-10',
         venue: 'Main Auditorium',
         organizer: 'Student Affairs',
+        capacity: 200,
       ),
       Event(
         id: 'evt-002',
@@ -339,6 +341,7 @@ class DatabaseHelper {
         date: '2026-04-05',
         venue: 'Engineering Block, Level 2',
         organizer: 'Faculty of Technology',
+        capacity: 300,
       ),
       Event(
         id: 'evt-003',
@@ -347,6 +350,7 @@ class DatabaseHelper {
         date: '2026-05-20',
         venue: 'Sports Complex',
         organizer: 'Career Guidance Unit',
+        capacity: 500,
       ),
     ];
     for (final event in events) {

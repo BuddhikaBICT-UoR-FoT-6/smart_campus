@@ -1,4 +1,4 @@
-﻿// =============================================================================
+// =============================================================================
 // domain/models/event.dart
 // =============================================================================
 // CLEAN ARCHITECTURE — Domain Layer
@@ -26,6 +26,7 @@ class Event {
   final String date;
   final String venue;
   final String organizer;
+  final int capacity;
 
   const Event({
     required this.id,
@@ -34,6 +35,7 @@ class Event {
     required this.date,
     required this.venue,
     required this.organizer,
+    this.capacity = 50,
   });
 
   // ---------------------------------------------------------------------------
@@ -48,6 +50,7 @@ class Event {
       'date': date,
       'venue': venue,
       'organizer': organizer,
+      'capacity': capacity,
     };
   }
 
@@ -59,6 +62,7 @@ class Event {
       date: map['date'] as String,
       venue: map['venue'] as String,
       organizer: map['organizer'] as String,
+      capacity: map['capacity'] as int? ?? 50,
     );
   }
 

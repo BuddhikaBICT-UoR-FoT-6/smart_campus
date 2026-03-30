@@ -116,7 +116,7 @@ class _EventAdminScreenState extends State<EventAdminScreen> {
                 venue: venueCtrl.text,
                 date: dateCtrl.text,
                 capacity: int.tryParse(capacityCtrl.text) ?? 50,
-                organizerId: event?.organizerId ?? context.read<AuthProvider>().currentUser?.id ?? 'admin',
+                organizer: event?.organizer ?? context.read<AuthProvider>().currentUser?.name ?? 'Admin',
               );
               if (event == null) {
                 context.read<EventProvider>().createEvent(newEvent);

@@ -44,7 +44,8 @@ CREATE TABLE IF NOT EXISTS events (
     description TEXT,
     date VARCHAR(50) NOT NULL,
     venue VARCHAR(100) NOT NULL,
-    organizer VARCHAR(100) NOT NULL
+    organizer VARCHAR(100) NOT NULL,
+    capacity INTEGER DEFAULT 50
 );
 
 -- ----------------------------------------------------------------------------
