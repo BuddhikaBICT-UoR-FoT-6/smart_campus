@@ -27,12 +27,14 @@
 import 'package:flutter/material.dart';
 
 import '../domain/models/announcement.dart';
-import '../domain/usecases/get_announcements.dart';
 import '../data/repositories/announcement_repository.dart';
 import '../core/services/notification_service.dart';
 
 class AnnouncementProvider extends ChangeNotifier {
-  AnnouncementProvider();
+  final AnnouncementRepository _repository;
+
+  AnnouncementProvider({AnnouncementRepository? repository})
+      : _repository = repository ?? AnnouncementRepository();
 
   // ---------------------------------------------------------------------------
   // State
@@ -50,8 +52,6 @@ class AnnouncementProvider extends ChangeNotifier {
   // ---------------------------------------------------------------------------
   // Actions
   // ---------------------------------------------------------------------------
-
-  final AnnouncementRepository _repository = AnnouncementRepository();
 
   /// Fetches announcements from the database.
   Future<void> fetchAnnouncements({bool forceRefresh = false}) async {

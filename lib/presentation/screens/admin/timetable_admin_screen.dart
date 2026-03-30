@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../providers/timetable_provider.dart';
-import '../../../providers/auth_provider.dart';
 import '../../../domain/models/timetable_entry.dart';
 import '../../../domain/models/user.dart';
 import '../../../data/local/database_helper.dart';

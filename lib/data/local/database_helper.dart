@@ -202,6 +202,31 @@ class DatabaseHelper {
         date    TEXT NOT NULL
       )
     ''');
+
+    // Table 6: academic_results
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS academic_results (
+        id       INTEGER PRIMARY KEY AUTOINCREMENT,
+        subject  TEXT NOT NULL,
+        semester INTEGER NOT NULL,
+        grade    TEXT NOT NULL,
+        gpa      REAL NOT NULL,
+        userId   TEXT NOT NULL,
+        FOREIGN KEY (userId) REFERENCES users(id)
+      )
+    ''');
+
+    // Table 7: academic_calendar
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS academic_calendar (
+        id        INTEGER PRIMARY KEY AUTOINCREMENT,
+        weekNumber INTEGER NOT NULL,
+        label     TEXT NOT NULL,
+        type      TEXT NOT NULL,
+        startDate TEXT NOT NULL,
+        endDate   TEXT NOT NULL
+      )
+    ''');
   }
 
   // ---------------------------------------------------------------------------

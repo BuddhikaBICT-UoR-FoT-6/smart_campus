@@ -72,7 +72,7 @@ class CalendarAdminScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<WeekType>(
-                  value: selectedType,
+                  initialValue: selectedType,
                   items: WeekType.values
                       .map((t) => DropdownMenuItem(value: t, child: Text(t.name.toUpperCase())))
                       .toList(),

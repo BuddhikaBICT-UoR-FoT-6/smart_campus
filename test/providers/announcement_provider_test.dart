@@ -1,14 +1,14 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smart_campus/domain/models/announcement.dart';
 import 'package:smart_campus/providers/announcement_provider.dart';
-import 'package:smart_campus/domain/usecases/get_announcements.dart';
+import 'package:smart_campus/data/repositories/announcement_repository.dart';
 
-// 1. We mock the core Use-Case Native boundary
-class MockGetAnnouncements implements GetAnnouncements {
+// 1. We mock the Repository Native boundary
+class MockAnnouncementRepository implements AnnouncementRepository {
   bool shouldThrow = false;
   
   @override
-  Future<List<Announcement>> call() async {
+  Future<List<Announcement>> getAnnouncements() async {
     if (shouldThrow) {
       throw Exception('Mock socket exception');
     }
@@ -22,17 +22,24 @@ class MockGetAnnouncements implements GetAnnouncements {
       ),
     ];
   }
+
+  @override
+  Future<void> insertAnnouncement(Announcement announcement) async {}
+  @override
+  Future<void> updateAnnouncement(Announcement announcement) async {}
+  @override
+  Future<void> deleteAnnouncement(int id) async {}
 }
 
 void main() {
   group('AnnouncementProvider Caching & Error Bounds Validation', () {
     late AnnouncementProvider provider;
-    late MockGetAnnouncements mockUseCase;
+    late MockAnnouncementRepository mockRepo;
 
     setUp(() {
-      mockUseCase = MockGetAnnouncements();
+      mockRepo = MockAnnouncementRepository();
       // Inject the mock dependency via constructor injection architecture
-      provider = AnnouncementProvider(getAnnouncements: mockUseCase);
+      provider = AnnouncementProvider(repository: mockRepo);
     });
 
     test('Initial tri-state bounds are strictly null/false', () {
@@ -56,7 +63,7 @@ void main() {
     });
 
     test('fetchAnnouncements catches explicit thrown errors and routes them to State', () async {
-      mockUseCase.shouldThrow = true;
+      mockRepo.shouldThrow = true;
       
       await provider.fetchAnnouncements();
       

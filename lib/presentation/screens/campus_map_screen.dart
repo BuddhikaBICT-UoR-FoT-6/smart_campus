@@ -78,6 +78,7 @@ class _CampusMapScreenState extends State<CampusMapScreen> {
       // Optionally move camera to user location
       _mapController.move(_currentPosition!, 16.0);
     } catch (e) {
+      debugPrint('Error getting location: $e');
     }
   }
 

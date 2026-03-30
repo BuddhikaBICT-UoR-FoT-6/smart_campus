@@ -11,7 +11,7 @@ class _ConfigAdminScreenState extends State<ConfigAdminScreen> {
   bool _maintenanceMode = false;
   bool _globalNotifications = true;
   bool _allowStudentRegistration = true;
-  String _appVersion = '1.0.0+5';
+  final String _appVersion = '1.0.0+5';
 
   @override
   Widget build(BuildContext context) {
