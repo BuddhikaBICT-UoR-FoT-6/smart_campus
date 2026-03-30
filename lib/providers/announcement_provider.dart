@@ -62,44 +62,22 @@ class AnnouncementProvider extends ChangeNotifier {
   // Actions
   // ---------------------------------------------------------------------------
 
-  /// Fetches announcements from the REST API.
-  ///
-  /// Follows the loading → success/error pattern:
-  ///   1. Set isLoading = true, clear error
-  ///   2. Await use-case result
-  ///   3a. On success: store list, isLoading = false
-  ///   3b. On failure: store error message, isLoading = false
-  ///   4. notifyListeners() in both cases so UI updates
-  /// 
-  /// The [forceRefresh] flag bypasses the 5-minute memory cache constraint.
-  Future<void> fetchAnnouncements({bool forceRefresh = false}) async {
-    // 2. Performance Engineering: Ensure we do not refetch if data is < 5 minutes old
-    if (!forceRefresh && _lastFetchTime != null) {
-      final age = DateTime.now().difference(_lastFetchTime!);
-      if (age.inMinutes < 5) {
-        // Cache is considered warm and strictly valid. Skip network processing.
-        debugPrint('[AnnouncementProvider] Cache warm (${age.inSeconds}s old). Skipping API.');
-        return;
-      }
-    }
+  final AnnouncementRepository _repository = AnnouncementRepository();
 
-    // 3. Purge existing UI states to immediately display loading boundary
+  /// Fetches announcements from the database.
+  Future<void> fetchAnnouncements({bool forceRefresh = false}) async {
     _isLoading = true;
     _errorMessage = null;
-    notifyListeners(); // triggers loading spinner in UI
+    notifyListeners();
 
     try {
-      // 4. Delegate explicit parsing structures natively mapping to the Use-Case abstraction layer
-      _announcements = await _getAnnouncements();
-      // 5. Success! Record the atomic timestamp to strictly anchor the new 5-minute cache lifespan
-      _lastFetchTime = DateTime.now();
+      _announcements = await _repository.getAnnouncements();
     } catch (e) {
-      // Surface a user-friendly message, log the technical detail
-      _errorMessage = 'Could not load announcements. Check your connection.';
+      _errorMessage = 'Could not load announcements.';
       debugPrint('[AnnouncementProvider] Error: $e');
     } finally {
       _isLoading = false;
-      notifyListeners(); // triggers rebuild with data or error
+      notifyListeners();
     }
   }
 
@@ -107,8 +85,7 @@ class AnnouncementProvider extends ChangeNotifier {
   // Mutations
   // ---------------------------------------------------------------------------
 
-  /// Simulates adding a new announcement locally securely mapping offline memory structures
-  void addAnnouncement(String title, String body, String posterName, {bool isUrgent = false}) {
+  Future<void> addAnnouncement(String title, String body, String posterName, {bool isUrgent = false}) async {
     final newId = DateTime.now().millisecondsSinceEpoch;
     final newAnnouncement = Announcement(
       id: newId,
@@ -118,9 +95,8 @@ class AnnouncementProvider extends ChangeNotifier {
       date: DateTime.now().toString().split(' ')[0], // YYYY-MM-DD
     );
 
-    // Insert at top of list
-    _announcements.insert(0, newAnnouncement);
-    notifyListeners();
+    await _repository.insertAnnouncement(newAnnouncement);
+    await fetchAnnouncements();
 
     if (isUrgent) {
       NotificationService().showNotification(
@@ -131,39 +107,28 @@ class AnnouncementProvider extends ChangeNotifier {
     }
   }
 
-  /// Simulates receiving an urgent push notification from the university
   void simulateUrgentAnnouncement() {
-    final title = 'Campus Closure';
-    final body = 'All classes are cancelled today due to severe weather conditions.';
-    
-    addAnnouncement(title, body, 'Adminstration');
-    
-    NotificationService().showNotification(
-      id: DateTime.now().millisecondsSinceEpoch ~/ 1000, 
-      title: '🚨 $title', 
-      body: body,
-    );
+    addAnnouncement('Campus Closure', 'All classes are cancelled today due to severe weather.', 'Administration', isUrgent: true);
   }
 
-  /// Updates an existing announcement locally
-  void updateAnnouncement(int id, String title, String body) {
+  Future<void> updateAnnouncement(int id, String title, String body) async {
     final index = _announcements.indexWhere((a) => a.id == id);
     if (index != -1) {
       final old = _announcements[index];
-      _announcements[index] = Announcement(
+      final updated = Announcement(
         id: old.id,
         title: title,
         body: body,
         postedBy: old.postedBy,
         date: old.date,
       );
-      notifyListeners();
+      await _repository.updateAnnouncement(updated);
+      await fetchAnnouncements();
     }
   }
 
-  /// Deletes an announcement locally
-  void deleteAnnouncement(int id) {
-    _announcements.removeWhere((a) => a.id == id);
-    notifyListeners();
+  Future<void> deleteAnnouncement(int id) async {
+    await _repository.deleteAnnouncement(id);
+    await fetchAnnouncements();
   }
 }

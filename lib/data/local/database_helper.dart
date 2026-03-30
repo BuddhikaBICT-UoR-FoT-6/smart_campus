@@ -67,11 +67,12 @@ class DatabaseHelper {
 
     return openDatabase(
       fullPath,
-      version: 6,
+      version: 7,
       onCreate: _onCreate,
       onUpgrade: (db, oldV, newV) async {
-        if (oldV < 6) {
+        if (oldV < 7) {
           // Destructive upgrade for demo
+          await db.execute('DROP TABLE IF EXISTS announcements');
           await db.execute('DROP TABLE IF EXISTS timetable');
           await db.execute('DROP TABLE IF EXISTS users');
           await db.execute('DROP TABLE IF EXISTS academic_results');
@@ -186,6 +187,17 @@ class DatabaseHelper {
         FOREIGN KEY (userId)  REFERENCES users(id),
         FOREIGN KEY (eventId) REFERENCES events(id),
         UNIQUE (userId, eventId)
+      )
+    ''');
+
+    // Table 5: announcements
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS announcements (
+        id      INTEGER PRIMARY KEY,
+        title   TEXT NOT NULL,
+        body    TEXT NOT NULL,
+        postedBy TEXT NOT NULL,
+        date    TEXT NOT NULL
       )
     ''');
   }
@@ -407,6 +419,34 @@ class DatabaseHelper {
         'startDate': c['start'],
         'endDate': c['end'],
       });
+    }
+
+    // --- 3 Announcements ---
+    final announcementList = [
+      Announcement(
+        id: 101,
+        title: 'University Convocation 2026',
+        body: 'The annual convocation ceremony for all faculties is scheduled for July 15th.',
+        postedBy: 'Registrar Office',
+        date: '2026-03-28',
+      ),
+      Announcement(
+        id: 102,
+        title: 'Semester Results Published',
+        body: 'Results for Semester I examinations are now available on the management system.',
+        postedBy: 'Exam Dept',
+        date: '2026-03-25',
+      ),
+      Announcement(
+        id: 103,
+        title: 'Workshop: AI in Industry',
+        body: 'Join the Faculty of Technology for a guest lecture on Generative AI. Room 402.',
+        postedBy: 'CS Dept',
+        date: '2026-03-20',
+      ),
+    ];
+    for (final a in announcementList) {
+      await db.insert('announcements', a.toMap());
     }
   }
 }

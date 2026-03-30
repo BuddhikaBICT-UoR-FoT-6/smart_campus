@@ -18,6 +18,7 @@ import 'providers/timetable_provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/calendar_provider.dart';
 import 'providers/user_management_provider.dart';
+import 'providers/results_provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,6 +39,7 @@ class SmartCampusApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => TimetableProvider()),
         ChangeNotifierProvider(create: (_) => CalendarProvider()..loadCalendar()),
         ChangeNotifierProvider(create: (_) => UserManagementProvider()),
+        ChangeNotifierProvider(create: (_) => ResultsProvider()),
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {
