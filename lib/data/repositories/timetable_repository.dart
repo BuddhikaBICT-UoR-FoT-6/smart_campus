@@ -34,4 +34,3 @@ class TimetableRepository {
 
   Future<void> deleteEntry(String id) => _dao.deleteEntry(id);
 }
-}

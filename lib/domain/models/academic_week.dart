@@ -5,6 +5,7 @@
 enum WeekType { academic, vacation, exam, result }
 
 class AcademicWeek {
+  final int? id;
   final int number;
   final String label;
   final WeekType type;
@@ -12,6 +13,7 @@ class AcademicWeek {
   final DateTime endDate;
 
   const AcademicWeek({
+    this.id,
     required this.number,
     required this.label,
     required this.type,
@@ -21,6 +23,7 @@ class AcademicWeek {
 
   Map<String, dynamic> toMap() {
     return {
+      if (id != null) 'id': id,
       'number': number,
       'label': label,
       'type': type.name,
@@ -31,6 +34,7 @@ class AcademicWeek {
 
   factory AcademicWeek.fromMap(Map<String, dynamic> map) {
     return AcademicWeek(
+      id: map['id'] as int?,
       number: map['number'] as int,
       label: map['label'] as String,
       type: WeekType.values.byName(map['type'] as String),

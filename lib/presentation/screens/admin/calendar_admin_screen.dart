@@ -23,7 +23,7 @@ class CalendarAdminScreen extends StatelessWidget {
                 return ListTile(
                   leading: CircleAvatar(child: Text(week.number.toString())),
                   title: Text(week.label),
-                  subtitle: Text('${week.type.toUpperCase()} • ${week.startDate.toString().split(' ')[0]} to ${week.endDate.toString().split(' ')[0]}'),
+                  subtitle: Text('${week.type.name.toUpperCase()} • ${week.startDate.toString().split(' ')[0]} to ${week.endDate.toString().split(' ')[0]}'),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -33,7 +33,7 @@ class CalendarAdminScreen extends StatelessWidget {
                       ),
                       IconButton(
                         icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () => provider.deleteWeek(week.id),
+                        onPressed: () => provider.deleteWeek(week.id!),
                       ),
                     ],
                   ),
@@ -50,7 +50,7 @@ class CalendarAdminScreen extends StatelessWidget {
   void _showWeekDialog(BuildContext context, AcademicWeek? week) {
     final labelController = TextEditingController(text: week?.label);
     final numberController = TextEditingController(text: week?.number.toString());
-    String type = week?.type ?? 'academic';
+    WeekType selectedType = week?.type ?? WeekType.academic;
 
     showDialog(
       context: context,
@@ -71,12 +71,12 @@ class CalendarAdminScreen extends StatelessWidget {
                   decoration: const InputDecoration(labelText: 'Label (e.g. Week 01)'),
                 ),
                 const SizedBox(height: 16),
-                DropdownButtonFormField<String>(
-                  value: type,
-                  items: ['academic', 'vacation', 'exam', 'result']
-                      .map((t) => DropdownMenuItem(value: t, child: Text(t.toUpperCase())))
+                DropdownButtonFormField<WeekType>(
+                  value: selectedType,
+                  items: WeekType.values
+                      .map((t) => DropdownMenuItem(value: t, child: Text(t.name.toUpperCase())))
                       .toList(),
-                  onChanged: (val) => setState(() => type = val!),
+                  onChanged: (val) => setState(() => selectedType = val!),
                   decoration: const InputDecoration(labelText: 'Type'),
                 ),
               ],
@@ -87,10 +87,10 @@ class CalendarAdminScreen extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 final newWeek = AcademicWeek(
-                  id: week?.id ?? 0,
+                  id: week?.id,
                   number: int.parse(numberController.text),
                   label: labelController.text,
-                  type: type,
+                  type: selectedType,
                   startDate: week?.startDate ?? DateTime.now(),
                   endDate: week?.endDate ?? DateTime.now().add(const Duration(days: 7)),
                 );
