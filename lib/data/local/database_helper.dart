@@ -67,10 +67,10 @@ class DatabaseHelper {
 
     return openDatabase(
       fullPath,
-      version: 4,
+      version: 5,
       onCreate: _onCreate,
       onUpgrade: (db, oldV, newV) async {
-        if (oldV < 4) {
+        if (oldV < 5) {
           // Destructive upgrade for demo
           await db.execute('DROP TABLE IF EXISTS timetable');
           await db.execute('DROP TABLE IF EXISTS users');
@@ -199,7 +199,6 @@ class DatabaseHelper {
   ///   student@campus.lk / 1234   → role: student
   ///   staff@campus.lk   / 1234   → role: staff
   Future<void> _seedMockData(Database db) async {
-    // --- 2 Mock Users ---
     final users = [
       User(
         id: 'usr-001',
@@ -218,6 +217,15 @@ class DatabaseHelper {
         address: 'Faculty of Engineering, UoR',
         emergencyName: 'Security Desk',
         emergencyPhone: '0412223334',
+      ),
+      User(
+        id: 'usr-003',
+        name: 'Campus Admin',
+        email: 'admin@campus.lk',
+        role: UserRole.superadmin,
+        address: 'Administrative Block, UoR',
+        emergencyName: 'Director Office',
+        emergencyPhone: '0412224444',
       ),
     ];
     for (final u in users) {

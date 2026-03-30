@@ -5,7 +5,7 @@
 // =============================================================================
 
 /// Represents the two roles a person can have in the campus system.
-enum UserRole { student, staff }
+enum UserRole { student, staff, superadmin }
 
 /// Domain entity representing an authenticated campus user.
 class User {

@@ -76,7 +76,8 @@ CREATE TABLE IF NOT EXISTS announcements (
 -- Insert Test Accounts securely mimicking the previously mocked AuthProvider strings
 INSERT INTO users (id, name, email, password, role) VALUES 
 ('usr-001', 'Ashan Perera', 'student@campus.lk', '1234', 'student'),
-('usr-002', 'Dr. Nilufar Silva', 'staff@campus.lk', '1234', 'staff')
+('usr-002', 'Dr. Nilufar Silva', 'staff@campus.lk', '1234', 'staff'),
+('usr-003', 'Campus Admin', 'admin@campus.lk', '1234', 'superadmin')
 ON DUPLICATE KEY UPDATE name=name;
 
 -- Refactored SQLite Timetable insertions safely ported to MySQL
