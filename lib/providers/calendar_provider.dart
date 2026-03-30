@@ -38,4 +38,26 @@ class CalendarProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+  Future<void> addWeek(AcademicWeek week) async {
+    final db = await DatabaseHelper.instance.database;
+    await db.insert('academic_calendar', week.toMap());
+    await loadCalendar();
+  }
+
+  Future<void> updateWeek(AcademicWeek week) async {
+    final db = await DatabaseHelper.instance.database;
+    await db.update(
+      'academic_calendar',
+      week.toMap(),
+      where: 'id = ?',
+      whereArgs: [week.id],
+    );
+    await loadCalendar();
+  }
+
+  Future<void> deleteWeek(int id) async {
+    final db = await DatabaseHelper.instance.database;
+    await db.delete('academic_calendar', where: 'id = ?', whereArgs: [id]);
+    await loadCalendar();
+  }
 }
