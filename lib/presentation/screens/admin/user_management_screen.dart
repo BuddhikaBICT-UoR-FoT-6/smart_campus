@@ -102,7 +102,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<UserRole>(
-                  value: selectedRole,
+                  initialValue: selectedRole,
                   items: UserRole.values
                       .map((role) => DropdownMenuItem(
                             value: role,

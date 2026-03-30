@@ -25,6 +25,8 @@ import 'package:path/path.dart' as p;
 import '../../domain/models/user.dart';
 import '../../domain/models/timetable_entry.dart';
 import '../../domain/models/event.dart';
+import '../../domain/models/announcement.dart';
+import '../../domain/models/academic_result.dart';
 
 class DatabaseHelper {
   // ---------------------------------------------------------------------------

@@ -32,15 +32,7 @@ import '../data/repositories/announcement_repository.dart';
 import '../core/services/notification_service.dart';
 
 class AnnouncementProvider extends ChangeNotifier {
-  // ---------------------------------------------------------------------------
-  // Dependencies (injected via constructor)
-  // ---------------------------------------------------------------------------
-
-  final GetAnnouncements _getAnnouncements;
-
-  AnnouncementProvider({GetAnnouncements? getAnnouncements})
-      : _getAnnouncements =
-            getAnnouncements ?? GetAnnouncements(AnnouncementRepository());
+  AnnouncementProvider();
 
   // ---------------------------------------------------------------------------
   // State
@@ -50,9 +42,6 @@ class AnnouncementProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
   
-  // 1. Maintain a memory cache timestamp. This prevents the app from hammering external APIs on tab switches.
-  DateTime? _lastFetchTime;
-
   // Public getters — widgets read these, never access _private fields directly
   List<Announcement> get announcements => List.unmodifiable(_announcements);
   bool get isLoading => _isLoading;

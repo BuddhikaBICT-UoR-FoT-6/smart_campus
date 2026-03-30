@@ -1,4 +1,4 @@
-﻿// =============================================================================
+// =============================================================================
 // domain/models/announcement.dart
 // =============================================================================
 // CLEAN ARCHITECTURE — Domain Layer
@@ -58,6 +58,30 @@ class Announcement {
       body: (json['body'] as String).trim(),
       postedBy: 'Campus Admin', // mock API has no author field
       date: '2026-02-${(json['id'] as int).clamp(1, 28).toString().padLeft(2, '0')}',
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // SQLite helpers
+  // ---------------------------------------------------------------------------
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'title': title,
+      'body': body,
+      'postedBy': postedBy,
+      'date': date,
+    };
+  }
+
+  factory Announcement.fromMap(Map<String, dynamic> map) {
+    return Announcement(
+      id: map['id'] as int,
+      title: map['title'] as String,
+      body: map['body'] as String,
+      postedBy: map['postedBy'] as String,
+      date: map['date'] as String,
     );
   }
 

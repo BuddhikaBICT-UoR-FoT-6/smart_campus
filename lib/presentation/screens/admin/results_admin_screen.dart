@@ -77,7 +77,7 @@ class _ResultsAdminScreenState extends State<ResultsAdminScreen> {
           leading: const CircleAvatar(child: Icon(Icons.school)),
           title: Text(student.name),
           subtitle: Text(student.email),
-          onPressed: () => _selectStudent(student),
+          onTap: () => _selectStudent(student),
         );
       },
     );
@@ -87,7 +87,7 @@ class _ResultsAdminScreenState extends State<ResultsAdminScreen> {
     return Column(
       children: [
         ListTile(
-          tileColor: Colors.blue.withOpacity(0.1),
+          tileColor: Colors.blue.withValues(alpha: 0.1),
           title: Text('Student: ${_selectedStudent!.name}', style: const TextStyle(fontWeight: FontWeight.bold)),
           subtitle: const Text('Enter and edit grades for this student.'),
         ),

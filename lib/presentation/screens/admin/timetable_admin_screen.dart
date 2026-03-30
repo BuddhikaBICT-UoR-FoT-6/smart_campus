@@ -79,7 +79,7 @@ class _TimetableAdminScreenState extends State<TimetableAdminScreen> {
           title: Text(user.name),
           subtitle: Text('${user.role.name.toUpperCase()} • ${user.email}'),
           trailing: const Icon(Icons.chevron_right),
-          onPressed: () => _selectUser(user),
+          onTap: () => _selectUser(user),
         );
       },
     );
@@ -90,7 +90,7 @@ class _TimetableAdminScreenState extends State<TimetableAdminScreen> {
       children: [
         Container(
           padding: const EdgeInsets.all(16),
-          color: Theme.of(context).primaryColor.withOpacity(0.1),
+          color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
           child: Row(
             children: [
               const Icon(Icons.edit_calendar, color: Colors.blue),
@@ -156,7 +156,7 @@ class _TimetableAdminScreenState extends State<TimetableAdminScreen> {
               children: [
                 TextField(controller: subjectCtrl, decoration: const InputDecoration(labelText: 'Subject')),
                 DropdownButtonFormField<String>(
-                  value: day,
+                  initialValue: day,
                   items: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
                       .map((d) => DropdownMenuItem(value: d, child: Text(d)))
                       .toList(),

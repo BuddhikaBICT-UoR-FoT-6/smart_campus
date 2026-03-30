@@ -46,7 +46,7 @@ class ReportingScreen extends StatelessWidget {
         PieChartData(
           sections: [
             PieChartSectionData(value: 85, title: '85%', color: Colors.green, radius: 50, titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-            PieChartSectionData(value: 15, title: '15%', color: Colors.red.withOpacity(0.7), radius: 50, titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            PieChartSectionData(value: 15, title: '15%', color: Colors.red.withValues(alpha: 0.7), radius: 50, titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           ],
           centerSpaceRadius: 40,
           sectionsSpace: 2,
@@ -102,7 +102,7 @@ class ReportingScreen extends StatelessWidget {
         LineChartData(
           gridData: const FlGridData(show: false),
           titlesData: const FlTitlesData(show: false),
-          borderData: FlBorderData(show: true, border: Border.all(color: Colors.grey.withOpacity(0.2))),
+          borderData: FlBorderData(show: true, border: Border.all(color: Colors.grey.withValues(alpha: 0.2))),
           lineBarsData: [
             LineChartBarData(
               spots: const [
@@ -115,7 +115,7 @@ class ReportingScreen extends StatelessWidget {
               isCurved: true,
               color: Colors.orange,
               barWidth: 4,
-              belowBarData: BarAreaData(show: true, color: Colors.orange.withOpacity(0.1)),
+              belowBarData: BarAreaData(show: true, color: Colors.orange.withValues(alpha: 0.1)),
             ),
           ],
         ),
