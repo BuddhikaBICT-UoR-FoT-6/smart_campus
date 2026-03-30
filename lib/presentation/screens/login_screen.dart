@@ -21,6 +21,7 @@ import '../../app/routes.dart';
 import '../../app/theme.dart';
 import '../../app/constants.dart'; // 1. Added structured production constants import
 import '../../providers/auth_provider.dart';
+import '../../domain/models/user.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -63,8 +64,12 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
 
     if (success) {
-      // Replace login with home so back button doesn't return to login
-      Navigator.pushReplacementNamed(context, AppRoutes.home);
+      final user = auth.currentUser;
+      if (user?.role == UserRole.superadmin) {
+        Navigator.pushReplacementNamed(context, AppRoutes.adminDashboard);
+      } else {
+        Navigator.pushReplacementNamed(context, AppRoutes.home);
+      }
     } else {
       setState(() {
         _isLoading = false;

@@ -25,6 +25,10 @@ import '../presentation/screens/semester_overview_screen.dart';
 import '../presentation/screens/qr_scanner_screen.dart';
 import '../presentation/screens/campus_map_screen.dart';
 import '../presentation/screens/attendee_log_screen.dart';
+import '../presentation/screens/admin/admin_dashboard_screen.dart';
+import '../presentation/screens/admin/user_management_screen.dart';
+import '../presentation/screens/admin/calendar_admin_screen.dart';
+import '../presentation/screens/admin/reporting_screen.dart';
 
 class AppRoutes {
   AppRoutes._(); // prevent instantiation — utility class
@@ -44,6 +48,15 @@ class AppRoutes {
   static const String qrScanner       = '/qr-scanner';
   static const String campusMap       = '/campus-map';
   static const String attendeeLog     = '/attendee-log';
+  static const String adminDashboard  = '/admin/dashboard';
+  static const String adminUsers      = '/admin/users';
+  static const String adminCalendar   = '/admin/calendar';
+  static const String adminReporting  = '/admin/reporting';
+  static const String adminTimetable  = '/admin/timetable';
+  static const String adminEvents     = '/admin/events';
+  static const String adminResults    = '/admin/results';
+  static const String adminAnnouncements = '/admin/announcements';
+  static const String adminConfig     = '/admin/config';
 
   // ---------------------------------------------------------------------------
   // Route map — passed to MaterialApp.routes
@@ -62,6 +75,15 @@ class AppRoutes {
       qrScanner:     (context) => const QrScannerScreen(),
       campusMap:     (context) => const CampusMapScreen(),
       attendeeLog:   (context) => const AttendeeLogScreen(),
+      adminDashboard: (context) => const AdminDashboardScreen(),
+      adminUsers:    (context) => const UserManagementScreen(),
+      adminCalendar: (context) => const CalendarAdminScreen(),
+      adminReporting: (context) => const ReportingScreen(),
+      adminTimetable: (context) => const Scaffold(body: Center(child: Text('Timetable Admin Placeholder'))),
+      adminEvents:    (context) => const Scaffold(body: Center(child: Text('Events Admin Placeholder'))),
+      adminResults:   (context) => const Scaffold(body: Center(child: Text('Results Admin Placeholder'))),
+      adminAnnouncements: (context) => const Scaffold(body: Center(child: Text('Announcements Admin Placeholder'))),
+      adminConfig:    (context) => const Scaffold(body: Center(child: Text('System Config Placeholder'))),
     };
   }
 }
