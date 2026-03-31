@@ -27,19 +27,18 @@
 import 'package:flutter/material.dart';
 
 import '../domain/models/announcement.dart';
-import '../domain/usecases/get_announcements.dart';
-import '../data/repositories/announcement_repository.dart';
+import '../data/remote/mysql_announcement_dao.dart';
 
 class AnnouncementProvider extends ChangeNotifier {
   // ---------------------------------------------------------------------------
   // Dependencies (injected via constructor)
   // ---------------------------------------------------------------------------
 
-  final GetAnnouncements _getAnnouncements;
+  final MysqlAnnouncementDao _dao;
 
-  AnnouncementProvider({GetAnnouncements? getAnnouncements})
-      : _getAnnouncements =
-            getAnnouncements ?? GetAnnouncements(AnnouncementRepository());
+  // Utilize dependency injection securely establishing the Native MySQL boundary
+  AnnouncementProvider({MysqlAnnouncementDao? dao})
+      : _dao = dao ?? MysqlAnnouncementDao();
 
   // ---------------------------------------------------------------------------
   // State
@@ -88,8 +87,8 @@ class AnnouncementProvider extends ChangeNotifier {
     notifyListeners(); // triggers loading spinner in UI
 
     try {
-      // 4. Delegate to the architectural Use-Case bridging the Domain block
-      _announcements = await _getAnnouncements();
+      // 4. Delegate explicit parsing structures to the native MySQL Data Access Object
+      _announcements = await _dao.getAnnouncements();
       // 5. Success! Record the atomic timestamp to strictly anchor the new 5-minute cache lifespan
       _lastFetchTime = DateTime.now();
     } catch (e) {
@@ -106,19 +105,16 @@ class AnnouncementProvider extends ChangeNotifier {
   // Mutations
   // ---------------------------------------------------------------------------
 
-  /// Simulates adding a new announcement locally without an API request.
-  void addAnnouncement(String title, String body, String posterName) {
-    final newId = DateTime.now().millisecondsSinceEpoch;
-    final newAnnouncement = Announcement(
-      id: newId,
-      title: title,
-      body: body,
-      postedBy: posterName,
-      date: DateTime.now().toString().split(' ')[0], // YYYY-MM-DD
-    );
-
-    // Insert at top of list
-    _announcements.insert(0, newAnnouncement);
-    notifyListeners();
+  /// Simulates adding a new announcement locally and strictly pushes physical structures to MySQL
+  Future<void> addAnnouncement(String title, String body, String posterName) async {
+    try {
+      // Execute the native SQL wrapper insert command
+      await _dao.addAnnouncement(title, body, posterName);
+      
+      // Definitively force the cache architecture to flush and pull the newly registered rows
+      await fetchAnnouncements(forceRefresh: true);
+    } catch (e) {
+      debugPrint('[AnnouncementProvider] FATAL DB WRITE FAILED: $e');
+    }
   }
 }
