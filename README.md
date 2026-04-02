@@ -1,4 +1,10 @@
-# Smart Campus Operations System (v2.0.0)
+# Smart Campus Operations System (v2.1.0)
+
+![Flutter Version](https://img.shields.io/badge/Flutter-3.x-blue.svg)
+![License](https://img.shields.io/badge/License-MIT-green.svg)
+![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen.svg)
+![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS-lightgrey.svg)
+![Repo Size](https://img.shields.io/github/repo-size/BuddhikaBICT-UoR-FoT-6/smart_campus)
 
 A production-grade Flutter mobile application spanning architectures empowering university students and staff to comprehensively process timetables, campus announcements, and event registrations seamlessly.
 
