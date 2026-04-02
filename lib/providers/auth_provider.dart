@@ -28,7 +28,6 @@ import 'dart:convert'; // Added for JWT token parsing and serialization algorith
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // Added for production-grade secure storage
 import '../domain/models/user.dart';
-import '../data/remote/mysql_auth_dao.dart'; // Direct dependency injection for Native MySQL logic
 
 class AuthProvider extends ChangeNotifier {
   // ---------------------------------------------------------------------------
@@ -48,11 +47,30 @@ class AuthProvider extends ChangeNotifier {
   bool get isLoggedIn => _currentUser != null;
 
   // ---------------------------------------------------------------------------
-  // MySQL Authentication Engine mapping
+  // Mock credentials (hardcoded — no real server needed for offline Viva execution)
   // ---------------------------------------------------------------------------
-  // We completely strip the legacy `_mockUsers` array replacing it with the instantiated 
-  // Native Database Access Object connecting structurally to MySQL.
-  final MysqlAuthDao _mysqlAuthDao = MysqlAuthDao();
+
+  /// Mock user database. In a real app this would hit a backend API.
+  ///
+  /// Credentials for demonstration / viva:
+  ///   student@campus.lk  / 1234   → Student role
+  ///   staff@campus.lk    / 1234   → Staff role
+  static const List<Map<String, dynamic>> _mockUsers = [
+    {
+      'id': 'usr-001',
+      'name': 'Ashan Perera',
+      'email': 'student@campus.lk',
+      'password': '1234',
+      'role': 'student',
+    },
+    {
+      'id': 'usr-002',
+      'name': 'Dr. Nilufar Silva',
+      'email': 'staff@campus.lk',
+      'password': '1234',
+      'role': 'staff',
+    },
+  ];
 
   // ---------------------------------------------------------------------------
   // Auth operations
@@ -119,23 +137,32 @@ class AuthProvider extends ChangeNotifier {
   /// *Simulates an async operation* with a short delay so the UI can
   /// show a loading spinner — realistic without needing a real server.
   Future<bool> login(String email, String password) async {
-    // 1. Send the strictly formatted credentials into the native MySQL server bounds
-    final authenticatedUser = await _mysqlAuthDao.authenticate(email.trim(), password);
+    // Simulate network latency (300 ms)
+    await Future.delayed(const Duration(milliseconds: 300));
 
-    // 2. Safely capture rejection bounds securely returning to the login router layout
-    if (authenticatedUser == null) {
-      return false; // Invalid credentials
+    final match = _mockUsers.firstWhere(
+      (u) => u['email'] == email.trim() && u['password'] == password,
+      orElse: () => {},
+    );
+
+    if (match.isEmpty) {
+      return false; // invalid credentials
     }
 
-    // 3. Hydrate the runtime state with the live MySQL record properties
-    _currentUser = authenticatedUser;
+    // Hydrate the runtime User object natively mapping static memory boundaries
+    _currentUser = User(
+      id: match['id'] as String,
+      name: match['name'] as String,
+      email: match['email'] as String,
+      role: UserRole.values.byName(match['role'] as String),
+    );
 
-    // 4. Construct the payload mimicking standard JWT claims structure structurally binding to MySQL properties
+    // 4. Construct the payload mimicking standard JWT claims structure structurally binding to Offline properties
     final mockJwtPayload = {
-      'userId': authenticatedUser.id,             
-      'name': authenticatedUser.name,             
-      'email': authenticatedUser.email,           
-      'role': authenticatedUser.role.name, // Extract ENUM safely to native String        
+      'userId': match['id'],             
+      'name': match['name'],             
+      'email': match['email'],           
+      'role': match['role'],
       // 5. Compute an explicit expiration timestamp set strictly to 1 hour from this exact moment
       'exp': DateTime.now().add(const Duration(hours: 1)).millisecondsSinceEpoch,
     };

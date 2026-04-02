@@ -1,14 +1,14 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smart_campus/domain/models/announcement.dart';
 import 'package:smart_campus/providers/announcement_provider.dart';
-import 'package:smart_campus/data/remote/mysql_announcement_dao.dart';
+import 'package:smart_campus/domain/usecases/get_announcements.dart';
 
-// 1. We mock the core DAO Native boundary
-class MockMysqlAnnouncementDao extends MysqlAnnouncementDao {
+// 1. We mock the core Use-Case Native boundary
+class MockGetAnnouncements implements GetAnnouncements {
   bool shouldThrow = false;
   
   @override
-  Future<List<Announcement>> getAnnouncements() async {
+  Future<List<Announcement>> call() async {
     if (shouldThrow) {
       throw Exception('Mock socket exception');
     }
@@ -27,12 +27,12 @@ class MockMysqlAnnouncementDao extends MysqlAnnouncementDao {
 void main() {
   group('AnnouncementProvider Caching & Error Bounds Validation', () {
     late AnnouncementProvider provider;
-    late MockMysqlAnnouncementDao mockDao;
+    late MockGetAnnouncements mockUseCase;
 
     setUp(() {
-      mockDao = MockMysqlAnnouncementDao();
+      mockUseCase = MockGetAnnouncements();
       // Inject the mock dependency via constructor injection architecture
-      provider = AnnouncementProvider(dao: mockDao);
+      provider = AnnouncementProvider(getAnnouncements: mockUseCase);
     });
 
     test('Initial tri-state bounds are strictly null/false', () {
@@ -56,7 +56,7 @@ void main() {
     });
 
     test('fetchAnnouncements catches explicit thrown errors and routes them to State', () async {
-      mockDao.shouldThrow = true;
+      mockUseCase.shouldThrow = true;
       
       await provider.fetchAnnouncements();
       

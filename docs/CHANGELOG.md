@@ -2,6 +2,10 @@
 
 All notable changes to the Smart Campus Operations System will be documented in this file.
 
+## [2.1.0] - SQLite Offline Fallback (2026-04-02)
+### Changed
+- Rolled back overarching MySQL integration layers directly targeting local SQLite routines mapping structural offline bounds smoothly supporting hardware agnostic demonstrations.
+
 ## [2.0.0] - Full Stack Database Migration & App Polish (2026-04-01)
 ### Added
 - Native `mysql1` Dart socket bindings replacing legacy SQLite implementation required for grading specifications.

@@ -16,8 +16,8 @@ lib/
 ├── core/             # Critical Exceptions & Crashlytics Telemetry Logic
 ├── domain/           # Models (pure Dart, no dependencies)
 ├── data/             # Data sources + repository implementations
-│   ├── remote/       # Native bindings executing MySQL Database Queries
-│   └── repositories/ # Bridge mapping MySQL architectures against Domain
+│   ├── local/        # Strict local SQLite boundaries executing offline persistence
+│   └── repositories/ # Bridge mapping repository architectures against Domain
 ├── presentation/     # Flutter UI (Shimmer components heavily integrated)
 │   ├── screens/      # Tri-State isolated screen buffers
 │   └── widgets/      # Reusable UI geometries dynamically sizing
@@ -32,15 +32,14 @@ lib/
 
 ---
 
-## Remote Database (MySQL via `mysql1`)
+## Database (SQLite Offline)
 
 | Table | Purpose |
 |-------|---------|
-| `users` | Securely tracks authenticated system properties safely |
-| `timetable` | Tracks class schedules dynamically mapping back to users |
-| `events` | Structured representation tracking campus routines |
-| `user_events` | Linking table securely binding users against registration events dynamically |
-| `announcements` | Structured architecture retaining communication channels globally |
+| `users` | Authenticated internal memory users |
+| `timetable` | Class schedule bounding FK targets |
+| `events` | Campus events strictly loaded from Data Access Objects |
+| `registrations` | Safely tracked physical student bounds locking logic structurally |
 
 ---
 
