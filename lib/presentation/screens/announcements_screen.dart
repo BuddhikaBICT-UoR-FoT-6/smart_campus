@@ -94,8 +94,18 @@ class AnnouncementsScreen extends StatelessWidget {
       content = ListView.builder(
         padding: const EdgeInsets.symmetric(vertical: 12),
         itemCount: provider.announcements.length,
-        itemBuilder: (_, i) =>
-            AnnouncementCard(announcement: provider.announcements[i]),
+        itemBuilder: (_, i) {
+          final announcement = provider.announcements[i];
+          final user = context.read<AuthProvider>().currentUser;
+          // Rule: Staff can edit/delete if they are the poster or if we want all staff to manage campus feed
+          final canManage = user?.role == UserRole.staff; 
+
+          return AnnouncementCard(
+            announcement: announcement,
+            onEdit: canManage ? () => _showEditAnnouncementDialog(context, announcement) : null,
+            onDelete: canManage ? () => _showDeleteConfirmation(context, announcement.id) : null,
+          );
+        },
       );
     }
 
@@ -190,6 +200,88 @@ class AnnouncementsScreen extends StatelessWidget {
               }
             },
             child: const Text('Publish'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showEditAnnouncementDialog(BuildContext context, Announcement announcement) {
+    final titleController = TextEditingController(text: announcement.title);
+    final bodyController = TextEditingController(text: announcement.body);
+    final formKey = GlobalKey<FormState>();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Edit Announcement'),
+        content: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: titleController,
+                decoration: const InputDecoration(labelText: 'Title'),
+                validator: (v) => v!.isEmpty ? 'Required' : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: bodyController,
+                decoration: const InputDecoration(labelText: 'Message Body'),
+                maxLines: 3,
+                validator: (v) => v!.isEmpty ? 'Required' : null,
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (formKey.currentState!.validate()) {
+                context.read<AnnouncementProvider>().updateAnnouncement(
+                      announcement.id,
+                      titleController.text,
+                      bodyController.text,
+                    );
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Announcement updated!')),
+                );
+              }
+            },
+            child: const Text('Save Changes'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteConfirmation(BuildContext context, int id) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Announcement?'),
+        content: const Text('This action cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              context.read<AnnouncementProvider>().deleteAnnouncement(id);
+              Navigator.pop(ctx);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Announcement deleted.')),
+              );
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
+            child: const Text('Delete'),
           ),
         ],
       ),

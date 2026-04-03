@@ -14,9 +14,15 @@ import '../../domain/models/announcement.dart';
 import '../../app/theme.dart';
 
 class AnnouncementCard extends StatelessWidget {
-  final Announcement announcement;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
 
-  const AnnouncementCard({super.key, required this.announcement});
+  const AnnouncementCard({
+    super.key, 
+    required this.announcement,
+    this.onEdit,
+    this.onDelete,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -90,6 +96,27 @@ class AnnouncementCard extends StatelessWidget {
                 Text(announcement.date,
                     style: const TextStyle(
                         fontSize: 12, color: AppTheme.textSecondary)),
+                if (onEdit != null || onDelete != null) ...[
+                  const SizedBox(width: 8),
+                  if (onEdit != null)
+                    IconButton(
+                      icon: const Icon(Icons.edit_outlined, size: 18),
+                      onPressed: onEdit,
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      color: AppTheme.primary,
+                    ),
+                  if (onDelete != null) ...[
+                    const SizedBox(width: 8),
+                    IconButton(
+                      icon: const Icon(Icons.delete_outline, size: 18),
+                      onPressed: onDelete,
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      color: Colors.redAccent,
+                    ),
+                  ],
+                ],
               ],
             ),
           ],

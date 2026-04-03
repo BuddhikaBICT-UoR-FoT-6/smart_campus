@@ -144,4 +144,26 @@ class AnnouncementProvider extends ChangeNotifier {
       body: body,
     );
   }
+
+  /// Updates an existing announcement locally
+  void updateAnnouncement(int id, String title, String body) {
+    final index = _announcements.indexWhere((a) => a.id == id);
+    if (index != -1) {
+      final old = _announcements[index];
+      _announcements[index] = Announcement(
+        id: old.id,
+        title: title,
+        body: body,
+        postedBy: old.postedBy,
+        date: old.date,
+      );
+      notifyListeners();
+    }
+  }
+
+  /// Deletes an announcement locally
+  void deleteAnnouncement(int id) {
+    _announcements.removeWhere((a) => a.id == id);
+    notifyListeners();
+  }
 }
