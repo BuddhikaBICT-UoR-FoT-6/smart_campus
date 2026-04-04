@@ -1,4 +1,4 @@
-﻿// =============================================================================
+// =============================================================================
 // providers/event_provider.dart
 // =============================================================================
 // CLEAN ARCHITECTURE — Presentation Layer (State Management)
@@ -41,6 +41,7 @@ class EventProvider extends ChangeNotifier {
   Set<String> _registeredEventIds = {};
   bool _isLoading = false;
   String? _errorMessage;
+  Map<String, int> _registrationCounts = {}; // eventId -> count
 
   List<Event> get events => List.unmodifiable(_events);
   Set<String> get registeredEventIds => Set.unmodifiable(_registeredEventIds);
@@ -62,6 +63,10 @@ class EventProvider extends ChangeNotifier {
     try {
       _events = await _repository.getAllEvents();
       _registeredEventIds = await _repository.getRegisteredEventIds(userId);
+      // Simulate registration counts for demonstration
+      _registrationCounts = {
+        for (var e in _events) e.id: (e.id.length % 5) + 3 
+      };
     } catch (e) {
       _errorMessage = 'Could not load events. Please try again.';
       debugPrint('[EventProvider] Error loading events: $e');
@@ -97,6 +102,29 @@ class EventProvider extends ChangeNotifier {
     _registeredEventIds = {};
     _isLoading = false;
     _errorMessage = null;
+    _registrationCounts = {};
+    notifyListeners();
+  }
+
+  int getRegistrationCount(String eventId) => _registrationCounts[eventId] ?? 0;
+
+  void createEvent(Event event) {
+    _events = [event, ..._events];
+    _registrationCounts[event.id] = 0;
+    notifyListeners();
+  }
+
+  void updateEvent(Event event) {
+    final i = _events.indexWhere((e) => e.id == event.id);
+    if (i != -1) {
+      _events[i] = event;
+      notifyListeners();
+    }
+  }
+
+  void deleteEvent(String eventId) {
+    _events.removeWhere((e) => e.id == eventId);
+    _registrationCounts.remove(eventId);
     notifyListeners();
   }
 }

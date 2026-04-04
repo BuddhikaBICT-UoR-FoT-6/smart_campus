@@ -80,7 +80,89 @@ class EventsScreen extends StatelessWidget {
         final userId = context.read<AuthProvider>().currentUser?.id ?? '';
         return context.read<EventProvider>().loadEvents(userId);
       },
-      child: content,
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: content,
+        floatingActionButton: context.read<AuthProvider>().currentUser?.role == UserRole.staff
+            ? FloatingActionButton.extended(
+                onPressed: () => _showEventDialog(context),
+                icon: const Icon(Icons.add),
+                label: const Text('Add Event'),
+                backgroundColor: AppTheme.primary,
+                foregroundColor: Colors.white,
+              )
+            : null,
+      ),
+    );
+  }
+
+  void _showEventDialog(BuildContext context, {Event? event}) {
+    final titleController = TextEditingController(text: event?.title);
+    final descController = TextEditingController(text: event?.description);
+    final venueController = TextEditingController(text: event?.venue);
+    final dateController = TextEditingController(text: event?.date);
+    final formKey = GlobalKey<FormState>();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(event == null ? 'Create Event' : 'Edit Event'),
+        content: SingleChildScrollView(
+          child: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: titleController,
+                  decoration: const InputDecoration(labelText: 'Event Title'),
+                  validator: (v) => v!.isEmpty ? 'Required' : null,
+                ),
+                TextFormField(
+                  controller: descController,
+                  decoration: const InputDecoration(labelText: 'Description'),
+                  maxLines: 2,
+                  validator: (v) => v!.isEmpty ? 'Required' : null,
+                ),
+                TextFormField(
+                  controller: venueController,
+                  decoration: const InputDecoration(labelText: 'Venue'),
+                  validator: (v) => v!.isEmpty ? 'Required' : null,
+                ),
+                TextFormField(
+                  controller: dateController,
+                  decoration: const InputDecoration(labelText: 'Date (YYYY-MM-DD)'),
+                  validator: (v) => v!.isEmpty ? 'Required' : null,
+                ),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () {
+              if (formKey.currentState!.validate()) {
+                final newEvent = Event(
+                  id: event?.id ?? 'evt-${DateTime.now().millisecondsSinceEpoch}',
+                  title: titleController.text,
+                  description: descController.text,
+                  venue: venueController.text,
+                  date: dateController.text,
+                  organizer: event?.organizer ?? context.read<AuthProvider>().currentUser?.name ?? 'Staff',
+                );
+                if (event == null) {
+                  context.read<EventProvider>().createEvent(newEvent);
+                } else {
+                  context.read<EventProvider>().updateEvent(newEvent);
+                }
+                Navigator.pop(ctx);
+              }
+            },
+            child: Text(event == null ? 'Create' : 'Save'),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -141,6 +223,16 @@ class _EventCard extends StatelessWidget {
                     ],
                   ),
                 ),
+                if (authProvider.currentUser?.role == UserRole.staff) ...[
+                  IconButton(
+                    icon: const Icon(Icons.edit_outlined, size: 18, color: AppTheme.primary),
+                    onPressed: () => (context.findAncestorStateOfType<EventsScreenState>() as dynamic)?._showEventDialog(context, event: event),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline, size: 18, color: Colors.redAccent),
+                    onPressed: () => _showDeleteEventConfirmation(context, event.id),
+                  ),
+                ],
               ],
             ),
 
@@ -169,7 +261,24 @@ class _EventCard extends StatelessWidget {
             // ---------- Action row ----------
             Row(
               children: [
-                if (isRegistered) ...[
+                if (authProvider.currentUser?.role == UserRole.staff) ...[
+                  Icon(Icons.people_outline, size: 16, color: AppTheme.primary.withValues(alpha: 0.6)),
+                  const SizedBox(width: 4),
+                  Text(
+                    '${evtProvider.getRegistrationCount(event.id)} Registered',
+                    style: TextStyle(
+                      fontSize: 13, 
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.primary.withValues(alpha: 0.8),
+                    ),
+                  ),
+                  const Spacer(),
+                  TextButton.icon(
+                    icon: const Icon(Icons.list_alt, size: 18),
+                    label: const Text('Attendees'),
+                    onPressed: () => Navigator.pushNamed(context, AppRoutes.attendeeLog),
+                  ),
+                ] else if (isRegistered) ...[
                   // Show "Registered" badge
                   const Icon(Icons.check_circle,
                       color: Colors.green, size: 18),
@@ -211,6 +320,27 @@ class _EventCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showDeleteEventConfirmation(BuildContext context, String id) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Event?'),
+        content: const Text('This will permanently remove the event.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () {
+              context.read<EventProvider>().deleteEvent(id);
+              Navigator.pop(ctx);
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
+            child: const Text('Delete'),
+          ),
+        ],
       ),
     );
   }
