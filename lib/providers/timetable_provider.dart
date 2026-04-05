@@ -46,4 +46,22 @@ class TimetableProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  void addEntry(TimetableEntry entry) {
+    _entries = [..._entries, entry];
+    notifyListeners();
+  }
+
+  void updateEntry(TimetableEntry entry) {
+    final i = _entries.indexWhere((e) => e.id == entry.id);
+    if (i != -1) {
+      _entries[i] = entry;
+      notifyListeners();
+    }
+  }
+
+  void deleteEntry(String id) {
+    _entries.removeWhere((e) => e.id == id);
+    notifyListeners();
+  }
 }

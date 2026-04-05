@@ -64,8 +64,12 @@ class _TimetableScreenState extends State<TimetableScreen> with SingleTickerProv
 
     final calendar = context.watch<CalendarProvider>();
 
-    return Column(
-      children: [
+    final isStaff = user?.role == UserRole.staff;
+
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: Column(
+        children: [
         // 1. Semester Overview Tile
         if (calendar.currentWeek != null)
           InkWell(
@@ -168,7 +172,7 @@ class _TimetableScreenState extends State<TimetableScreen> with SingleTickerProv
                               color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                             )),
                       ),
-                      ...dayEntries.map((e) => TimetableTile(entry: e)),
+                      ...dayEntries.map((e) => _buildSessionTile(context, e, isStaff)),
                     ],
 
                     // 4. Additional Mandatory Section fulfilling UI requirement
@@ -185,7 +189,7 @@ class _TimetableScreenState extends State<TimetableScreen> with SingleTickerProv
                           ],
                         ),
                       ),
-                      ...additionalEntries.map((e) => TimetableTile(entry: e)),
+                      ...additionalEntries.map((e) => _buildSessionTile(context, e, isStaff)),
                     ],
                     const SizedBox(height: 100), // Spacing for fab/bottom bar
                   ],
@@ -194,7 +198,17 @@ class _TimetableScreenState extends State<TimetableScreen> with SingleTickerProv
             }).toList(),
           ),
         ),
-      ],
+        ],
+      ),
+      floatingActionButton: isStaff
+          ? FloatingActionButton.extended(
+              onPressed: () => _showSessionDialog(context),
+              icon: const Icon(Icons.add_task),
+              label: const Text('Add Session'),
+              backgroundColor: AppTheme.primary,
+              foregroundColor: Colors.white,
+            )
+          : null,
     );
   }
 
@@ -226,6 +240,96 @@ class _TimetableScreenState extends State<TimetableScreen> with SingleTickerProv
         children: [
           const Text('No sessions scheduled for this day.', 
               style: TextStyle(color: AppTheme.textSecondary)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSessionTile(BuildContext context, TimetableEntry entry, bool isStaff) {
+    return Stack(
+      children: [
+        TimetableTile(entry: entry),
+        if (isStaff)
+          Positioned(
+            top: 12,
+            right: 20,
+            child: IconButton(
+              icon: const Icon(Icons.edit_note, color: AppTheme.primary),
+              onPressed: () => _showSessionDialog(context, entry: entry),
+            ),
+          ),
+      ],
+    );
+  }
+
+  void _showSessionDialog(BuildContext context, {TimetableEntry? entry}) {
+    final subjectController = TextEditingController(text: entry?.subject);
+    final roomController = TextEditingController(text: entry?.room);
+    final contentController = TextEditingController(text: entry?.lectureContent);
+    final dayController = TextEditingController(text: entry?.dayOfWeek ?? 'Monday');
+    final formKey = GlobalKey<FormState>();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(entry == null ? 'Add Session' : 'Edit Session'),
+        content: SingleChildScrollView(
+          child: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: subjectController,
+                  decoration: const InputDecoration(labelText: 'Subject'),
+                  validator: (v) => v!.isEmpty ? 'Required' : null,
+                ),
+                TextFormField(
+                  controller: roomController,
+                  decoration: const InputDecoration(labelText: 'Room'),
+                  validator: (v) => v!.isEmpty ? 'Required' : null,
+                ),
+                TextFormField(
+                  controller: dayController,
+                  decoration: const InputDecoration(labelText: 'Day (Monday-Friday)'),
+                  validator: (v) => v!.isEmpty ? 'Required' : null,
+                ),
+                TextFormField(
+                  controller: contentController,
+                  decoration: const InputDecoration(labelText: 'Lecture Content'),
+                  maxLines: 2,
+                ),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () {
+              if (formKey.currentState!.validate()) {
+                final newEntry = TimetableEntry(
+                  id: entry?.id ?? 'tt-${DateTime.now().millisecondsSinceEpoch}',
+                  subject: subjectController.text,
+                  room: roomController.text,
+                  dayOfWeek: dayController.text,
+                  startTime: entry?.startTime ?? '08:00',
+                  endTime: entry?.endTime ?? '10:00',
+                  userId: entry?.userId ?? context.read<AuthProvider>().currentUser?.id ?? '',
+                  lectureContent: contentController.text,
+                  isAttended: entry?.isAttended,
+                  isAdditional: entry?.isAdditional ?? false,
+                );
+                if (entry == null) {
+                  context.read<TimetableProvider>().addEntry(newEntry);
+                } else {
+                  context.read<TimetableProvider>().updateEntry(newEntry);
+                }
+                Navigator.pop(ctx);
+              }
+            },
+            child: Text(entry == null ? 'Add' : 'Save'),
+          ),
         ],
       ),
     );
