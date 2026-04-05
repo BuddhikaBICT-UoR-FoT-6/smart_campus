@@ -45,4 +45,20 @@ class ModuleDao {
       whereArgs: [userId, moduleId],
     );
   }
+
+  Future<void> insertModule(Module module) async {
+    final db = await _dbHelper.database;
+    await db.insert(
+      'modules',
+      module.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<void> deleteModule(String moduleId) async {
+    final db = await _dbHelper.database;
+    // Also delete enrollments for this module to maintain integrity
+    await db.delete('module_enrollments', where: 'moduleId = ?', whereArgs: [moduleId]);
+    await db.delete('modules', where: 'id = ?', whereArgs: [moduleId]);
+  }
 }

@@ -26,6 +26,7 @@ import '../../domain/models/user.dart';
 import '../../domain/models/timetable_entry.dart';
 import '../../domain/models/event.dart';
 import '../../domain/models/announcement.dart';
+import '../../utils/security_helper.dart';
 
 
 class DatabaseHelper {
@@ -69,10 +70,10 @@ class DatabaseHelper {
 
     return openDatabase(
       fullPath,
-      version: 17,
+      version: 21,
       onCreate: _onCreate,
       onUpgrade: (db, oldV, newV) async {
-        if (oldV < 17) {
+        if (oldV < 21) {
           // Destructive upgrade for easy academic demonstration
           await db.execute('DROP TABLE IF EXISTS announcements');
           await db.execute('DROP TABLE IF EXISTS registrations');
@@ -86,6 +87,7 @@ class DatabaseHelper {
           await db.execute('DROP TABLE IF EXISTS module_enrollments');
           await db.execute('DROP TABLE IF EXISTS lms_materials');
           await db.execute('DROP TABLE IF EXISTS campus_contacts');
+          await db.execute('DROP TABLE IF EXISTS system_settings');
           await _createTables(db);
           await _seedMockData(db);
         }
@@ -119,8 +121,9 @@ class DatabaseHelper {
       CREATE TABLE IF NOT EXISTS users (
         id    TEXT PRIMARY KEY,
         name  TEXT NOT NULL,
-        email TEXT NOT NULL UNIQUE,
+        email TEXT NOT NULL UNIQUE COLLATE NOCASE,
         role  TEXT NOT NULL,
+        password TEXT NOT NULL DEFAULT '1234',
         address TEXT,
         emergencyName TEXT,
         emergencyPhone TEXT,
@@ -129,34 +132,6 @@ class DatabaseHelper {
         semester INTEGER,
         isRepeat INTEGER DEFAULT 0,
         emailAlerts INTEGER DEFAULT 1
-      )
-    ''');
-
-    // Table: academic_results
-    await db.execute('''
-      CREATE TABLE IF NOT EXISTS academic_results (
-        id      INTEGER PRIMARY KEY AUTOINCREMENT,
-        subject TEXT NOT NULL,
-        level   INTEGER NOT NULL DEFAULT 1,
-        semester INTEGER NOT NULL,
-        marks   INTEGER NOT NULL DEFAULT 0,
-        credits INTEGER NOT NULL DEFAULT 3,
-        grade   TEXT NOT NULL,
-        gpa     REAL NOT NULL,
-        userId  TEXT NOT NULL,
-        FOREIGN KEY (userId) REFERENCES users(id)
-      )
-    ''');
-
-    // Table: academic_calendar
-    await db.execute('''
-      CREATE TABLE IF NOT EXISTS academic_calendar (
-        id      INTEGER PRIMARY KEY AUTOINCREMENT,
-        number  INTEGER NOT NULL,
-        label   TEXT NOT NULL,
-        type    TEXT NOT NULL,
-        startDate TEXT NOT NULL,
-        endDate   TEXT NOT NULL
       )
     ''');
 
@@ -245,6 +220,14 @@ class DatabaseHelper {
       )
     ''');
 
+    // Table: system_settings
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS system_settings (
+        key   TEXT PRIMARY KEY,
+        value TEXT
+      )
+    ''');
+
     // Table: medical_submissions
     await db.execute('''
       CREATE TABLE IF NOT EXISTS medical_submissions (
@@ -319,11 +302,14 @@ class DatabaseHelper {
   ///   student@campus.lk / 1234   → role: student
   ///   staff@campus.lk   / 1234   → role: staff
   Future<void> _seedMockData(Database db) async {
+    final hashedDefault = SecurityHelper.hashPassword('1234');
+
     final users = [
       User(
         id: 'usr-001',
         name: 'Ashan Perera',
         email: 'student@campus.lk',
+        password: hashedDefault,
         role: UserRole.student,
         address: 'No 45, Flower Road, Colombo 07',
         emergencyName: 'Sumanasiri Perera (Father)',
@@ -335,6 +321,7 @@ class DatabaseHelper {
         id: 'usr-002',
         name: 'Dr. Nilufar Silva',
         email: 'staff@campus.lk',
+        password: hashedDefault,
         role: UserRole.staff,
         address: 'Faculty of Engineering, UoR',
         emergencyName: 'Security Desk',
@@ -344,6 +331,7 @@ class DatabaseHelper {
         id: 'usr-003',
         name: 'Campus Admin',
         email: 'admin@campus.lk',
+        password: hashedDefault,
         role: UserRole.superadmin,
         address: 'Administrative Block, UoR',
         emergencyName: 'Director Office',
@@ -640,5 +628,11 @@ class DatabaseHelper {
     for (final c in campusContacts) {
       await db.insert('campus_contacts', c, conflictAlgorithm: ConflictAlgorithm.ignore);
     }
+
+    // Default System Settings
+    await db.insert('system_settings', {
+      'key': 'course_registration_deadline',
+      'value': '2026-05-30'
+    }, conflictAlgorithm: ConflictAlgorithm.ignore);
   }
 }
