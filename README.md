@@ -1,4 +1,4 @@
-# Smart Campus Operations System (v4.1.0)
+# Smart Campus Operations System (v5.0.0)
 
 ![Flutter](https://img.shields.io/badge/Flutter-3.x-blue.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
@@ -11,6 +11,7 @@ A production-grade Flutter platform empowering continuous university workflows c
 - **v3.2.0**: Dual backends sync capabilities and administrative medical waivers.
 - **v4.0.0**: Academic Portal (Course Registration, LMS), Native API integrations, ABI build optimizations.
 - **v4.1.0**: Automated Academic Grading Engine, SGPA/CGPA analytics, Admin dark mode theme fix.
+- **v5.0.0**: Administrative Subject Management, Staff-led LMS Content, Registration Deadline Enforcement, Logic & Security Hardening.
 
 👉 **[View the complete project CHANGELOG tracking structural modifications here](CHANGELOG.md)**
 

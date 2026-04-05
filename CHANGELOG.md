@@ -2,7 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
-## [4.1.0] - 2026-04-30
+## [5.0.0] - 2026-04-05
+### Added
+- **Administrative Subject Management**: New dashboard module for Superadmins to manage the university curriculum (Level, Semester, Credits).
+- **Staff LMS Portal**: Enabled role-based access for staff to manage course materials and uploads.
+- **Registration Deadlines**: Implemented global enrollment lock-out logic based on system configuration.
+### Fixed
+- **Authentication Hardening**: Unified login logic to use database-resident hashed passwords exclusively.
+- **UI Performance**: Resolved Hero animation tag collisions across the administrative modules.
+- **Flutter 3.x Compatibility**: Migrated deprecated `value` properties in dropdowns to `initialValue`.
+- **Database Cleanup**: Removed redundant table definitions and optimized schema initialization.
+
+## [4.1.0] - 2026-04-03
 ### Added
 - Admin Results Management: Level, Marks, and Credits fields added to the result entry form.
 - Automated Grade and GPA calculation from raw marks using standard Sri Lankan grading scale (A+, A, A-, B+, ..., E).
