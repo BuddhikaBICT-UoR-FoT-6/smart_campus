@@ -70,10 +70,10 @@ class DatabaseHelper {
 
     return openDatabase(
       fullPath,
-      version: 21,
+      version: 23,
       onCreate: _onCreate,
       onUpgrade: (db, oldV, newV) async {
-        if (oldV < 21) {
+        if (oldV < 23) {
           // Destructive upgrade for easy academic demonstration
           await db.execute('DROP TABLE IF EXISTS announcements');
           await db.execute('DROP TABLE IF EXISTS registrations');
@@ -203,6 +203,8 @@ class DatabaseHelper {
         semester INTEGER NOT NULL,
         grade    TEXT NOT NULL,
         gpa      REAL NOT NULL,
+        marks    INTEGER NOT NULL DEFAULT 0,
+        credits  INTEGER NOT NULL DEFAULT 3,
         userId   TEXT NOT NULL,
         FOREIGN KEY (userId) REFERENCES users(id)
       )
@@ -212,7 +214,7 @@ class DatabaseHelper {
     await db.execute('''
       CREATE TABLE IF NOT EXISTS academic_calendar (
         id        INTEGER PRIMARY KEY AUTOINCREMENT,
-        weekNumber INTEGER NOT NULL,
+        number INTEGER NOT NULL,
         label     TEXT NOT NULL,
         type      TEXT NOT NULL,
         startDate TEXT NOT NULL,
@@ -336,6 +338,52 @@ class DatabaseHelper {
         address: 'Administrative Block, UoR',
         emergencyName: 'Director Office',
         emergencyPhone: '0412224444',
+      ),
+      User(
+        id: 'usr-004',
+        name: 'Chamath Perera',
+        email: 'chamath@campus.lk',
+        password: hashedDefault,
+        role: UserRole.student,
+        address: 'Matara, Sri Lanka',
+        emergencyName: 'P. Perera',
+        emergencyPhone: '0771112223',
+        level: 1,
+        semester: 2,
+      ),
+      User(
+        id: 'usr-005',
+        name: 'Sanduni de Silva',
+        email: 'sanduni@campus.lk',
+        password: hashedDefault,
+        role: UserRole.student,
+        address: 'Galle, Sri Lanka',
+        emergencyName: 'M. de Silva',
+        emergencyPhone: '0773334445',
+        level: 2,
+        semester: 1,
+      ),
+      User(
+        id: 'usr-006',
+        name: 'Kasun Wijesinghe',
+        email: 'kasun@campus.lk',
+        password: hashedDefault,
+        role: UserRole.student,
+        address: 'Kandy, Sri Lanka',
+        emergencyName: 'L. Wijesinghe',
+        emergencyPhone: '0775556667',
+        level: 3,
+        semester: 1,
+      ),
+      User(
+        id: 'usr-007',
+        name: 'Mr. Nimal Sirisena',
+        email: 'nimal@campus.lk',
+        password: hashedDefault,
+        role: UserRole.staff,
+        address: 'Faculty of Tech, UoR',
+        emergencyName: 'Family',
+        emergencyPhone: '0778889990',
       ),
     ];
     for (final u in users) {
@@ -483,6 +531,25 @@ class DatabaseHelper {
         ...res,
         'userId': 'usr-001',
       });
+    }
+
+    // --- Academic Results (usr-004: Level 1 Student) ---
+    final academic004 = [
+      {'subject': 'Mathematics I', 'level': 1, 'semester': 1, 'grade': 'A', 'gpa': 4.0, 'marks': 85, 'credits': 3},
+      {'subject': 'Computing Fundamentals', 'level': 1, 'semester': 1, 'grade': 'B+', 'gpa': 3.3, 'marks': 62, 'credits': 3},
+    ];
+    for (final res in academic004) {
+      await db.insert('academic_results', { ...res, 'userId': 'usr-004' });
+    }
+
+    // --- Academic Results (usr-005: Level 2 Student) ---
+    final academic005 = [
+      {'subject': 'Data Structures', 'level': 1, 'semester': 1, 'grade': 'A-', 'gpa': 3.7, 'marks': 68, 'credits': 4},
+      {'subject': 'Algorithms', 'level': 1, 'semester': 2, 'grade': 'A', 'gpa': 4.0, 'marks': 78, 'credits': 3},
+      {'subject': 'Database Systems', 'level': 2, 'semester': 1, 'grade': 'B', 'gpa': 3.0, 'marks': 56, 'credits': 3},
+    ];
+    for (final res in academic005) {
+      await db.insert('academic_results', { ...res, 'userId': 'usr-005' });
     }
 
     // --- Academic Calendar 2026 (6 Months) ---

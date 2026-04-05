@@ -122,7 +122,8 @@ class _ResultsAdminScreenState extends State<ResultsAdminScreen> {
                   spacing: 8,
                   children: provider.sgpaBySemester.entries.map((e) => Chip(
                     label: Text('Sem ${e.key}: ${e.value.toStringAsFixed(2)}'),
-                    backgroundColor: Colors.white,
+                    backgroundColor: Colors.white24,
+                    labelStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                   )).toList(),
                 )
               ],

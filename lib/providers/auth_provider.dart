@@ -132,7 +132,9 @@ class AuthProvider extends ChangeNotifier {
           ), // Parse String back into strictly-typed Enum
           level: payload['level'] as int?,
           semester: payload['semester'] as int?,
-          emailAlerts: (payload['emailAlerts'] as bool?) ?? true,
+          emailAlerts: (payload['emailAlerts'] is int) 
+              ? (payload['emailAlerts'] as int == 1)
+              : (payload['emailAlerts'] as bool? ?? true),
         );
 
         // Trigger a reactive rebuild across the entire app so routers instantly transition away from Splash

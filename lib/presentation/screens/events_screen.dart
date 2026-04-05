@@ -229,17 +229,18 @@ class _EventCard extends StatelessWidget {
                     children: [
                       Text(
                         event.title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 15,
-                          color: AppTheme.textPrimary,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         event.organizer,
-                        style: const TextStyle(
-                            fontSize: 12, color: AppTheme.textSecondary),
+                        style: TextStyle(
+                            fontSize: 12, 
+                            color: Theme.of(context).colorScheme.onSurfaceVariant),
                       ),
                     ],
                   ),
@@ -262,8 +263,10 @@ class _EventCard extends StatelessWidget {
             // ---------- Description ----------
             Text(
               event.description,
-              style: const TextStyle(
-                  fontSize: 13, color: AppTheme.textSecondary, height: 1.5),
+              style: TextStyle(
+                  fontSize: 13, 
+                  color: Theme.of(context).colorScheme.onSurfaceVariant, 
+                  height: 1.5),
             ),
 
             const SizedBox(height: 12),
