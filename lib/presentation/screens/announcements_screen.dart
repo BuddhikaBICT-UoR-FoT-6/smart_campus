@@ -81,15 +81,10 @@ class AnnouncementsScreen extends StatelessWidget {
     // ---------- Main Content ----------
     Widget content;
     if (provider.announcements.isEmpty) {
-      content = ListView(
-        children: const [
-          SizedBox(height: 100),
           Center(
             child: Text('No announcements available.',
                 style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
           ),
-        ],
-      );
     } else {
       content = ListView.builder(
         padding: const EdgeInsets.symmetric(vertical: 12),
