@@ -1,8 +1,6 @@
 // =============================================================================
 // presentation/screens/profile_screen.dart
 // =============================================================================
-// Displays user information and provides app management options.
-// =============================================================================
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -11,6 +9,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/event_provider.dart';
 import '../../app/routes.dart';
 import '../../app/theme.dart';
+import '../widgets/academic_performance_widget.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -20,81 +19,109 @@ class ProfileScreen extends StatelessWidget {
     final user = context.watch<AuthProvider>().currentUser;
     if (user == null) return const SizedBox.shrink();
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ---------- Avatar ----------
-          CircleAvatar(
-            radius: 46,
-            backgroundColor: AppTheme.primary.withValues(alpha: 0.1),
-            child: Text(
-              user.name.substring(0, 1).toUpperCase(),
-              style: const TextStyle(
-                  fontSize: 36,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.primary),
+          // ---------- 1. Avatar & Hero Section ----------
+          Center(
+            child: Column(
+              children: [
+                Stack(
+                  alignment: Alignment.bottomRight,
+                  children: [
+                    CircleAvatar(
+                      radius: 54,
+                      backgroundColor: AppTheme.primary.withOpacity(0.1),
+                      child: Text(
+                        user.name.substring(0, 1).toUpperCase(),
+                        style: const TextStyle(
+                            fontSize: 48,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.primary),
+                      ),
+                    ),
+                    Container(
+                      decoration: const BoxDecoration(color: AppTheme.secondary, shape: BoxShape.circle),
+                      padding: const EdgeInsets.all(8),
+                      child: const Icon(Icons.camera_alt, color: Colors.white, size: 18),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  user.name,
+                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 4),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppTheme.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    user.role.name.toUpperCase(),
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.primary),
+                  ),
+                ),
+              ],
             ),
+          ),
+          const SizedBox(height: 40),
+
+          // ---------- 2. Personal Details Section ----------
+          const Text(
+            'Personal Details',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
-          
-          // ---------- Name and Role ----------
-          Text(
-            user.name,
-            style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w700,
-                color: AppTheme.textPrimary),
-          ),
-          const SizedBox(height: 4),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            decoration: BoxDecoration(
-              color: AppTheme.secondary.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              user.role.name.toUpperCase(),
-              style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.primary),
-            ),
-          ),
-          const SizedBox(height: 32),
-
-          // ---------- Details List ----------
-          _ProfileItem(
-            icon: Icons.email_outlined,
-            title: 'Email Address',
-            subtitle: user.email,
-          ),
-          const Divider(height: 1),
-          _ProfileItem(
-            icon: Icons.badge_outlined,
-            title: 'User ID',
-            subtitle: user.id,
-          ),
-          const Divider(height: 1),
+          _buildInfoRow(context, Icons.email_outlined, 'Email', user.email),
+          _buildInfoRow(context, Icons.location_on_outlined, 'Address', user.address ?? 'Not specified'),
           
           const SizedBox(height: 32),
 
-          // ---------- Actions ----------
+          // ---------- 3. Emergency Details Section ----------
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Emergency Contact',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
+              ),
+              IconButton.filledTonal(
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Dialing ${user.emergencyPhone ?? "Emergency"}...')),
+                  );
+                },
+                icon: const Icon(Icons.emergency_share, color: Colors.red),
+                tooltip: 'Emergency Call',
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          _buildInfoRow(context, Icons.person_outline, 'Contact Person', user.emergencyName ?? 'Not specified'),
+          _buildInfoRow(context, Icons.phone_outlined, 'Phone', user.emergencyPhone ?? 'Not specified'),
+
+          const SizedBox(height: 48),
+
+          // ---------- 4. Academic Performance Section ----------
+          const AcademicPerformanceWidget(),
+          
+          const SizedBox(height: 64),
+
+          // ---------- 5. Session Actions ----------
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
               icon: const Icon(Icons.delete_outline, color: AppTheme.error),
-              label: const Text('Clear Local Cache',
-                  style: TextStyle(color: AppTheme.error)),
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: AppTheme.error),
-                padding: const EdgeInsets.symmetric(vertical: 14),
-              ),
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Local cache cleared for testing.')),
-                );
-              },
+              label: const Text('Clear Storage Cache', style: TextStyle(color: AppTheme.error)),
+              style: OutlinedButton.styleFrom(side: const BorderSide(color: AppTheme.error)),
+              onPressed: () {},
             ),
           ),
           const SizedBox(height: 16),
@@ -114,39 +141,26 @@ class ProfileScreen extends StatelessWidget {
       ),
     );
   }
-}
 
-class _ProfileItem extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-
-  const _ProfileItem({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-  });
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildInfoRow(BuildContext context, IconData icon, String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
         children: [
-          Icon(icon, color: AppTheme.textSecondary, size: 28),
+          Icon(icon, size: 24, color: AppTheme.textSecondary),
           const SizedBox(width: 16),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title,
-                  style: const TextStyle(
-                      fontSize: 13, color: AppTheme.textSecondary)),
-              const SizedBox(height: 2),
-              Text(subtitle,
-                  style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: AppTheme.textPrimary)),
+              Text(label, style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary)),
+              Text(
+                value, 
+                style: TextStyle(
+                  fontSize: 15, 
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.onSurface,
+                )
+              ),
             ],
           ),
         ],

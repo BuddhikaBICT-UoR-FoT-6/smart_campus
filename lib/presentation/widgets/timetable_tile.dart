@@ -2,11 +2,13 @@
 // presentation/widgets/timetable_tile.dart
 // =============================================================================
 // A single row in the timetable list — shows time, subject, and room.
+// Now includes attendance status and navigation to details.
 // =============================================================================
 
 import 'package:flutter/material.dart';
 import '../../domain/models/timetable_entry.dart';
 import '../../app/theme.dart';
+import '../screens/timetable_detail_screen.dart';
 
 class TimetableTile extends StatelessWidget {
   final TimetableEntry entry;
@@ -16,76 +18,117 @@ class TimetableTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Row(
-          children: [
-            // ---------- Time column ----------
-            Container(
-              width: 64,
-              alignment: Alignment.center,
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              decoration: BoxDecoration(
-                color: AppTheme.primary.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    entry.startTime,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 13,
-                      color: AppTheme.primary,
-                    ),
-                  ),
-                  const Text('|',
-                      style:
-                          TextStyle(color: AppTheme.textSecondary, fontSize: 10)),
-                  Text(
-                    entry.endTime,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: AppTheme.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => TimetableDetailScreen(entry: entry),
             ),
-
-            const SizedBox(width: 14),
-
-            // ---------- Subject + room ----------
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    entry.subject,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                      color: AppTheme.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      const Icon(Icons.room_outlined,
-                          size: 14, color: AppTheme.textSecondary),
-                      const SizedBox(width: 4),
-                      Text(
-                        entry.room,
-                        style: const TextStyle(
-                            fontSize: 12, color: AppTheme.textSecondary),
+          );
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              // ---------- Time column ----------
+              Container(
+                width: 64,
+                alignment: Alignment.center,
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                decoration: BoxDecoration(
+                  color: AppTheme.primary.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      entry.startTime,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 13,
+                        color: AppTheme.primary,
                       ),
-                    ],
-                  ),
-                ],
+                    ),
+                    const Text('|',
+                        style:
+                            TextStyle(color: AppTheme.textSecondary, fontSize: 10)),
+                    Text(
+                      entry.endTime,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+
+              const SizedBox(width: 14),
+
+              // ---------- Subject + room ----------
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      entry.subject,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        color: AppTheme.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        const Icon(Icons.room_outlined,
+                            size: 14, color: AppTheme.textSecondary),
+                        const SizedBox(width: 4),
+                        Text(
+                          entry.room,
+                          style: const TextStyle(
+                              fontSize: 12, color: AppTheme.textSecondary),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              // ---------- Status Indicators (Attendance) ----------
+              if (entry.isAttended != null)
+                Container(
+                  margin: const EdgeInsets.only(left: 8),
+                  child: Icon(
+                    entry.isAttended! ? Icons.check_circle_rounded : Icons.cancel_rounded,
+                    size: 20,
+                    color: entry.isAttended! ? Colors.green : Colors.red,
+                  ),
+                ),
+              
+              // ---------- Additional Flag ----------
+              if (entry.isAdditional)
+                Container(
+                  margin: const EdgeInsets.only(left: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: const Text(
+                    'Event',
+                    style: TextStyle(fontSize: 10, color: Colors.orange, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              
+              const SizedBox(width: 4),
+              const Icon(Icons.chevron_right, size: 20, color: AppTheme.textSecondary),
+            ],
+          ),
         ),
       ),
     );

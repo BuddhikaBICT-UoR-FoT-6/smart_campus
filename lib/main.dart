@@ -15,6 +15,7 @@ import 'providers/auth_provider.dart';
 import 'providers/announcement_provider.dart';
 import 'providers/event_provider.dart';
 import 'providers/timetable_provider.dart';
+import 'providers/theme_provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,19 +29,24 @@ class SmartCampusApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => AnnouncementProvider()),
         ChangeNotifierProvider(create: (_) => EventProvider()),
         ChangeNotifierProvider(create: (_) => TimetableProvider()),
       ],
-      child: MaterialApp(
-        title: 'Smart Campus',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.light,        // ← Apply centralised light theme
-        darkTheme: AppTheme.dark,     // ← Apply centralised dark theme
-        themeMode: ThemeMode.system,  // ← Automatically switch based on OS
-        routes: AppRoutes.routes,
-        initialRoute: AppRoutes.splash,
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) {
+          return MaterialApp(
+            title: 'Smart Campus',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.light,
+            darkTheme: AppTheme.dark,
+            themeMode: themeProvider.themeMode,
+            routes: AppRoutes.routes,
+            initialRoute: AppRoutes.splash,
+          );
+        },
       ),
     );
   }

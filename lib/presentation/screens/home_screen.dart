@@ -22,6 +22,8 @@ import 'announcements_screen.dart';
 import 'timetable_screen.dart';
 import 'events_screen.dart';
 import 'profile_screen.dart';
+import 'campus_contacts_screen.dart';
+import '../../providers/theme_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -81,8 +83,36 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Smart Campus'),
-        // AppBar logout removed — now handled in ProfileScreen
+        title: InkWell(
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const CampusContactsScreen()),
+          ),
+          child: const Text('Smart Campus'),
+        ),
+        actions: [
+          // 0. Global Refresh fulfilling UI requirement
+          IconButton(
+            icon: const Icon(Icons.refresh_rounded),
+            tooltip: 'Refresh Data',
+            onPressed: () => _initialLoad(),
+          ),
+          // 1. Theme Toggle Integration fulfilling UI requirement
+          Consumer<ThemeProvider>(
+            builder: (context, themeProvider, child) {
+              return IconButton(
+                icon: Icon(themeProvider.isDarkMode 
+                    ? Icons.light_mode_rounded 
+                    : Icons.dark_mode_rounded),
+                tooltip: 'Toggle Light/Dark Mode',
+                onPressed: () {
+                  themeProvider.toggleTheme(!themeProvider.isDarkMode);
+                },
+              );
+            },
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
 
       // IndexedStack keeps all screens mounted — tab switches are instant

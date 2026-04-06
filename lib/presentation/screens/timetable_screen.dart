@@ -1,8 +1,11 @@
 // =============================================================================
 // presentation/screens/timetable_screen.dart
 // =============================================================================
-// Displays the logged-in student's weekly timetable from local SQLite.
-// Entries are grouped by day-of-week for readability.
+// Displays the logged-in student's weekly timetable with modern tabbed navigation.
+// Features: 
+//   - 5-day Week Selector
+//   - Additional Mandatory Events section
+//   - Automatic current-day focus
 // =============================================================================
 
 import 'package:flutter/material.dart';
@@ -14,123 +17,167 @@ import '../../domain/models/timetable_entry.dart';
 import '../widgets/timetable_tile.dart';
 import '../../app/theme.dart';
 
-class TimetableScreen extends StatelessWidget {
+class TimetableScreen extends StatefulWidget {
   const TimetableScreen({super.key});
 
-  // Ordered days so the list always appears Monday → Friday
-  static const List<String> _dayOrder = [
-    'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday',
-    'Saturday', 'Sunday',
+  @override
+  State<TimetableScreen> createState() => _TimetableScreenState();
+}
+
+class _TimetableScreenState extends State<TimetableScreen> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  
+  static const List<String> _weekDays = [
+    'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    // 1. Calculate the current weekday index (0-4) to auto-select the tab
+    final now = DateTime.now();
+    // DateTime.weekday: 1 = Mon, 7 = Sun. We clamp to 0-4 for Mon-Fri.
+    int initialIndex = now.weekday - 1;
+    if (initialIndex > 4) initialIndex = 0; // Fallback to Monday if weekend
+    
+    _tabController = TabController(length: _weekDays.length, vsync: this, initialIndex: initialIndex);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<TimetableProvider>();
 
-    // ---------- Loading ----------
     if (provider.isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    // ---------- Error ----------
     if (provider.errorMessage != null) {
-      // 1. If an error is detected, bypass the main UI rendering and surface the Error boundary
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // 2. Render a visually commanding error icon to signal immediate system failure
-              const Icon(Icons.error_outline_rounded,
-                  size: 56, color: AppTheme.textSecondary),
-              const SizedBox(height: 16),
-              // 3. Output the exact exception message bubbled up from the Provider layer
-              Text(
-                provider.errorMessage!,
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: AppTheme.textSecondary),
-              ),
-              const SizedBox(height: 20),
-              // 4. Implement a distinct Retry button to fulfill Tri-State bounds requirement
-              ElevatedButton.icon(
-                icon: const Icon(Icons.refresh),
-                label: const Text('Retry'),
-                onPressed: () {
-                  // 5. Safely extract the globally authenticated UserId to re-trigger the data fetch
-                  final userId = context.read<AuthProvider>().currentUser?.id ?? '';
-                  context.read<TimetableProvider>().loadTimetable(userId);
-                },
-              ),
-            ],
+      return _buildErrorState(context, provider.errorMessage!);
+    }
+
+    return Column(
+      children: [
+        // 2. Weekday Selector fulfilling Tabbed UI requirement
+        Material(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          elevation: 0.5,
+          child: TabBar(
+            controller: _tabController,
+            isScrollable: false,
+            labelColor: AppTheme.primary,
+            unselectedLabelColor: AppTheme.textSecondary,
+            indicatorColor: AppTheme.primary,
+            indicatorWeight: 3,
+            tabs: _weekDays.map((d) => Tab(text: d.substring(0, 3))).toList(),
           ),
         ),
-      );
-    }
 
-    // ---------- Empty ----------
-    Widget content;
-    if (provider.entries.isEmpty) {
-      content = ListView(
-        children: const [
-          SizedBox(height: 100),
-          Center(
-            child: Text('No timetable entries found.',
-                style: TextStyle(color: AppTheme.textSecondary)),
+        // 3. Main Schedule List
+        Expanded(
+          child: TabBarView(
+            controller: _tabController,
+            children: _weekDays.map((day) {
+              final dayEntries = provider.entries.where((e) {
+                final isSameDay = e.dayOfWeek == day;
+                final isReg = !(e.isAdditional);
+                return isSameDay && isReg;
+              }).toList();
+              
+              final additionalEntries = provider.entries.where((e) {
+                final isSameDay = e.dayOfWeek == day;
+                final isAdd = e.isAdditional;
+                return isSameDay && isAdd;
+              }).toList();
+
+              if (dayEntries.isEmpty && additionalEntries.isEmpty) {
+                return _buildEmptyState();
+              }
+
+              return RefreshIndicator(
+                onRefresh: () async {
+                  final userId = context.read<AuthProvider>().currentUser?.id ?? '';
+                  await context.read<TimetableProvider>().loadTimetable(userId);
+                },
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  children: [
+                    // Regular Sessions
+                    if (dayEntries.isNotEmpty) ...[
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                        child: Text('Regular Lectures', 
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold, 
+                              fontSize: 13, 
+                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                            )),
+                      ),
+                      ...dayEntries.map((e) => TimetableTile(entry: e)),
+                    ],
+
+                    // 4. Additional Mandatory Section fulfilling UI requirement
+                    if (additionalEntries.isNotEmpty) ...[
+                      const SizedBox(height: 24),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                        child: Row(
+                          children: [
+                            Icon(Icons.star_outline, size: 16, color: Colors.orange),
+                            SizedBox(width: 8),
+                            Text('Additional & Mandatory Sessions', 
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.orange)),
+                          ],
+                        ),
+                      ),
+                      ...additionalEntries.map((e) => TimetableTile(entry: e)),
+                    ],
+                    const SizedBox(height: 100), // Spacing for fab/bottom bar
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildErrorState(BuildContext context, String error) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.error_outline, size: 48, color: AppTheme.textSecondary),
+          const SizedBox(height: 16),
+          Text(error, textAlign: TextAlign.center),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: () {
+              final userId = context.read<AuthProvider>().currentUser?.id ?? '';
+              context.read<TimetableProvider>().loadTimetable(userId);
+            },
+            child: const Text('Retry'),
           ),
         ],
-      );
-    } else {
-      // ---------- Group entries by day ----------
-      final Map<String, List<TimetableEntry>> grouped = {};
-      for (final entry in provider.entries) {
-        grouped.putIfAbsent(entry.dayOfWeek, () => []).add(entry);
-      }
+      ),
+    );
+  }
 
-      // Collect only days that have entries, in canonical order
-      final presentDays = _dayOrder
-          .where((d) => grouped.containsKey(d))
-          .toList();
-
-      content = ListView.builder(
-        padding: const EdgeInsets.only(top: 12, bottom: 20),
-        itemCount: presentDays.length,
-        itemBuilder: (_, i) {
-          final day = presentDays[i];
-          final dayEntries = grouped[day]!;
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Day header
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                child: Text(
-                  day,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 14,
-                    color: AppTheme.primary,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ),
-              // Entries for this day
-              ...dayEntries.map((e) => TimetableTile(entry: e)),
-              const SizedBox(height: 4),
-            ],
-          );
-        },
-      );
-    }
-
-    return RefreshIndicator(
-      onRefresh: () {
-        final userId = context.read<AuthProvider>().currentUser?.id ?? '';
-        return context.read<TimetableProvider>().loadTimetable(userId);
-      },
-      child: content,
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text('No sessions scheduled for this day.', 
+              style: TextStyle(color: AppTheme.textSecondary)),
+        ],
+      ),
     );
   }
 }
-

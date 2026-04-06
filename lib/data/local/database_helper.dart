@@ -1,4 +1,4 @@
-﻿// =============================================================================
+// =============================================================================
 // data/local/database_helper.dart
 // =============================================================================
 // CLEAN ARCHITECTURE — Data Layer (Local)
@@ -53,8 +53,18 @@ class DatabaseHelper {
 
     return openDatabase(
       fullPath,
-      version: 1,
+      version: 3,
       onCreate: _onCreate,
+      onUpgrade: (db, oldV, newV) async {
+        if (oldV < 3) {
+          // Destructive upgrade for demo
+          await db.execute('DROP TABLE IF EXISTS timetable');
+          await db.execute('DROP TABLE IF EXISTS users');
+          await db.execute('DROP TABLE IF EXISTS academic_results');
+          await _createTables(db);
+          await _seedMockData(db);
+        }
+      },
     );
   }
 
@@ -85,7 +95,24 @@ class DatabaseHelper {
         id    TEXT PRIMARY KEY,
         name  TEXT NOT NULL,
         email TEXT NOT NULL UNIQUE,
-        role  TEXT NOT NULL
+        role  TEXT NOT NULL,
+        address TEXT,
+        emergencyName TEXT,
+        emergencyPhone TEXT,
+        profilePic TEXT
+      )
+    ''');
+
+    // Table: academic_results
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS academic_results (
+        id      INTEGER PRIMARY KEY AUTOINCREMENT,
+        subject TEXT NOT NULL,
+        semester INTEGER NOT NULL,
+        grade   TEXT NOT NULL,
+        gpa     REAL NOT NULL,
+        userId  TEXT NOT NULL,
+        FOREIGN KEY (userId) REFERENCES users(id)
       )
     ''');
 
@@ -100,6 +127,9 @@ class DatabaseHelper {
         endTime   TEXT NOT NULL,
         room      TEXT NOT NULL,
         userId    TEXT NOT NULL,
+        isAttended INTEGER,  -- 1 for yes, 0 for no, null for unknown
+        lectureContent TEXT,
+        isAdditional INTEGER DEFAULT 0,
         FOREIGN KEY (userId) REFERENCES users(id)
       )
     ''');
@@ -149,12 +179,18 @@ class DatabaseHelper {
         name: 'Ashan Perera',
         email: 'student@campus.lk',
         role: UserRole.student,
+        address: 'No 45, Flower Road, Colombo 07',
+        emergencyName: 'Sumanasiri Perera (Father)',
+        emergencyPhone: '0712345678',
       ),
       User(
         id: 'usr-002',
         name: 'Dr. Nilufar Silva',
         email: 'staff@campus.lk',
         role: UserRole.staff,
+        address: 'Faculty of Engineering, UoR',
+        emergencyName: 'Security Desk',
+        emergencyPhone: '0412223334',
       ),
     ];
     for (final u in users) {
@@ -162,8 +198,9 @@ class DatabaseHelper {
           conflictAlgorithm: ConflictAlgorithm.ignore);
     }
 
-    // --- 4 Timetable Rows (for the student account) ---
+    // --- Full 5-Day Weekly Timetable (usr-001) ---
     final timetable = [
+      // MONDAY
       TimetableEntry(
         id: 'tt-001',
         subject: 'Mobile Application Development',
@@ -172,7 +209,10 @@ class DatabaseHelper {
         endTime: '10:00',
         room: 'Lab 3',
         userId: 'usr-001',
+        isAttended: true,
+        lectureContent: 'Introduction to Flutter Architecture and Widgets.',
       ),
+      // TUESDAY
       TimetableEntry(
         id: 'tt-002',
         subject: 'Software Engineering',
@@ -181,24 +221,65 @@ class DatabaseHelper {
         endTime: '12:00',
         room: 'LT 1',
         userId: 'usr-001',
+        isAttended: false,
+        lectureContent: 'Agile Methodologies and Scrum Framework.',
       ),
+      // WEDNESDAY
       TimetableEntry(
         id: 'tt-003',
-        subject: 'Database Systems',
+        subject: 'Database Management Systems',
         dayOfWeek: 'Wednesday',
         startTime: '13:00',
         endTime: '15:00',
         room: 'Lab 1',
         userId: 'usr-001',
+        isAttended: true,
+        lectureContent: 'Complex SQL queries and Indexing.',
       ),
+      // THURSDAY
       TimetableEntry(
         id: 'tt-004',
+        subject: 'Professional Practices',
+        dayOfWeek: 'Thursday',
+        startTime: '08:00',
+        endTime: '10:00',
+        room: 'Online',
+        userId: 'usr-001',
+        lectureContent: 'ethics in Information Technology.',
+      ),
+      // FRIDAY
+      TimetableEntry(
+        id: 'tt-005',
         subject: 'Computer Networks',
         dayOfWeek: 'Friday',
         startTime: '08:00',
         endTime: '10:00',
         room: 'LT 2',
         userId: 'usr-001',
+        lectureContent: 'OSI Model and TCP/IP protocols.',
+      ),
+      // ADDITIONAL SESSIONS / MANDATORY EVENTS
+      TimetableEntry(
+        id: 'tt-006',
+        subject: 'Industry Guest Lecture',
+        dayOfWeek: 'Wednesday',
+        startTime: '15:30',
+        endTime: '17:00',
+        room: 'Main Hall',
+        userId: 'usr-001',
+        isAdditional: true,
+        lectureContent: 'Future of Quantum Computing by Google Experts.',
+      ),
+      TimetableEntry(
+        id: 'tt-007',
+        subject: 'Student Union Meeting',
+        dayOfWeek: 'Friday',
+        startTime: '13:00',
+        endTime: '14:30',
+        room: 'Annex A',
+        userId: 'usr-001',
+        isAdditional: true,
+        lectureContent: 'Discussing annual campus festival roadmap.',
       ),
     ];
     for (final entry in timetable) {
@@ -236,6 +317,24 @@ class DatabaseHelper {
     for (final event in events) {
       await db.insert('events', event.toMap(),
           conflictAlgorithm: ConflictAlgorithm.ignore);
+    }
+
+    // --- Academic Results (usr-001) ---
+    final academic = [
+      {'subject': 'Mathematics for Computing', 'semester': 1, 'grade': 'A', 'gpa': 4.0},
+      {'subject': 'Programming Fundamentals', 'semester': 1, 'grade': 'A-', 'gpa': 3.7},
+      {'subject': 'Information Systems', 'semester': 1, 'grade': 'B+', 'gpa': 3.3},
+      {'subject': 'Database Systems', 'semester': 2, 'grade': 'A', 'gpa': 4.0},
+      {'subject': 'Object Oriented Programming', 'semester': 2, 'grade': 'B', 'gpa': 3.0},
+      {'subject': 'Software Engineering', 'semester': 2, 'grade': 'A-', 'gpa': 3.7},
+      {'subject': 'Computer Networks', 'semester': 3, 'grade': 'B+', 'gpa': 3.3},
+      {'subject': 'Operating Systems', 'semester': 3, 'grade': 'A', 'gpa': 4.0},
+    ];
+    for (final res in academic) {
+      await db.insert('academic_results', {
+        ...res,
+        'userId': 'usr-001',
+      });
     }
   }
 }

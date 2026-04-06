@@ -1,4 +1,4 @@
-﻿// =============================================================================
+// =============================================================================
 // domain/models/timetable_entry.dart
 // =============================================================================
 // CLEAN ARCHITECTURE — Domain Layer
@@ -17,8 +17,11 @@
 /// - [dayOfWeek]  E.g. "Monday", "Wednesday"
 /// - [startTime]  24-hour format string e.g. "08:00"
 /// - [endTime]    24-hour format string e.g. "10:00"
-/// - [room]       Lecture hall/lab identifier e.g. "Lab 3"
-/// - [userId]     Foreign key → users.id (which student this entry belongs to)
+/// - [room]            Lecture hall/lab identifier e.g. "Lab 3"
+/// - [userId]          Foreign key → users.id
+/// - [isAttended]      Attendance status for past lectures (true/false/null)
+/// - [lectureContent]   Upcoming content overview
+/// - [isAdditional]    Flag for mandatory events / extra sessions
 class TimetableEntry {
   final String id;
   final String subject;
@@ -27,6 +30,9 @@ class TimetableEntry {
   final String endTime;
   final String room;
   final String userId;
+  final bool? isAttended;
+  final String? lectureContent;
+  final bool isAdditional;
 
   const TimetableEntry({
     required this.id,
@@ -36,6 +42,9 @@ class TimetableEntry {
     required this.endTime,
     required this.room,
     required this.userId,
+    this.isAttended,
+    this.lectureContent,
+    this.isAdditional = false,
   });
 
   // ---------------------------------------------------------------------------
@@ -51,6 +60,9 @@ class TimetableEntry {
       'endTime': endTime,
       'room': room,
       'userId': userId,
+      'isAttended': isAttended == null ? null : (isAttended! ? 1 : 0),
+      'lectureContent': lectureContent,
+      'isAdditional': isAdditional ? 1 : 0,
     };
   }
 
@@ -63,6 +75,9 @@ class TimetableEntry {
       endTime: map['endTime'] as String,
       room: map['room'] as String,
       userId: map['userId'] as String,
+      isAttended: map['isAttended'] == null ? null : (map['isAttended'] as int == 1),
+      lectureContent: map['lectureContent'] as String?,
+      isAdditional: (map['isAdditional'] as int? ?? 0) == 1,
     );
   }
 
