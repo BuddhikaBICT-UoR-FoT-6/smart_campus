@@ -24,6 +24,7 @@ import '../presentation/screens/splash_screen.dart';
 import '../presentation/screens/semester_overview_screen.dart';
 import '../presentation/screens/qr_scanner_screen.dart';
 import '../presentation/screens/campus_map_screen.dart';
+import '../presentation/screens/attendee_log_screen.dart';
 
 class AppRoutes {
   AppRoutes._(); // prevent instantiation — utility class
@@ -42,6 +43,7 @@ class AppRoutes {
   static const String semesterOverview = '/semester-overview';
   static const String qrScanner       = '/qr-scanner';
   static const String campusMap       = '/campus-map';
+  static const String attendeeLog     = '/attendee-log';
 
   // ---------------------------------------------------------------------------
   // Route map — passed to MaterialApp.routes
@@ -59,6 +61,7 @@ class AppRoutes {
       semesterOverview: (context) => const SemesterOverviewScreen(),
       qrScanner:     (context) => const QrScannerScreen(),
       campusMap:     (context) => const CampusMapScreen(),
+      attendeeLog:   (context) => const AttendeeLogScreen(),
     };
   }
 }
