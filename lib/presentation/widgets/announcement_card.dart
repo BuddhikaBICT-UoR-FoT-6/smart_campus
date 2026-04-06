@@ -46,10 +46,10 @@ class AnnouncementCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     announcement.title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 15,
-                      color: AppTheme.textPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -63,8 +63,8 @@ class AnnouncementCard extends StatelessWidget {
             // ---------- Body ----------
             Text(
               announcement.body,
-              style: const TextStyle(
-                color: AppTheme.textSecondary,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                 fontSize: 13,
                 height: 1.5,
               ),

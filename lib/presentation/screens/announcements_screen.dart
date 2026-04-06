@@ -62,7 +62,7 @@ class AnnouncementsScreen extends StatelessWidget {
               Text(
                 provider.errorMessage!,
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: AppTheme.textSecondary),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
               ),
               const SizedBox(height: 20),
               ElevatedButton.icon(
@@ -86,7 +86,7 @@ class AnnouncementsScreen extends StatelessWidget {
           SizedBox(height: 100),
           Center(
             child: Text('No announcements available.',
-                style: TextStyle(color: AppTheme.textSecondary)),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
           ),
         ],
       );
