@@ -53,14 +53,14 @@ class TimetableTile extends StatelessWidget {
                         color: AppTheme.primary,
                       ),
                     ),
-                    const Text('|',
+                    Text('|',
                         style:
-                            TextStyle(color: AppTheme.textSecondary, fontSize: 10)),
+                            TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), fontSize: 10)),
                     Text(
                       entry.endTime,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: AppTheme.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                       ),
                     ),
                   ],
@@ -76,22 +76,22 @@ class TimetableTile extends StatelessWidget {
                   children: [
                     Text(
                       entry.subject,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
-                        color: AppTheme.textPrimary,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        const Icon(Icons.room_outlined,
-                            size: 14, color: AppTheme.textSecondary),
+                        Icon(Icons.room_outlined,
+                            size: 14, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
                         const SizedBox(width: 4),
                         Text(
                           entry.room,
-                          style: const TextStyle(
-                              fontSize: 12, color: AppTheme.textSecondary),
+                          style: TextStyle(
+                              fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
                         ),
                       ],
                     ),
@@ -126,7 +126,7 @@ class TimetableTile extends StatelessWidget {
                 ),
               
               const SizedBox(width: 4),
-              const Icon(Icons.chevron_right, size: 20, color: AppTheme.textSecondary),
+              Icon(Icons.chevron_right, size: 20, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
             ],
           ),
         ),
