@@ -16,6 +16,8 @@ import '../../providers/timetable_provider.dart';
 import '../../domain/models/timetable_entry.dart';
 import '../widgets/timetable_tile.dart';
 import '../../app/theme.dart';
+import '../../app/routes.dart';
+import '../../providers/calendar_provider.dart';
 
 class TimetableScreen extends StatefulWidget {
   const TimetableScreen({super.key});
@@ -61,8 +63,57 @@ class _TimetableScreenState extends State<TimetableScreen> with SingleTickerProv
       return _buildErrorState(context, provider.errorMessage!);
     }
 
+    final calendar = context.watch<CalendarProvider>();
+
     return Column(
       children: [
+        // 1. Semester Overview Tile
+        if (calendar.currentWeek != null)
+          InkWell(
+            onTap: () => Navigator.pushNamed(context, AppRoutes.semesterOverview),
+            child: Container(
+              width: double.infinity,
+              margin: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [AppTheme.primary, AppTheme.primary.withOpacity(0.8)],
+                ),
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.primary.withOpacity(0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.calendar_month, color: Colors.white),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Academic Semester 2026',
+                          style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 11),
+                        ),
+                        Text(
+                          calendar.currentWeek!.label,
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Text('VIEW ALL', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10)),
+                  const Icon(Icons.chevron_right, color: Colors.white, size: 16),
+                ],
+              ),
+            ),
+          ),
+
         // 2. Weekday Selector fulfilling Tabbed UI requirement
         Material(
           color: Theme.of(context).scaffoldBackgroundColor,

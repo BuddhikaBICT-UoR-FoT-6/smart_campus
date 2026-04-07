@@ -21,6 +21,7 @@ import '../presentation/screens/timetable_screen.dart';
 import '../presentation/screens/events_screen.dart';
 import '../presentation/screens/qr_display_screen.dart';
 import '../presentation/screens/splash_screen.dart';
+import '../presentation/screens/semester_overview_screen.dart';
 
 class AppRoutes {
   AppRoutes._(); // prevent instantiation — utility class
@@ -36,6 +37,7 @@ class AppRoutes {
   static const String timetable       = '/timetable';
   static const String events          = '/events';
   static const String qrDisplay       = '/qr-display';
+  static const String semesterOverview = '/semester-overview';
 
   // ---------------------------------------------------------------------------
   // Route map — passed to MaterialApp.routes
@@ -50,6 +52,7 @@ class AppRoutes {
       timetable:     (context) => const TimetableScreen(),
       events:        (context) => const EventsScreen(),
       qrDisplay:     (context) => const QrDisplayScreen(),
+      semesterOverview: (context) => const SemesterOverviewScreen(),
     };
   }
 }
