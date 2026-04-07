@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../../providers/calendar_provider.dart';
 import '../../domain/models/academic_week.dart';
 import '../../app/theme.dart';
+import 'past_week_detail_screen.dart';
 
 class SemesterOverviewScreen extends StatelessWidget {
   const SemesterOverviewScreen({super.key});
@@ -59,6 +60,9 @@ class _AcademicWeekTile extends StatelessWidget {
         break;
     }
 
+    final isPast = DateTime.now().isAfter(week.endDate);
+    final canViewDetails = isPast || isCurrent;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -75,8 +79,18 @@ class _AcademicWeekTile extends StatelessWidget {
           ),
         ],
       ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: InkWell(
+        onTap: canViewDetails ? () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PastWeekDetailScreen(week: week),
+            ),
+          );
+        } : null,
+        borderRadius: BorderRadius.circular(12),
+        child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: CircleAvatar(
           backgroundColor: typeColor,
           child: Text(
@@ -107,7 +121,10 @@ class _AcademicWeekTile extends StatelessWidget {
                   style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
                 ),
               )
-            : null,
+            : canViewDetails 
+                ? Icon(Icons.history, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3))
+                : null,
+        ),
       ),
     );
   }
