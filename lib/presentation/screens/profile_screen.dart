@@ -122,13 +122,26 @@ class ProfileScreen extends StatelessWidget {
           _buildInfoRow(context, Icons.phone_outlined, 'Phone', user.emergencyPhone ?? 'Not specified'),
 
           const SizedBox(height: 48),
-
-          // ---------- 4. Academic Performance Section ----------
-          const AcademicPerformanceWidget(),
           
-          const SizedBox(height: 64),
+          // ---------- 4. Settings Section ----------
+          const Text(
+            'Settings',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          _buildToggleRow(context, Icons.notifications_active_outlined, 'Push Notifications', true),
+          _buildToggleRow(context, Icons.email_outlined, 'Email Alerts', false),
+          _buildToggleRow(context, Icons.vibration, 'Haptic Feedback', true),
 
-          // ---------- 5. Session Actions ----------
+          const SizedBox(height: 48),
+
+          // ---------- 5. Academic Performance Section (Student Only) ----------
+          if (user.role == UserRole.student) ...[
+            const AcademicPerformanceWidget(),
+            const SizedBox(height: 64),
+          ],
+          
+          // ---------- 6. Session Actions ----------
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
@@ -176,6 +189,24 @@ class ProfileScreen extends StatelessWidget {
                 )
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildToggleRow(BuildContext context, IconData icon, String label, bool value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Icon(icon, size: 24, color: AppTheme.textSecondary),
+          const SizedBox(width: 16),
+          Expanded(child: Text(label, style: const TextStyle(fontSize: 15))),
+          Switch(
+            value: value,
+            onChanged: (val) {},
+            activeColor: AppTheme.primary,
           ),
         ],
       ),
