@@ -53,14 +53,15 @@ class DatabaseHelper {
 
     return openDatabase(
       fullPath,
-      version: 3,
+      version: 4,
       onCreate: _onCreate,
       onUpgrade: (db, oldV, newV) async {
-        if (oldV < 3) {
+        if (oldV < 4) {
           // Destructive upgrade for demo
           await db.execute('DROP TABLE IF EXISTS timetable');
           await db.execute('DROP TABLE IF EXISTS users');
           await db.execute('DROP TABLE IF EXISTS academic_results');
+          await db.execute('DROP TABLE IF EXISTS academic_calendar');
           await _createTables(db);
           await _seedMockData(db);
         }
@@ -113,6 +114,18 @@ class DatabaseHelper {
         gpa     REAL NOT NULL,
         userId  TEXT NOT NULL,
         FOREIGN KEY (userId) REFERENCES users(id)
+      )
+    ''');
+
+    // Table: academic_calendar
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS academic_calendar (
+        id      INTEGER PRIMARY KEY AUTOINCREMENT,
+        number  INTEGER NOT NULL,
+        label   TEXT NOT NULL,
+        type    TEXT NOT NULL,
+        startDate TEXT NOT NULL,
+        endDate   TEXT NOT NULL
       )
     ''');
 
@@ -334,6 +347,39 @@ class DatabaseHelper {
       await db.insert('academic_results', {
         ...res,
         'userId': 'usr-001',
+      });
+    }
+
+    // --- Academic Calendar 2026 (6 Months) ---
+    final calendar = [
+      {'number': 1, 'label': 'Week 01', 'type': 'academic', 'start': '2026-03-02', 'end': '2026-03-08'},
+      {'number': 2, 'label': 'Week 02', 'type': 'academic', 'start': '2026-03-09', 'end': '2026-03-15'},
+      {'number': 3, 'label': 'Week 03', 'type': 'academic', 'start': '2026-03-16', 'end': '2026-03-22'},
+      {'number': 4, 'label': 'Week 04', 'type': 'academic', 'start': '2026-03-23', 'end': '2026-03-29'},
+      {'number': 5, 'label': 'Week 05', 'type': 'academic', 'start': '2026-03-30', 'end': '2026-04-05'},
+      {'number': 6, 'label': 'Week 06', 'type': 'academic', 'start': '2026-04-06', 'end': '2026-04-12'}, // CURRENT WEEK IS HERE
+      {'number': 7, 'label': 'Vacation', 'type': 'vacation', 'start': '2026-04-13', 'end': '2026-04-19'},
+      {'number': 8, 'label': 'Week 07', 'type': 'academic', 'start': '2026-04-20', 'end': '2026-04-26'},
+      {'number': 9, 'label': 'Week 08', 'type': 'academic', 'start': '2026-04-27', 'end': '2026-05-03'},
+      {'number': 10, 'label': 'Week 09', 'type': 'academic', 'start': '2026-05-04', 'end': '2026-05-10'},
+      {'number': 11, 'label': 'Week 10', 'type': 'academic', 'start': '2026-05-11', 'end': '2026-05-17'},
+      {'number': 12, 'label': 'Week 11', 'type': 'academic', 'start': '2026-05-18', 'end': '2026-05-24'},
+      {'number': 13, 'label': 'Week 12', 'type': 'academic', 'start': '2026-05-25', 'end': '2026-05-31'},
+      {'number': 14, 'label': 'Week 13', 'type': 'academic', 'start': '2026-06-01', 'end': '2026-06-07'},
+      {'number': 15, 'label': 'Week 14', 'type': 'academic', 'start': '2026-06-08', 'end': '2026-06-14'},
+      {'number': 16, 'label': 'Study Break', 'type': 'vacation', 'start': '2026-06-15', 'end': '2026-06-21'},
+      {'number': 17, 'label': 'Exams Week 01', 'type': 'exam', 'start': '2026-06-22', 'end': '2026-06-28'},
+      {'number': 18, 'label': 'Exams Week 02', 'type': 'exam', 'start': '2026-06-29', 'end': '2026-07-05'},
+      {'number': 19, 'label': 'Vacation', 'type': 'vacation', 'start': '2026-07-06', 'end': '2026-07-12'},
+      {'number': 20, 'label': 'Result release', 'type': 'result', 'start': '2026-07-13', 'end': '2026-07-19'},
+    ];
+    for (final c in calendar) {
+      await db.insert('academic_calendar', {
+        'number': c['number'],
+        'label': c['label'],
+        'type': c['type'],
+        'startDate': c['start'],
+        'endDate': c['end'],
       });
     }
   }
