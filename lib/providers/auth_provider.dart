@@ -28,6 +28,7 @@ import 'dart:convert'; // Added for JWT token parsing and serialization algorith
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // Added for production-grade secure storage
 import '../domain/models/user.dart';
+import '../data/local/database_helper.dart';
 
 class AuthProvider extends ChangeNotifier {
   // ---------------------------------------------------------------------------
@@ -192,6 +193,23 @@ class AuthProvider extends ChangeNotifier {
     await _secureStorage.delete(key: 'auth_token');
 
     // 3. Inform the app router to immediately navigate to the Login screen
+    notifyListeners();
+  }
+
+  /// Updates the current user's profile in the SQLite database and locally.
+  Future<void> updateUserProfile(User updatedUser) async {
+    if (_currentUser == null || _currentUser!.id != updatedUser.id) return;
+
+    // Update local DB
+    await DatabaseHelper.instance.updateUser(updatedUser);
+
+    // Update in-memory state
+    _currentUser = updatedUser;
+    
+    // We should also theoretically update the JWT in the secure storage here,
+    // but since the mock JWT only stores name, email, role, and ID (which aren't changing),
+    // it can remain as is. If we allowed changing the name, we should recreate the JWT.
+    
     notifyListeners();
   }
 }

@@ -10,6 +10,7 @@ import '../../providers/event_provider.dart';
 import '../../app/routes.dart';
 import '../../app/theme.dart';
 import '../widgets/academic_performance_widget.dart';
+import 'edit_profile_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -72,11 +73,26 @@ class ProfileScreen extends StatelessWidget {
           const SizedBox(height: 40),
 
           // ---------- 2. Personal Details Section ----------
-          const Text(
-            'Personal Details',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Personal Details',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              TextButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const EditProfileScreen()),
+                  );
+                },
+                icon: const Icon(Icons.edit, size: 16),
+                label: const Text('Edit'),
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
           _buildInfoRow(context, Icons.email_outlined, 'Email', user.email),
           _buildInfoRow(context, Icons.location_on_outlined, 'Address', user.address ?? 'Not specified'),
           

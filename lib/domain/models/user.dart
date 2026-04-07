@@ -61,4 +61,25 @@ class User {
 
   @override
   String toString() => 'User(id: $id, name: $name, role: ${role.name})';
+
+  User copyWith({
+    String? name,
+    String? email,
+    UserRole? role,
+    String? address,
+    String? emergencyName,
+    String? emergencyPhone,
+    String? profilePic,
+  }) {
+    return User(
+      id: id,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      role: role ?? this.role,
+      address: address ?? this.address,
+      emergencyName: emergencyName ?? this.emergencyName,
+      emergencyPhone: emergencyPhone ?? this.emergencyPhone,
+      profilePic: profilePic ?? this.profilePic,
+    );
+  }
 }
