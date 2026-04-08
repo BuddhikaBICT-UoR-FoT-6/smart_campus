@@ -14,6 +14,7 @@ import '../../domain/models/announcement.dart';
 import '../../app/theme.dart';
 
 class AnnouncementCard extends StatelessWidget {
+  final Announcement announcement;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
 
@@ -70,7 +71,7 @@ class AnnouncementCard extends StatelessWidget {
             Text(
               announcement.body,
               style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                 fontSize: 13,
                 height: 1.5,
               ),
