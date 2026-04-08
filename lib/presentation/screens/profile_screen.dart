@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/auth_provider.dart';
+import '../../domain/models/user.dart';
 import '../../providers/event_provider.dart';
 import '../../app/routes.dart';
 import '../../app/theme.dart';
@@ -34,7 +35,7 @@ class ProfileScreen extends StatelessWidget {
                   children: [
                     CircleAvatar(
                       radius: 54,
-                      backgroundColor: AppTheme.primary.withOpacity(0.1),
+                      backgroundColor: AppTheme.primary.withValues(alpha: 0.1),
                       child: Text(
                         user.name.substring(0, 1).toUpperCase(),
                         style: const TextStyle(
@@ -59,7 +60,7 @@ class ProfileScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppTheme.primary.withOpacity(0.1),
+                    color: AppTheme.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -206,7 +207,7 @@ class ProfileScreen extends StatelessWidget {
           Switch(
             value: value,
             onChanged: (val) {},
-            activeColor: AppTheme.primary,
+            activeThumbColor: AppTheme.primary,
           ),
         ],
       ),
