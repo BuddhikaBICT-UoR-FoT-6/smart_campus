@@ -14,6 +14,7 @@ import 'package:provider/provider.dart';
 
 import '../../providers/auth_provider.dart';
 import '../../domain/models/user.dart';
+import '../../domain/models/announcement.dart';
 import '../../providers/announcement_provider.dart';
 import '../widgets/announcement_card.dart';
 import '../../app/theme.dart';
@@ -33,7 +34,7 @@ class AnnouncementsScreen extends StatelessWidget {
       return ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: 5, // 2. Render exactly 5 ghost elements to fill standard screen vertical real-estate
-        itemBuilder: (_, __) => Shimmer.fromColors(
+        itemBuilder: (context, index) => Shimmer.fromColors(
           baseColor: AppTheme.primary.withValues(alpha: 0.1), // 3. Tint the base wireframe using brand language
           highlightColor: AppTheme.onPrimary,                 // 4. Highlight sweep geometry mapped to light mode colors
           child: Container(
@@ -62,7 +63,7 @@ class AnnouncementsScreen extends StatelessWidget {
               Text(
                 provider.errorMessage!,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
               ),
               const SizedBox(height: 20),
               ElevatedButton.icon(
@@ -86,7 +87,7 @@ class AnnouncementsScreen extends StatelessWidget {
           const SizedBox(height: 100),
           Center(
             child: Text('No announcements available.',
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6))),
           ),
         ],
       );
