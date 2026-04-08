@@ -35,4 +35,9 @@ class LmsProvider extends ChangeNotifier {
     _materials = [];
     notifyListeners();
   }
+
+  Future<void> addMaterial(LmsMaterial material) async {
+    await _dao.insertMaterial(material);
+    await loadMaterialsForModule(material.moduleId);
+  }
 }

@@ -23,6 +23,10 @@ class ModuleProvider extends ChangeNotifier {
   List<Module> _enrolledModules = [];
   List<Module> get enrolledModules => _enrolledModules;
 
+  List<Module> getModulesByLevelAndSemester(int level, int semester) {
+    return _allModules.where((m) => m.level == level && m.semester == semester).toList();
+  }
+
   Future<void> loadModules(String userId) async {
     _isLoading = true;
     notifyListeners();
@@ -38,17 +42,51 @@ class ModuleProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> loadAllModulesOnly() async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      _allModules = await _dao.getAllModules();
+    } catch (e) {
+      debugPrint('[ModuleProvider] Failed to load all modules: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   bool isEnrolled(String moduleId) {
     return _enrolledModules.any((m) => m.id == moduleId);
   }
 
-  Future<void> enroll(String userId, String moduleId) async {
+  Future<void> enroll(String userId, String moduleId, bool isLocked) async {
+    if (isLocked) {
+      debugPrint('[ModuleProvider] Blocked enrollment: Deadline passed.');
+      return;
+    }
     await _dao.enrollModule(userId, moduleId);
     await loadModules(userId); // Reload state
   }
 
-  Future<void> drop(String userId, String moduleId) async {
+  Future<void> drop(String userId, String moduleId, bool isLocked) async {
+    if (isLocked) {
+      debugPrint('[ModuleProvider] Blocked drop: Deadline passed.');
+      return;
+    }
     await _dao.dropModule(userId, moduleId);
     await loadModules(userId); // Reload state
+  }
+
+  Future<void> addModule(Module module) async {
+    await _dao.insertModule(module);
+    _allModules = await _dao.getAllModules();
+    notifyListeners();
+  }
+
+  Future<void> deleteModule(String moduleId) async {
+    await _dao.deleteModule(moduleId);
+    _allModules = await _dao.getAllModules();
+    notifyListeners();
   }
 }

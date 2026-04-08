@@ -47,4 +47,9 @@ class UserManagementProvider extends ChangeNotifier {
     await _dao.suspendUser(id, suspend);
     await loadUsers();
   }
+
+  Future<void> resetPassword(String id, String newPassword) async {
+    await _dao.resetPassword(id, newPassword);
+    await loadUsers();
+  }
 }
