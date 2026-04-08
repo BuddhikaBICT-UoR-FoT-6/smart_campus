@@ -15,14 +15,20 @@ import 'package:provider/provider.dart';
 
 import '../../providers/event_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../domain/models/user.dart';
 import '../../domain/models/event.dart';
 import '../../app/routes.dart';
 import '../../app/theme.dart';
 import 'package:shimmer/shimmer.dart'; // Advanced declarative skeleton framework component package
 
-class EventsScreen extends StatelessWidget {
+class EventsScreen extends StatefulWidget {
   const EventsScreen({super.key});
 
+  @override
+  State<EventsScreen> createState() => EventsScreenState();
+}
+
+class EventsScreenState extends State<EventsScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<EventProvider>();
@@ -33,7 +39,7 @@ class EventsScreen extends StatelessWidget {
       return ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: 4, // 2. Generating 4 synthetic event blocks
-        itemBuilder: (_, __) => Shimmer.fromColors(
+        itemBuilder: (context, index) => Shimmer.fromColors(
           baseColor: AppTheme.primary.withValues(alpha: 0.08), // 3. Base wireframe layout color bounds mapped to theme
           highlightColor: Colors.white, // 4. White flash overlay mapping
           child: Container(
