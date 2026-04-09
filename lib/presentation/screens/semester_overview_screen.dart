@@ -67,13 +67,13 @@ class _AcademicWeekTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: isCurrent 
-            ? typeColor.withOpacity(0.1) 
+            ? typeColor.withValues(alpha: 0.1) 
             : Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
         border: isCurrent ? Border.all(color: typeColor, width: 2) : null,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -107,7 +107,7 @@ class _AcademicWeekTile extends StatelessWidget {
         ),
         subtitle: Text(
           '${_formatDate(week.startDate)} - ${_formatDate(week.endDate)}',
-          style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
         ),
         trailing: isCurrent 
             ? Container(
@@ -122,7 +122,7 @@ class _AcademicWeekTile extends StatelessWidget {
                 ),
               )
             : canViewDetails 
-                ? Icon(Icons.history, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3))
+                ? Icon(Icons.history, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3))
                 : null,
         ),
       ),

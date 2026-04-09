@@ -39,7 +39,7 @@ class TimetableTile extends StatelessWidget {
                 alignment: Alignment.center,
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 decoration: BoxDecoration(
-                  color: AppTheme.primary.withOpacity(0.08),
+                  color: AppTheme.primary.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Column(
@@ -55,7 +55,7 @@ class TimetableTile extends StatelessWidget {
                     ),
                     Text('|',
                         style:
-                            TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), fontSize: 10)),
+                            TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 10)),
                     Text(
                       entry.endTime,
                       style: TextStyle(
@@ -86,12 +86,12 @@ class TimetableTile extends StatelessWidget {
                     Row(
                       children: [
                         Icon(Icons.room_outlined,
-                            size: 14, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
+                            size: 14, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
                         const SizedBox(width: 4),
                         Text(
                           entry.room,
                           style: TextStyle(
-                              fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
+                              fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
                         ),
                       ],
                     ),
@@ -116,7 +116,7 @@ class TimetableTile extends StatelessWidget {
                   margin: const EdgeInsets.only(left: 8),
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.2),
+                    color: Colors.orange.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: const Text(
@@ -126,7 +126,7 @@ class TimetableTile extends StatelessWidget {
                 ),
               
               const SizedBox(width: 4),
-              Icon(Icons.chevron_right, size: 20, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
+              Icon(Icons.chevron_right, size: 20, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
             ],
           ),
         ),

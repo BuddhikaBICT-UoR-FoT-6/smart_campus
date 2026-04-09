@@ -26,7 +26,7 @@ class TimetableDetailScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: AppTheme.primary.withOpacity(0.1),
+                color: AppTheme.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
@@ -45,12 +45,12 @@ class TimetableDetailScreen extends StatelessWidget {
                     children: [
                       const Icon(Icons.location_on_outlined, size: 18, color: AppTheme.textSecondary),
                       const SizedBox(width: 4),
-                      Text(entry.room, style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7))),
+                      Text(entry.room, style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7))),
                       const Spacer(),
                       const Icon(Icons.access_time, size: 18, color: AppTheme.textSecondary),
                       const SizedBox(width: 4),
                       Text('${entry.startTime} - ${entry.endTime}', 
-                          style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7))),
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7))),
                     ],
                   ),
                 ],
@@ -68,7 +68,7 @@ class TimetableDetailScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
-                  color: entry.isAttended! ? Colors.green.withOpacity(0.1) : Colors.red.withOpacity(0.1),
+                  color: entry.isAttended! ? Colors.green.withValues(alpha: 0.1) : Colors.red.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: entry.isAttended! ? Colors.green : Colors.red),
                 ),
@@ -114,7 +114,7 @@ class TimetableDetailScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withOpacity(0.1),
+                  color: Colors.orange.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Row(

@@ -45,7 +45,7 @@ class PastWeekDetailScreen extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppTheme.primary.withOpacity(0.1),
+            color: AppTheme.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Column(
@@ -55,7 +55,7 @@ class PastWeekDetailScreen extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 '${_formatDate(week.startDate)} - ${_formatDate(week.endDate)}',
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
               ),
               const SizedBox(height: 12),
               // Simulated attendance stat
