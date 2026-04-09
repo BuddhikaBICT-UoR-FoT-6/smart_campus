@@ -13,7 +13,6 @@ class CampusMapScreen extends StatefulWidget {
 
 class _CampusMapScreenState extends State<CampusMapScreen> {
   LatLng? _currentPosition;
-  bool _isLoadingLocation = true;
   final MapController _mapController = MapController();
 
   // Mock university coordinates (e.g., University of Ruhuna, Faculty of Technology center)
@@ -52,7 +51,6 @@ class _CampusMapScreenState extends State<CampusMapScreen> {
 
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      setState(() => _isLoadingLocation = false);
       return;
     }
 
@@ -60,13 +58,11 @@ class _CampusMapScreenState extends State<CampusMapScreen> {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        setState(() => _isLoadingLocation = false);
         return;
       }
     }
     
     if (permission == LocationPermission.deniedForever) {
-      setState(() => _isLoadingLocation = false);
       return;
     } 
 
@@ -77,13 +73,11 @@ class _CampusMapScreenState extends State<CampusMapScreen> {
       );
       setState(() {
         _currentPosition = LatLng(position.latitude, position.longitude);
-        _isLoadingLocation = false;
       });
       
       // Optionally move camera to user location
       _mapController.move(_currentPosition!, 16.0);
     } catch (e) {
-      setState(() => _isLoadingLocation = false);
     }
   }
 
