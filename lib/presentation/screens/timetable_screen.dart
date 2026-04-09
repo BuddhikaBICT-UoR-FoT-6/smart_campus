@@ -16,6 +16,8 @@ import '../../providers/timetable_provider.dart';
 import '../widgets/timetable_tile.dart';
 import '../../app/theme.dart';
 import '../../app/routes.dart';
+import '../../domain/models/user.dart';
+import '../../domain/models/timetable_entry.dart';
 import '../../providers/calendar_provider.dart';
 
 class TimetableScreen extends StatefulWidget {
@@ -63,6 +65,7 @@ class _TimetableScreenState extends State<TimetableScreen> with SingleTickerProv
     }
 
     final calendar = context.watch<CalendarProvider>();
+    final user = context.watch<AuthProvider>().currentUser;
 
     final isStaff = user?.role == UserRole.staff;
 
@@ -80,12 +83,12 @@ class _TimetableScreenState extends State<TimetableScreen> with SingleTickerProv
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [AppTheme.primary, AppTheme.primary.withOpacity(0.8)],
+                  colors: [AppTheme.primary, AppTheme.primary.withValues(alpha: 0.8)],
                 ),
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.primary.withOpacity(0.3),
+                    color: AppTheme.primary.withValues(alpha: 0.3),
                     blurRadius: 8,
                     offset: const Offset(0, 4),
                   ),
@@ -101,7 +104,7 @@ class _TimetableScreenState extends State<TimetableScreen> with SingleTickerProv
                       children: [
                         Text(
                           'Academic Semester 2026',
-                          style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 11),
+                          style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 11),
                         ),
                         Text(
                           calendar.currentWeek!.label,
@@ -169,7 +172,7 @@ class _TimetableScreenState extends State<TimetableScreen> with SingleTickerProv
                             style: TextStyle(
                               fontWeight: FontWeight.bold, 
                               fontSize: 13, 
-                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                             )),
                       ),
                       ...dayEntries.map((e) => _buildSessionTile(context, e, isStaff)),
