@@ -29,6 +29,7 @@ import 'package:flutter/material.dart';
 import '../domain/models/announcement.dart';
 import '../domain/usecases/get_announcements.dart';
 import '../data/repositories/announcement_repository.dart';
+import '../core/services/notification_service.dart';
 
 class AnnouncementProvider extends ChangeNotifier {
   // ---------------------------------------------------------------------------
@@ -107,7 +108,7 @@ class AnnouncementProvider extends ChangeNotifier {
   // ---------------------------------------------------------------------------
 
   /// Simulates adding a new announcement locally securely mapping offline memory structures
-  void addAnnouncement(String title, String body, String posterName) {
+  void addAnnouncement(String title, String body, String posterName, {bool isUrgent = false}) {
     final newId = DateTime.now().millisecondsSinceEpoch;
     final newAnnouncement = Announcement(
       id: newId,
@@ -120,5 +121,27 @@ class AnnouncementProvider extends ChangeNotifier {
     // Insert at top of list
     _announcements.insert(0, newAnnouncement);
     notifyListeners();
+
+    if (isUrgent) {
+      NotificationService().showNotification(
+        id: newId, 
+        title: '🚨 $title', 
+        body: body,
+      );
+    }
+  }
+
+  /// Simulates receiving an urgent push notification from the university
+  void simulateUrgentAnnouncement() {
+    final title = 'Campus Closure';
+    final body = 'All classes are cancelled today due to severe weather conditions.';
+    
+    addAnnouncement(title, body, 'Adminstration');
+    
+    NotificationService().showNotification(
+      id: DateTime.now().millisecondsSinceEpoch ~/ 1000, 
+      title: '🚨 $title', 
+      body: body,
+    );
   }
 }
