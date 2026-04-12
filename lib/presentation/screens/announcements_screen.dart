@@ -127,6 +127,7 @@ class AnnouncementsScreen extends StatelessWidget {
     final titleController = TextEditingController();
     final bodyController = TextEditingController();
     final formKey = GlobalKey<FormState>();
+    bool isUrgent = false;
 
     showDialog(
       context: context,
@@ -149,6 +150,22 @@ class AnnouncementsScreen extends StatelessWidget {
                 maxLines: 3,
                 validator: (v) => v!.isEmpty ? 'Required' : null,
               ),
+              const SizedBox(height: 16),
+              StatefulBuilder(
+                builder: (context, setState) {
+                  return CheckboxListTile(
+                    title: const Text('Mark as Urgent (Push Notification)'),
+                    value: isUrgent,
+                    onChanged: (val) {
+                      setState(() {
+                        isUrgent = val ?? false;
+                      });
+                    },
+                    controlAffinity: ListTileControlAffinity.leading,
+                    contentPadding: EdgeInsets.zero,
+                  );
+                },
+              ),
             ],
           ),
         ),
@@ -164,6 +181,7 @@ class AnnouncementsScreen extends StatelessWidget {
                       titleController.text,
                       bodyController.text,
                       posterName,
+                      isUrgent: isUrgent,
                     );
                 Navigator.pop(ctx);
                 ScaffoldMessenger.of(context).showSnackBar(
