@@ -126,20 +126,19 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: AppSpacing.lg), // Refactored magic number
 
-                  const Text(
-                    // 4. Refactored bare string to unified system string mapping
+                  Text(
                     AppStrings.appName,
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.w700,
-                      color: AppTheme.textPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: AppSpacing.sm), // Refactored magic number
-                  const Text(
+                  Text(
                     'Sign in to continue',
                     style: TextStyle(
-                        fontSize: 15, color: AppTheme.textSecondary),
+                        fontSize: 15, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   ),
                   const SizedBox(height: AppSpacing.xl), // Refactored magic number
 
@@ -147,7 +146,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   TextFormField(
                     controller: _emailCtrl,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
-                    keyboardType: TextInputType.emailAddress,
+                    keyboardType: TextInputType.text,
+                    textInputAction: TextInputAction.next,
                     decoration: const InputDecoration(
                       labelText: 'Email address',
                       prefixIcon: Icon(Icons.email_outlined),
@@ -177,6 +177,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   controller: _passCtrl,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   obscureText: _obscurePass,
+                  textInputAction: TextInputAction.done,
                   decoration: InputDecoration(
                     labelText: 'Password',
                     prefixIcon: const Icon(Icons.lock_outline),

@@ -36,6 +36,7 @@ import '../presentation/screens/admin/results_admin_screen.dart';
 import '../presentation/screens/admin/config_admin_screen.dart';
 import '../presentation/screens/medical_submission_screen.dart';
 import '../presentation/screens/admin/medical_review_screen.dart';
+import '../presentation/screens/admin/module_management_screen.dart';
 
 import '../presentation/screens/course_registration_screen.dart';
 import '../presentation/screens/lms_screen.dart';
@@ -73,6 +74,7 @@ class AppRoutes {
   static const String courseRegistration = '/course-registration';
   static const String lms              = '/lms';
   static const String attendanceDashboard = '/attendance-dashboard';
+  static const String adminModules    = '/admin/modules';
 
   // ---------------------------------------------------------------------------
   // Route map — passed to MaterialApp.routes
@@ -105,6 +107,7 @@ class AppRoutes {
       courseRegistration: (_) => const CourseRegistrationScreen(),
       lms:              (_) => const LmsScreen(),
       attendanceDashboard: (_) => const AttendanceDashboardScreen(),
+      adminModules:    (_) => const ModuleManagementScreen(),
     };
   }
 }

@@ -29,6 +29,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // Added for production-grade secure storage
 import '../domain/models/user.dart';
 import '../data/local/database_helper.dart';
+import '../utils/security_helper.dart';
 
 class AuthProvider extends ChangeNotifier {
   // ---------------------------------------------------------------------------
@@ -160,24 +161,43 @@ class AuthProvider extends ChangeNotifier {
     // Simulate network latency (300 ms)
     await Future.delayed(const Duration(milliseconds: 300));
 
-    final match = _mockUsers.firstWhere(
-      (u) => u['email'] == email.trim() && u['password'] == password,
-      orElse: () => {},
+    // Try to find user in SQLite database first (for dynamic users and changed passwords)
+    final db = await DatabaseHelper.instance.database;
+    debugPrint('[AuthProvider] Attempting login for: ${email.trim()}');
+    
+    final hashedInput = SecurityHelper.hashPassword(password);
+    
+    // Diagnostic: List all users to see what's in the DB
+    final allUsers = await db.query('users');
+    debugPrint('[AuthProvider] Current DB Users: ${allUsers.map((u) => "{email: ${u['email']}, pwd: ${u['password']}}").toList()}');
+
+    final rows = await db.query(
+      'users',
+      where: 'email = ? AND password = ?',
+      whereArgs: [email.trim(), hashedInput],
     );
 
-    if (match.isEmpty) {
-      return false; // invalid credentials
+    debugPrint('[AuthProvider] DB search found ${rows.length} rows');
+
+    if (rows.isEmpty) {
+      debugPrint('[AuthProvider] Login failed: Invalid credentials or user not found.');
+      return false; 
     }
+
+    final match = Map<String, dynamic>.from(rows.first);
 
     // Hydrate the runtime User object natively mapping static memory boundaries
     _currentUser = User(
       id: match['id'] as String,
       name: match['name'] as String,
       email: match['email'] as String,
+      password: match['password'] as String?,
       role: UserRole.values.byName(match['role'] as String),
       level: match['level'] as int?,
       semester: match['semester'] as int?,
-      emailAlerts: (match['emailAlerts'] as bool?) ?? true,
+      emailAlerts: (match['emailAlerts'] is int) 
+          ? (match['emailAlerts'] as int == 1)
+          : (match['emailAlerts'] as bool? ?? true),
     );
 
     // 4. Construct the payload mimicking standard JWT claims structure structurally binding to Offline properties
@@ -238,5 +258,38 @@ class AuthProvider extends ChangeNotifier {
     // it can remain as is. If we allowed changing the name, we should recreate the JWT.
 
     notifyListeners();
+  }
+
+  /// Changes the current user's password.
+  Future<bool> changePassword(String oldPassword, String newPassword) async {
+    if (_currentUser == null) return false;
+
+    final db = await DatabaseHelper.instance.database;
+    
+    final hashedOld = SecurityHelper.hashPassword(oldPassword);
+    final hashedNew = SecurityHelper.hashPassword(newPassword);
+
+    // 1. Verify old password
+    final rows = await db.query(
+      'users',
+      where: 'id = ? AND password = ?',
+      whereArgs: [_currentUser!.id, hashedOld],
+    );
+
+    if (rows.isEmpty) return false; // Incorrect old password
+
+    // 2. Update to new password
+    await db.update(
+      'users',
+      {'password': hashedNew},
+      where: 'id = ?',
+      whereArgs: [_currentUser!.id],
+    );
+
+    // 3. Update in-memory user
+    _currentUser = _currentUser!.copyWith(password: hashedNew);
+    
+    notifyListeners();
+    return true;
   }
 }
