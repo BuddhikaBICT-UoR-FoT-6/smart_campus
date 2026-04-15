@@ -187,25 +187,27 @@ class ProfileScreen extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          // ---------- 5. Academic Portal Section (Student Only) ----------
-          if (user.role == UserRole.student) ...[
+          // ---------- 5. Academic Portal Section ----------
+          if (user.role == UserRole.student || user.role == UserRole.staff) ...[
             const Text(
               'Academic Portal',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                icon: const Icon(Icons.app_registration),
-                label: const Text('Course Registration'),
-                style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)),
-                onPressed: () {
-                  Navigator.pushNamed(context, AppRoutes.courseRegistration);
-                },
+            if (user.role == UserRole.student) ...[
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.app_registration),
+                  label: const Text('Course Registration'),
+                  style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)),
+                  onPressed: () {
+                    Navigator.pushNamed(context, AppRoutes.courseRegistration);
+                  },
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
+              const SizedBox(height: 8),
+            ],
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
@@ -218,36 +220,38 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                icon: const Icon(Icons.analytics_outlined),
-                label: const Text('Attendance Dashboard'),
-                style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)),
-                onPressed: () {
-                  Navigator.pushNamed(context, AppRoutes.attendanceDashboard);
-                },
-              ),
-            ),
-            const SizedBox(height: 24),
-            const AcademicPerformanceWidget(),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                icon: const Icon(Icons.medical_services),
-                label: const Text('Submit Medical Clearance'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.secondary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
+            if (user.role == UserRole.student) ...[
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.analytics_outlined),
+                  label: const Text('Attendance Dashboard'),
+                  style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)),
+                  onPressed: () {
+                    Navigator.pushNamed(context, AppRoutes.attendanceDashboard);
+                  },
                 ),
-                onPressed: () {
-                  Navigator.pushNamed(context, AppRoutes.medicalSubmission);
-                },
               ),
-            ),
-            const SizedBox(height: 64),
+              const SizedBox(height: 24),
+              const AcademicPerformanceWidget(),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.medical_services),
+                  label: const Text('Submit Medical Clearance'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.secondary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
+                  onPressed: () {
+                    Navigator.pushNamed(context, AppRoutes.medicalSubmission);
+                  },
+                ),
+              ),
+            ],
+            const SizedBox(height: 32),
           ],
           
           // ---------- 6. Notifications & Settings ----------
@@ -265,6 +269,13 @@ class ProfileScreen extends StatelessWidget {
               final updatedUser = user.copyWith(emailAlerts: val);
               context.read<AuthProvider>().updateUserProfile(updatedUser);
             },
+          ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.lock_outline, color: AppTheme.textSecondary),
+            title: const Text('Change Password'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => _showChangePasswordDialog(context),
           ),
           const SizedBox(height: 12),
           
@@ -336,6 +347,90 @@ class ProfileScreen extends StatelessWidget {
             activeThumbColor: AppTheme.primary,
           ),
         ],
+      ),
+    );
+  }
+
+  void _showChangePasswordDialog(BuildContext context) {
+    final oldController = TextEditingController();
+    final newController = TextEditingController();
+    final confirmController = TextEditingController();
+    bool isLoading = false;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          title: const Text('Change Password'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: oldController,
+                obscureText: true,
+                decoration: const InputDecoration(labelText: 'Current Password'),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: newController,
+                obscureText: true,
+                decoration: const InputDecoration(labelText: 'New Password'),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: confirmController,
+                obscureText: true,
+                decoration: const InputDecoration(labelText: 'Confirm New Password'),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: isLoading ? null : () => Navigator.pop(ctx),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: isLoading ? null : () async {
+                if (newController.text != confirmController.text) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('New passwords do not match'), backgroundColor: Colors.red),
+                  );
+                  return;
+                }
+                if (newController.text.length < 4) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Password must be at least 4 characters'), backgroundColor: Colors.red),
+                  );
+                  return;
+                }
+
+                setDialogState(() => isLoading = true);
+                
+                final success = await context.read<AuthProvider>().changePassword(
+                  oldController.text,
+                  newController.text,
+                );
+
+                if (ctx.mounted) {
+                  setDialogState(() => isLoading = false);
+                  if (success) {
+                    Navigator.pop(ctx);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Password changed successfully'), backgroundColor: Colors.green),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Incorrect current password'), backgroundColor: Colors.red),
+                    );
+                  }
+                }
+              },
+              child: isLoading 
+                ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                : const Text('Change'),
+            ),
+          ],
+        ),
       ),
     );
   }
