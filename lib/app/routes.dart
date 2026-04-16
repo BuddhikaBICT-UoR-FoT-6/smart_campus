@@ -22,6 +22,8 @@ import '../presentation/screens/events_screen.dart';
 import '../presentation/screens/qr_display_screen.dart';
 import '../presentation/screens/splash_screen.dart';
 import '../presentation/screens/semester_overview_screen.dart';
+import '../presentation/screens/qr_scanner_screen.dart';
+import '../presentation/screens/campus_map_screen.dart';
 
 class AppRoutes {
   AppRoutes._(); // prevent instantiation — utility class
@@ -38,6 +40,8 @@ class AppRoutes {
   static const String events          = '/events';
   static const String qrDisplay       = '/qr-display';
   static const String semesterOverview = '/semester-overview';
+  static const String qrScanner       = '/qr-scanner';
+  static const String campusMap       = '/campus-map';
 
   // ---------------------------------------------------------------------------
   // Route map — passed to MaterialApp.routes
@@ -53,6 +57,8 @@ class AppRoutes {
       events:        (context) => const EventsScreen(),
       qrDisplay:     (context) => const QrDisplayScreen(),
       semesterOverview: (context) => const SemesterOverviewScreen(),
+      qrScanner:     (context) => const QrScannerScreen(),
+      campusMap:     (context) => const CampusMapScreen(),
     };
   }
 }
