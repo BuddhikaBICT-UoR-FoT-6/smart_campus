@@ -24,6 +24,7 @@ import 'events_screen.dart';
 import 'profile_screen.dart';
 import 'campus_contacts_screen.dart';
 import '../../providers/theme_provider.dart';
+import '../../domain/models/user.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -109,6 +110,25 @@ class _HomeScreenState extends State<HomeScreen> {
                   themeProvider.toggleTheme(!themeProvider.isDarkMode);
                 },
               );
+            },
+          ),
+          // Map Button
+          IconButton(
+            icon: const Icon(Icons.map_outlined),
+            tooltip: 'Campus Map',
+            onPressed: () => Navigator.pushNamed(context, '/campus-map'),
+          ),
+          // QR Scanner Button (Staff Only)
+          Consumer<AuthProvider>(
+            builder: (context, auth, child) {
+              if (auth.currentUser?.role == UserRole.staff) {
+                return IconButton(
+                  icon: const Icon(Icons.qr_code_scanner),
+                  tooltip: 'Scan QR Pass',
+                  onPressed: () => Navigator.pushNamed(context, '/qr-scanner'),
+                );
+              }
+              return const SizedBox.shrink();
             },
           ),
           const SizedBox(width: 8),
