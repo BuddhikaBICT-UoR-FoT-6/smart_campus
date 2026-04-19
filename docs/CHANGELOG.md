@@ -2,6 +2,14 @@
 
 All notable changes to the Smart Campus Operations System will be documented in this file.
 
+## [2.2.0] - Smart Campus Operations Overhaul (2026-04-18)
+### Added
+- Integrated **Campus Map** using `flutter_map` with OpenStreetMap and user location tracking via `geolocator`.
+- Implemented **QR Code Scanner** for staff members to verify event registrations in real-time using `mobile_scanner`.
+- Deployed **Push Notifications** service for urgent announcements using `flutter_local_notifications`.
+- Added "Urgent" announcement posting capability for Staff users with automated device notifications.
+- Added quick access buttons for Map and QR Scanner on the `HomeScreen` AppBar.
+
 ## [2.1.0] - SQLite Offline Fallback (2026-04-02)
 ### Changed
 - Rolled back overarching MySQL integration layers directly targeting local SQLite routines mapping structural offline bounds smoothly supporting hardware agnostic demonstrations.
