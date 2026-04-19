@@ -63,6 +63,11 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                 user.id, !user.name.contains('[SUSPENDED]')),
                           ),
                           IconButton(
+                            icon: const Icon(Icons.lock_reset, color: Colors.green),
+                            onPressed: () => _showResetPasswordDialog(user),
+                            tooltip: 'Reset Password',
+                          ),
+                          IconButton(
                             icon: const Icon(Icons.delete, color: Colors.red),
                             onPressed: () => _confirmDelete(user),
                           ),
@@ -72,6 +77,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                   },
                 ),
       floatingActionButton: FloatingActionButton(
+        heroTag: null,
         onPressed: () => _showUserDialog(null),
         child: const Icon(Icons.add),
       ),
@@ -193,6 +199,40 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
               Navigator.pop(ctx);
             },
             child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showResetPasswordDialog(User user) {
+    final passwordController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Reset Password for ${user.name}'),
+        content: TextField(
+          controller: passwordController,
+          decoration: const InputDecoration(labelText: 'New Password'),
+          obscureText: true,
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () {
+              if (passwordController.text.length < 4) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Password must be at least 4 characters')),
+                );
+                return;
+              }
+              context.read<UserManagementProvider>().resetPassword(user.id, passwordController.text);
+              Navigator.pop(ctx);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Password reset successfully')),
+              );
+            },
+            child: const Text('Reset'),
           ),
         ],
       ),

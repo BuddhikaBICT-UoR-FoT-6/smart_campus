@@ -3,10 +3,30 @@ import 'package:provider/provider.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/medical_provider.dart';
 import '../../../providers/theme_provider.dart';
+import '../../../providers/user_management_provider.dart';
+import '../../../providers/event_provider.dart';
 import '../../../app/routes.dart';
 
-class AdminDashboardScreen extends StatelessWidget {
+class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
+
+  @override
+  State<AdminDashboardScreen> createState() => _AdminDashboardScreenState();
+}
+
+class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final user = context.read<AuthProvider>().currentUser;
+      if (user != null) {
+        context.read<UserManagementProvider>().loadUsers();
+        context.read<EventProvider>().loadEvents(user.id);
+        context.read<MedicalProvider>().loadAllSubmissions(); // Optional, but good for sync
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,22 +55,35 @@ class AdminDashboardScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildWelcomeHeader(user?.name ?? 'Admin'),
-            const SizedBox(height: 24),
-            _buildStatsOverview(context),
-            const SizedBox(height: 24),
-            const Text(
-              'Management Modules',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            _buildAdminMenu(context),
-          ],
+      body: RefreshIndicator(
+        onRefresh: () async {
+          if (user != null && mounted) {
+            final userMgmt = context.read<UserManagementProvider>();
+            final eventProv = context.read<EventProvider>();
+            final medicalProv = context.read<MedicalProvider>();
+            
+            await userMgmt.loadUsers();
+            await eventProv.loadEvents(user.id);
+            await medicalProv.loadAllSubmissions();
+          }
+        },
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildWelcomeHeader(user?.name ?? 'Admin'),
+              const SizedBox(height: 24),
+              _buildStatsOverview(context),
+              const SizedBox(height: 24),
+              const Text(
+                'Management Modules',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
+              _buildAdminMenu(context),
+            ],
+          ),
         ),
       ),
     );
@@ -98,12 +131,25 @@ class AdminDashboardScreen extends StatelessWidget {
   Widget _buildStatsOverview(BuildContext context) {
     final medicals = context.watch<MedicalProvider>().submissions;
     final pendingMedicals = medicals.where((m) => m.status == 'pending').length;
+    
+    final userCount = context.watch<UserManagementProvider>().users.length;
+    final eventCount = context.watch<EventProvider>().events.length;
 
     return Row(
       children: [
-        Expanded(child: _buildStatCard('Users', '12', Icons.people, Colors.blue)),
+        Expanded(
+          child: InkWell(
+            onTap: () => Navigator.pushNamed(context, '/admin/users'),
+            child: _buildStatCard('Users', userCount.toString(), Icons.people, Colors.blue),
+          ),
+        ),
         const SizedBox(width: 12),
-        Expanded(child: _buildStatCard('Events', '5', Icons.event, Colors.orange)),
+        Expanded(
+          child: InkWell(
+            onTap: () => Navigator.pushNamed(context, '/admin/events'),
+            child: _buildStatCard('Events', eventCount.toString(), Icons.event, Colors.orange),
+          ),
+        ),
         const SizedBox(width: 12),
         Expanded(
           child: InkWell(
@@ -149,6 +195,7 @@ class AdminDashboardScreen extends StatelessWidget {
       {'title': 'Announcements', 'icon': Icons.notification_important, 'color': Colors.red, 'route': '/admin/announcements'},
       {'title': 'System Config', 'icon': Icons.settings, 'color': Colors.grey, 'route': '/admin/config'},
       {'title': 'Reporting', 'icon': Icons.bar_chart, 'color': Colors.blueGrey, 'route': '/admin/reporting'},
+      {'title': 'Subject Management', 'icon': Icons.menu_book_rounded, 'color': Colors.indigoAccent, 'route': AppRoutes.adminModules},
       {'title': 'Medical Approvals', 'icon': Icons.medical_services_outlined, 'color': Colors.pink, 'route': '/admin/medical-review'},
       {'title': 'Campus Map', 'icon': Icons.map, 'color': Colors.amber, 'route': '/campus-map'},
       {'title': 'QR Scanner', 'icon': Icons.qr_code_scanner, 'color': Colors.cyan, 'route': '/qr-scanner'},
