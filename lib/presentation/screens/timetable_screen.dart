@@ -13,7 +13,6 @@ import 'package:provider/provider.dart';
 
 import '../../providers/auth_provider.dart';
 import '../../providers/timetable_provider.dart';
-import '../../domain/models/timetable_entry.dart';
 import '../widgets/timetable_tile.dart';
 import '../../app/theme.dart';
 import '../../app/routes.dart';
