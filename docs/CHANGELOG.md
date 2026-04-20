@@ -2,6 +2,15 @@
 
 All notable changes to the Smart Campus Operations System will be documented in this file.
 
+## [3.1.0] - Academic Semester & Performance Management (2026-04-20)
+### Added
+- **Academic Calendar System**: Migrated to Database Schema v4 introducing `academic_calendar` tracking for 6-month semesters.
+- **Semester Overview**: Interactive dashboard for academic weeks including touchable tiles for historical attendance tracking.
+- **Academic Performance Dashboard**: Integrated GPA calculation logic and semester-wise grading tables with data visualization.
+- **Profile Self-Management**: Developed `EditProfileScreen` allowing students to manage personal and emergency details securely.
+- **Campus Contacts Directory**: Added instant-access directory for university officials and departmental contacts (ICT, BST, ET).
+- **UX Refinements**: Implemented Pull-to-Refresh on Announcement screens and optimized dark mode typography scaling.
+
 ## [2.2.0] - Smart Campus Operations Overhaul (2026-04-18)
 ### Added
 - Integrated **Campus Map** using `flutter_map` with OpenStreetMap and user location tracking via `geolocator`.

@@ -1,4 +1,4 @@
-# Smart Campus Operations System (v2.2.0)
+# Smart Campus Operations System (v3.1.0)
 
 ![Flutter Version](https://img.shields.io/badge/Flutter-3.x-blue.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
@@ -8,14 +8,16 @@
 
 A production-grade Flutter mobile application spanning architectures empowering university students and staff to comprehensively process timetables, campus announcements, and event registrations seamlessly.
 
-## Key Features (v2.2.0 Updates)
+## Key Features (v3.1.0 Updates)
+- 📅 **Academic Calendar Tracking**: Structured 6-month semester calendar with academic weeks, exams, and vacations (DB v4).
+- 📊 **Performance Dashboard**: Real-time GPA calculation, semester-wise grading tables, and visual performance tracking.
+- 👤 **Profile Self-Management**: Comprehensive user profile editing including personal and emergency contact details.
+- 🏢 **Campus Directory**: Instant access to university contacts (Dean, AR, HODs) for ICT, BST, and ET departments.
 - 🗺️ **Interactive Campus Map**: Built with `flutter_map` and `geolocator` for real-time location tracking.
 - 🔍 **QR Verification**: Staff-facing scanner using `mobile_scanner` to validate event entries.
-- 🔔 **Urgent Notifications**: Native push notification simulation via `flutter_local_notifications`.
-- 📅 **Timetable Management**: Persistent local schedules with attendance tracking.
-- 🏢 **Role-Based Access**: Specialized views and capabilities for Students vs. Staff.
+- 🔔 **UX Refinements**: True-Black OLED dark mode support and pull-to-refresh announcement workflows.
 
-*The **1.0 Minimum Viable Product** execution explicitly established isolated SQLite primitives mapping internal functionality securely. As of **v2.2**, the app features advanced device integration and refined UI/UX workflows.*
+*The **1.0 Minimum Viable Product** execution explicitly established isolated SQLite primitives mapping internal functionality securely. As of **v3.1**, the app features advanced semester management and personal academic telemetry.*
 
 👉 **[View the complete project CHANGELOG tracking structural modifications here](docs/CHANGELOG.md)**
 
@@ -41,18 +43,20 @@ lib/
 
 ## State Management: Provider
 
-`AuthProvider`, `AnnouncementProvider`, `TimetableProvider`, `EventProvider` — all extend `ChangeNotifier`. Registered at the root natively via `MultiProvider` actively caching logic seamlessly up to 5-minute threshold limits securely.
+`AuthProvider`, `AnnouncementProvider`, `TimetableProvider`, `EventProvider`, `CalendarProvider`, `ThemeProvider` — all extend `ChangeNotifier`. Registered at the root natively via `MultiProvider` actively caching logic seamlessly.
 
 ---
 
-## Database (SQLite Offline)
+## Database (SQLite Offline v4)
 
 | Table | Purpose |
 |-------|---------|
-| `users` | Authenticated internal memory users |
-| `timetable` | Class schedule bounding FK targets |
+| `users` | Authenticated internal memory users + Profile data |
+| `timetable` | Class schedule bounding FK targets + Attendance |
+| `academic_calendar` | 20-week semester structure tracking |
+| `academic_results` | Student grades and GPA telemetry |
 | `events` | Campus events strictly loaded from Data Access Objects |
-| `registrations` | Safely tracked physical student bounds locking logic structurally |
+| `registrations` | Safely tracked physical student bounds locking logic |
 
 ---
 

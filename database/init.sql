@@ -1,5 +1,5 @@
 -- ============================================================================
--- Smart Campus Database Initialization Script
+-- Smart Campus Database Initialization Script (v4 Schema)
 -- ============================================================================
 -- RESPONSIBILITY:
 -- Executing this script on an empty MySQL server will rebuild the entire 
@@ -18,7 +18,11 @@ CREATE TABLE IF NOT EXISTS users (
     name VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
-    role ENUM('student', 'staff') NOT NULL
+    role ENUM('student', 'staff') NOT NULL,
+    address TEXT,
+    emergencyName TEXT,
+    emergencyPhone TEXT,
+    profilePic TEXT
 );
 
 -- ----------------------------------------------------------------------------
@@ -32,11 +36,39 @@ CREATE TABLE IF NOT EXISTS timetable (
     endTime VARCHAR(10) NOT NULL,
     room VARCHAR(50) NOT NULL,
     userId VARCHAR(50) NOT NULL,
+    isAttended BOOLEAN DEFAULT FALSE,
+    isAdditional BOOLEAN DEFAULT FALSE,
+    lectureContent TEXT,
     FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- ----------------------------------------------------------------------------
--- 3. Events Table
+-- 3. Academic Calendar Table
+-- ----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS academic_calendar (
+    id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    number INTEGER NOT NULL,
+    label VARCHAR(100) NOT NULL,
+    type VARCHAR(50) NOT NULL,
+    startDate VARCHAR(50) NOT NULL,
+    endDate VARCHAR(50) NOT NULL
+);
+
+-- ----------------------------------------------------------------------------
+-- 4. Academic Results Table
+-- ----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS academic_results (
+    id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    subject VARCHAR(100) NOT NULL,
+    semester INTEGER NOT NULL,
+    grade VARCHAR(5) NOT NULL,
+    gpa REAL NOT NULL,
+    userId VARCHAR(50) NOT NULL,
+    FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- ----------------------------------------------------------------------------
+-- 5. Events Table
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS events (
     id VARCHAR(50) PRIMARY KEY,
@@ -49,7 +81,7 @@ CREATE TABLE IF NOT EXISTS events (
 );
 
 -- ----------------------------------------------------------------------------
--- 4. User Events (Registrations) Table
+-- 6. User Events (Registrations) Table
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS user_events (
     userId VARCHAR(50),
@@ -60,7 +92,7 @@ CREATE TABLE IF NOT EXISTS user_events (
 );
 
 -- ----------------------------------------------------------------------------
--- 5. Announcements Table
+-- 7. Announcements Table
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS announcements (
     id VARCHAR(50) PRIMARY KEY,
@@ -74,30 +106,42 @@ CREATE TABLE IF NOT EXISTS announcements (
 -- Seed Mock Data (For Viva Presentation)
 -- ============================================================================
 
--- Insert Test Accounts securely mimicking the previously mocked AuthProvider strings
-INSERT INTO users (id, name, email, password, role) VALUES 
-('usr-001', 'Ashan Perera', 'student@campus.lk', '1234', 'student'),
-('usr-002', 'Dr. Nilufar Silva', 'staff@campus.lk', '1234', 'staff'),
-('usr-003', 'Campus Admin', 'admin@campus.lk', '1234', 'superadmin')
-ON DUPLICATE KEY UPDATE name=name;
+-- Insert Test Accounts
+INSERT INTO users (id, name, email, password, role, address, emergencyName, emergencyPhone) VALUES 
+('usr-001', 'Ashan Perera', 'student@campus.lk', '1234', 'student', 'No 45, Flower Road, Colombo 07', 'Sumanasiri Perera (Father)', '0712345678'),
+('usr-002', 'Dr. Nilufar Silva', 'staff@campus.lk', '1234', 'staff', 'Faculty of Engineering, UoR', 'Security Desk', '0412223334')
+ON DUPLICATE KEY UPDATE name=VALUES(name), address=VALUES(address);
 
--- Refactored SQLite Timetable insertions safely ported to MySQL
-INSERT INTO timetable (id, subject, dayOfWeek, startTime, endTime, room, userId) VALUES 
-('tt-001', 'Mobile App Dev', 'Monday', '08:00', '10:00', 'Lab 3', 'usr-001'),
-('tt-002', 'Database Systems', 'Tuesday', '10:00', '12:00', 'Hall A', 'usr-001')
-ON DUPLICATE KEY UPDATE subject=subject;
+-- Timetable Data
+INSERT INTO timetable (id, subject, dayOfWeek, startTime, endTime, room, userId, isAttended, lectureContent, isAdditional) VALUES 
+('tt-001', 'Mobile App Dev', 'Monday', '08:00', '10:00', 'Lab 3', 'usr-001', TRUE, 'Flutter Architecture.', FALSE),
+('tt-002', 'Database Systems', 'Tuesday', '10:00', '12:00', 'Hall A', 'usr-001', FALSE, 'SQL Indexing.', FALSE),
+('tt-006', 'Guest Lecture', 'Wednesday', '15:30', '17:00', 'Main Hall', 'usr-001', FALSE, 'Future of AI.', TRUE)
+ON DUPLICATE KEY UPDATE subject=VALUES(subject);
 
--- Refactored SQLite Events data migrated into MySQL structures
+-- Academic Calendar
+INSERT INTO academic_calendar (number, label, type, startDate, endDate) VALUES 
+(1, 'Week 01', 'academic', '2026-03-02', '2026-03-08'),
+(6, 'Week 06', 'academic', '2026-04-06', '2026-04-12'),
+(7, 'Vacation', 'vacation', '2026-04-13', '2026-04-19')
+ON DUPLICATE KEY UPDATE label=VALUES(label);
+
+-- Academic Results
+INSERT INTO academic_results (subject, semester, grade, gpa, userId) VALUES 
+('Mathematics', 1, 'A', 4.0, 'usr-001'),
+('Programming', 1, 'A-', 3.7, 'usr-001'),
+('Database Systems', 2, 'A', 4.0, 'usr-001')
+ON DUPLICATE KEY UPDATE grade=VALUES(grade);
+
+-- Events
 INSERT INTO events (id, title, description, date, venue, organizer) VALUES 
 ('evt-001', 'AI Workshop', 'Hands on with TensorFlow', '2026-04-10', 'Main Auditorium', 'Tech Club'),
 ('evt-002', 'Career Fair', 'Meet top IT companies', '2026-05-01', 'Campus Ground', 'Career Center')
-ON DUPLICATE KEY UPDATE title=title;
+ON DUPLICATE KEY UPDATE title=VALUES(title);
 
--- Automatically register the student for the AI Workshop to demonstrate the Checkmark boundary
-INSERT IGNORE INTO user_events (userId, eventId) VALUES ('usr-001', 'evt-001');
-
--- Migrated Announcements explicitly away from the external 'jsonplaceholder' domain
+-- Announcements
 INSERT INTO announcements (id, title, body, postedBy, date) VALUES 
 ('ann-001', 'Campus Closed on Friday', 'Due to extreme weather, campus is closed.', 'Admin', '2026-04-01'),
 ('ann-002', 'Exam Results Released', 'Log in to the LMS to view your final semester results.', 'Exam Branch', '2026-04-02')
-ON DUPLICATE KEY UPDATE title=title;
+ON DUPLICATE KEY UPDATE title=VALUES(title);
+
