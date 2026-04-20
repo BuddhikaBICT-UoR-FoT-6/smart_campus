@@ -34,6 +34,9 @@ class TimetableEntry {
   final String? lectureContent;
   final bool isAdditional;
 
+  final int? level;
+  final int? semester;
+
   const TimetableEntry({
     required this.id,
     required this.subject,
@@ -45,6 +48,8 @@ class TimetableEntry {
     this.isAttended,
     this.lectureContent,
     this.isAdditional = false,
+    this.level,
+    this.semester,
   });
 
   // ---------------------------------------------------------------------------
@@ -63,6 +68,8 @@ class TimetableEntry {
       'isAttended': isAttended == null ? null : (isAttended! ? 1 : 0),
       'lectureContent': lectureContent,
       'isAdditional': isAdditional ? 1 : 0,
+      'level': level,
+      'semester': semester,
     };
   }
 
@@ -78,10 +85,12 @@ class TimetableEntry {
       isAttended: map['isAttended'] == null ? null : (map['isAttended'] as int == 1),
       lectureContent: map['lectureContent'] as String?,
       isAdditional: (map['isAdditional'] as int? ?? 0) == 1,
+      level: map['level'] as int?,
+      semester: map['semester'] as int?,
     );
   }
 
   @override
   String toString() =>
-      'TimetableEntry($dayOfWeek $startTime–$endTime $subject @ $room)';
+      'TimetableEntry($dayOfWeek $startTime–$endTime $subject @ $room, level: $level, sem: $semester)';
 }

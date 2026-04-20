@@ -18,6 +18,10 @@ class User {
   final String? emergencyPhone;
   final String? profilePic;
 
+  final int? level;
+  final int? semester;
+  final bool isRepeat;
+
   const User({
     required this.id,
     required this.name,
@@ -27,6 +31,9 @@ class User {
     this.emergencyName,
     this.emergencyPhone,
     this.profilePic,
+    this.level,
+    this.semester,
+    this.isRepeat = false,
   });
 
   // ---------------------------------------------------------------------------
@@ -43,6 +50,9 @@ class User {
       'emergencyName': emergencyName,
       'emergencyPhone': emergencyPhone,
       'profilePic': profilePic,
+      'level': level,
+      'semester': semester,
+      'isRepeat': isRepeat ? 1 : 0,
     };
   }
 
@@ -56,11 +66,14 @@ class User {
       emergencyName: map['emergencyName'] as String?,
       emergencyPhone: map['emergencyPhone'] as String?,
       profilePic: map['profilePic'] as String?,
+      level: map['level'] as int?,
+      semester: map['semester'] as int?,
+      isRepeat: (map['isRepeat'] as int? ?? 0) == 1,
     );
   }
 
   @override
-  String toString() => 'User(id: $id, name: $name, role: ${role.name})';
+  String toString() => 'User(id: $id, name: $name, role: ${role.name}, level: $level, semester: $semester, isRepeat: $isRepeat)';
 
   User copyWith({
     String? name,
@@ -70,6 +83,9 @@ class User {
     String? emergencyName,
     String? emergencyPhone,
     String? profilePic,
+    int? level,
+    int? semester,
+    bool? isRepeat,
   }) {
     return User(
       id: id,
@@ -80,6 +96,9 @@ class User {
       emergencyName: emergencyName ?? this.emergencyName,
       emergencyPhone: emergencyPhone ?? this.emergencyPhone,
       profilePic: profilePic ?? this.profilePic,
+      level: level ?? this.level,
+      semester: semester ?? this.semester,
+      isRepeat: isRepeat ?? this.isRepeat,
     );
   }
 }

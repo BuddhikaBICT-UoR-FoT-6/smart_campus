@@ -1,6 +1,7 @@
 import 'package:sqflite/sqflite.dart';
 import '../local/database_helper.dart';
 import '../../domain/models/user.dart';
+import '../remote/mysql_sync_helper.dart';
 
 class UserDao {
   final DatabaseHelper _dbHelper;
@@ -21,6 +22,8 @@ class UserDao {
       user.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+    // Background Sync
+    MySqlSyncHelper.syncUserInsert(user);
   }
 
   Future<void> updateUser(User user) async {
@@ -31,6 +34,8 @@ class UserDao {
       where: 'id = ?',
       whereArgs: [user.id],
     );
+    // Background Sync
+    MySqlSyncHelper.syncUserInsert(user);
   }
 
   Future<void> deleteUser(String id) async {
@@ -40,6 +45,8 @@ class UserDao {
       where: 'id = ?',
       whereArgs: [id],
     );
+    // Background Sync
+    MySqlSyncHelper.syncUserDelete(id);
   }
 
   Future<void> suspendUser(String id, bool suspend) async {

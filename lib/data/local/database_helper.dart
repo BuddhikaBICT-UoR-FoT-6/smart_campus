@@ -69,16 +69,19 @@ class DatabaseHelper {
 
     return openDatabase(
       fullPath,
-      version: 7,
+      version: 11,
       onCreate: _onCreate,
       onUpgrade: (db, oldV, newV) async {
-        if (oldV < 7) {
-          // Destructive upgrade for demo
+        if (oldV < 11) {
+          // Destructive upgrade for easy academic demonstration
           await db.execute('DROP TABLE IF EXISTS announcements');
+          await db.execute('DROP TABLE IF EXISTS registrations');
+          await db.execute('DROP TABLE IF EXISTS events');
           await db.execute('DROP TABLE IF EXISTS timetable');
           await db.execute('DROP TABLE IF EXISTS users');
           await db.execute('DROP TABLE IF EXISTS academic_results');
           await db.execute('DROP TABLE IF EXISTS academic_calendar');
+          await db.execute('DROP TABLE IF EXISTS medical_submissions');
           await _createTables(db);
           await _seedMockData(db);
         }
@@ -117,7 +120,10 @@ class DatabaseHelper {
         address TEXT,
         emergencyName TEXT,
         emergencyPhone TEXT,
-        profilePic TEXT
+        profilePic TEXT,
+        level INTEGER,
+        semester INTEGER,
+        isRepeat INTEGER DEFAULT 0
       )
     ''');
 
@@ -160,6 +166,8 @@ class DatabaseHelper {
         isAttended INTEGER,  -- 1 for yes, 0 for no, null for unknown
         lectureContent TEXT,
         isAdditional INTEGER DEFAULT 0,
+        level INTEGER,
+        semester INTEGER,
         FOREIGN KEY (userId) REFERENCES users(id)
       )
     ''');
@@ -225,6 +233,18 @@ class DatabaseHelper {
         type      TEXT NOT NULL,
         startDate TEXT NOT NULL,
         endDate   TEXT NOT NULL
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS medical_submissions (
+        id TEXT PRIMARY KEY,
+        userId TEXT NOT NULL,
+        week INTEGER NOT NULL,
+        date TEXT NOT NULL,
+        photoPath TEXT NOT NULL,
+        status TEXT NOT NULL,
+        FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
       )
     ''');
   }

@@ -18,11 +18,14 @@ CREATE TABLE IF NOT EXISTS users (
     name VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
-    role ENUM('student', 'staff') NOT NULL,
+    role VARCHAR(50) NOT NULL,
     address TEXT,
     emergencyName TEXT,
     emergencyPhone TEXT,
-    profilePic TEXT
+    profilePic TEXT,
+    level INT,
+    semester INT,
+    isRepeat BOOLEAN DEFAULT FALSE
 );
 
 -- ----------------------------------------------------------------------------
@@ -39,6 +42,8 @@ CREATE TABLE IF NOT EXISTS timetable (
     isAttended BOOLEAN DEFAULT FALSE,
     isAdditional BOOLEAN DEFAULT FALSE,
     lectureContent TEXT,
+    level INT,
+    semester INT,
     FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
 );
 
@@ -102,21 +107,35 @@ CREATE TABLE IF NOT EXISTS announcements (
     date VARCHAR(50)
 );
 
+-- ----------------------------------------------------------------------------
+-- 8. Medical Submissions Table
+-- ----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS medical_submissions (
+    id VARCHAR(50) PRIMARY KEY,
+    userId VARCHAR(50) NOT NULL,
+    week INT NOT NULL,
+    date VARCHAR(50) NOT NULL,
+    photoPath VARCHAR(255) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'pending',
+    FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
+);
+
 -- ============================================================================
 -- Seed Mock Data (For Viva Presentation)
 -- ============================================================================
 
 -- Insert Test Accounts
-INSERT INTO users (id, name, email, password, role, address, emergencyName, emergencyPhone) VALUES 
-('usr-001', 'Ashan Perera', 'student@campus.lk', '1234', 'student', 'No 45, Flower Road, Colombo 07', 'Sumanasiri Perera (Father)', '0712345678'),
-('usr-002', 'Dr. Nilufar Silva', 'staff@campus.lk', '1234', 'staff', 'Faculty of Engineering, UoR', 'Security Desk', '0412223334')
+INSERT INTO users (id, name, email, password, role, address, emergencyName, emergencyPhone, level, semester, isRepeat) VALUES 
+('usr-000', 'Super Admin', 'admin@campus.lk', '1234', 'superadmin', NULL, NULL, NULL, NULL, NULL, FALSE),
+('usr-001', 'Ashan Perera', 'student@campus.lk', '1234', 'student', 'No 45, Flower Road, Colombo 07', 'Sumanasiri Perera (Father)', '0712345678', 3, 1, FALSE),
+('usr-002', 'Dr. Nilufar Silva', 'staff@campus.lk', '1234', 'staff', 'Faculty of Engineering, UoR', 'Security Desk', '0412223334', NULL, NULL, FALSE)
 ON DUPLICATE KEY UPDATE name=VALUES(name), address=VALUES(address);
 
 -- Timetable Data
-INSERT INTO timetable (id, subject, dayOfWeek, startTime, endTime, room, userId, isAttended, lectureContent, isAdditional) VALUES 
-('tt-001', 'Mobile App Dev', 'Monday', '08:00', '10:00', 'Lab 3', 'usr-001', TRUE, 'Flutter Architecture.', FALSE),
-('tt-002', 'Database Systems', 'Tuesday', '10:00', '12:00', 'Hall A', 'usr-001', FALSE, 'SQL Indexing.', FALSE),
-('tt-006', 'Guest Lecture', 'Wednesday', '15:30', '17:00', 'Main Hall', 'usr-001', FALSE, 'Future of AI.', TRUE)
+INSERT INTO timetable (id, subject, dayOfWeek, startTime, endTime, room, userId, isAttended, lectureContent, isAdditional, level, semester) VALUES 
+('tt-001', 'Mobile App Dev', 'Monday', '08:00', '10:00', 'Lab 3', 'usr-001', TRUE, 'Flutter Architecture.', FALSE, 3, 1),
+('tt-002', 'Database Systems', 'Tuesday', '10:00', '12:00', 'Hall A', 'usr-001', FALSE, 'SQL Indexing.', FALSE, 3, 1),
+('tt-006', 'Guest Lecture', 'Wednesday', '15:30', '17:00', 'Main Hall', 'usr-001', FALSE, 'Future of AI.', TRUE, 3, 1)
 ON DUPLICATE KEY UPDATE subject=VALUES(subject);
 
 -- Academic Calendar
