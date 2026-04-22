@@ -5,11 +5,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../providers/auth_provider.dart';
-import '../../providers/module_provider.dart';
-import '../../domain/models/module.dart';
-import '../../providers/theme_provider.dart';
-import '../../app/theme.dart';
+import 'package:smart_campus/providers/auth_provider.dart';
+import 'package:smart_campus/providers/module_provider.dart';
+import 'package:smart_campus/domain/models/module.dart';
+import 'package:smart_campus/providers/system_config_provider.dart';
+import 'package:smart_campus/providers/theme_provider.dart';
+import 'package:smart_campus/app/theme.dart';
 
 class CourseRegistrationScreen extends StatefulWidget {
   const CourseRegistrationScreen({super.key});
@@ -26,6 +27,7 @@ class _CourseRegistrationScreenState extends State<CourseRegistrationScreen> {
       final user = context.read<AuthProvider>().currentUser;
       if (user != null) {
         context.read<ModuleProvider>().loadModules(user.id);
+        context.read<SystemConfigProvider>().loadConfig();
       }
     });
   }
@@ -33,9 +35,12 @@ class _CourseRegistrationScreenState extends State<CourseRegistrationScreen> {
   @override
   Widget build(BuildContext context) {
     final moduleProvider = context.watch<ModuleProvider>();
+    final configProvider = context.watch<SystemConfigProvider>();
     final user = context.read<AuthProvider>().currentUser;
 
     if (user == null) return const Scaffold(body: Center(child: Text('Please login first')));
+
+    final isDeadlinePassed = configProvider.isRegistrationClosed;
 
     // Filtering logic
     final availableModules = moduleProvider.allModules.where((m) {
@@ -76,17 +81,48 @@ class _CourseRegistrationScreenState extends State<CourseRegistrationScreen> {
             unselectedLabelColor: Theme.of(context).brightness == Brightness.light ? Colors.black54 : Colors.grey,
           ),
         ),
-        body: TabBarView(
+        body: Column(
           children: [
-            _buildModuleList(context, availableModules, isAvailable: true),
-            _buildModuleList(context, registeredModules, isAvailable: false),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              color: isDeadlinePassed ? Colors.red.shade100 : Colors.blue.shade100,
+              child: Row(
+                children: [
+                  Icon(
+                    isDeadlinePassed ? Icons.lock_clock : Icons.info_outline,
+                    color: isDeadlinePassed ? Colors.red : Colors.blue.shade800,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      isDeadlinePassed 
+                        ? 'Registration Closed (Deadline: ${configProvider.registrationDeadline})'
+                        : 'Registration Deadline: ${configProvider.registrationDeadline}',
+                      style: TextStyle(
+                        color: isDeadlinePassed ? Colors.red.shade900 : Colors.blue.shade900,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: TabBarView(
+                children: [
+                  _buildModuleList(context, availableModules, isAvailable: true, isLocked: isDeadlinePassed),
+                  _buildModuleList(context, registeredModules, isAvailable: false, isLocked: isDeadlinePassed),
+                ],
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildModuleList(BuildContext context, List<Module> modules, {required bool isAvailable}) {
+  Widget _buildModuleList(BuildContext context, List<Module> modules, {required bool isAvailable, bool isLocked = false}) {
     final moduleProvider = context.read<ModuleProvider>();
     final user = context.read<AuthProvider>().currentUser;
 
@@ -154,22 +190,22 @@ class _CourseRegistrationScreenState extends State<CourseRegistrationScreen> {
                 const SizedBox(width: 12),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: isAvailable 
-                        ? AppTheme.primary 
-                        : Theme.of(context).colorScheme.errorContainer,
-                    foregroundColor: isAvailable 
-                        ? Colors.white 
-                        : Theme.of(context).colorScheme.onErrorContainer,
+                    backgroundColor: isLocked 
+                        ? Colors.grey 
+                        : (isAvailable ? AppTheme.primary : Theme.of(context).colorScheme.errorContainer),
+                    foregroundColor: isLocked 
+                        ? Colors.white70 
+                        : (isAvailable ? Colors.white : Theme.of(context).colorScheme.onErrorContainer),
                   ),
-                  onPressed: () {
+                  onPressed: isLocked ? null : () {
                     if (user != null) {
                       if (isAvailable) {
-                        moduleProvider.enroll(user.id, module.id);
+                        moduleProvider.enroll(user.id, module.id, isLocked);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text('Enrolled in ${module.code}')),
                         );
                       } else {
-                        moduleProvider.drop(user.id, module.id);
+                        moduleProvider.drop(user.id, module.id, isLocked);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text('Dropped ${module.code}')),
                         );
