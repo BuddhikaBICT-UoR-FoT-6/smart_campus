@@ -57,16 +57,57 @@ class ProfileScreen extends StatelessWidget {
                   style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    user.role.name.toUpperCase(),
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.primary),
-                  ),
+                Wrap(
+                  spacing: 8,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: user.isRepeat ? Colors.amber : AppTheme.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        user.role.name.toUpperCase(),
+                        style: TextStyle(
+                          fontSize: 12, 
+                          fontWeight: FontWeight.w600, 
+                          color: user.isRepeat ? Colors.black : AppTheme.primary
+                        ),
+                      ),
+                    ),
+                    if (user.role == UserRole.student && user.level != null) ...[
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: user.isRepeat ? Colors.amber : AppTheme.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          'LEVEL ${user.level}',
+                          style: TextStyle(
+                            fontSize: 12, 
+                            fontWeight: FontWeight.w600, 
+                            color: user.isRepeat ? Colors.black : AppTheme.primary
+                          ),
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: user.isRepeat ? Colors.amber : AppTheme.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          'SEM ${user.semester}',
+                          style: TextStyle(
+                            fontSize: 12, 
+                            fontWeight: FontWeight.w600, 
+                            color: user.isRepeat ? Colors.black : AppTheme.primary
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ],
             ),
@@ -139,6 +180,22 @@ class ProfileScreen extends StatelessWidget {
           // ---------- 5. Academic Performance Section (Student Only) ----------
           if (user.role == UserRole.student) ...[
             const AcademicPerformanceWidget(),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.medical_services),
+                label: const Text('Submit Medical Clearance'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.secondary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+                onPressed: () {
+                  Navigator.pushNamed(context, AppRoutes.medicalSubmission);
+                },
+              ),
+            ),
             const SizedBox(height: 64),
           ],
           

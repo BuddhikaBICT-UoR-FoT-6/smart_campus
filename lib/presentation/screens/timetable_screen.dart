@@ -120,6 +120,40 @@ class _TimetableScreenState extends State<TimetableScreen> with SingleTickerProv
             ),
           ),
 
+        if (user != null && user.role == UserRole.student && user.level != null)
+          Container(
+            width: double.infinity,
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              color: user.isRepeat ? Colors.amber : Colors.blue.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: user.isRepeat ? Colors.orange : Colors.blue.withValues(alpha: 0.2),
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  user.isRepeat ? Icons.warning_amber_rounded : Icons.info_outline_rounded,
+                  color: user.isRepeat ? Colors.black : AppTheme.primary,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Level ${user.level} • Semester ${user.semester}' + 
+                    (user.isRepeat ? ' (Repeat Student)' : ''),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      color: user.isRepeat ? Colors.black : AppTheme.primary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
         // 2. Weekday Selector fulfilling Tabbed UI requirement
         Material(
           color: Theme.of(context).scaffoldBackgroundColor,

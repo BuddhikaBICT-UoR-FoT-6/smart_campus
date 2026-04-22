@@ -6,9 +6,13 @@
 // =============================================================================
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../domain/models/timetable_entry.dart';
 import '../../app/theme.dart';
 import '../screens/timetable_detail_screen.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/calendar_provider.dart';
+import '../../providers/medical_provider.dart';
 
 class TimetableTile extends StatelessWidget {
   final TimetableEntry entry;
@@ -17,6 +21,19 @@ class TimetableTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final user = context.watch<AuthProvider>().currentUser;
+    final calendar = context.watch<CalendarProvider>();
+    final medicals = context.watch<MedicalProvider>().submissions;
+
+    bool medicalAccepted = false;
+    if (user != null && calendar.currentWeek != null) {
+      final weekNum = calendar.currentWeek!.number;
+      medicalAccepted = medicals.any((m) =>
+          m.userId == user.id &&
+          m.week == weekNum &&
+          m.status == 'approved');
+    }
+
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       child: InkWell(
@@ -100,7 +117,24 @@ class TimetableTile extends StatelessWidget {
               ),
 
               // ---------- Status Indicators (Attendance) ----------
-              if (entry.isAttended != null)
+              if (medicalAccepted)
+                Container(
+                  margin: const EdgeInsets.only(left: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Text(
+                    'Medical Accepted',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green,
+                    ),
+                  ),
+                )
+              else if (entry.isAttended != null)
                 Container(
                   margin: const EdgeInsets.only(left: 8),
                   child: Icon(
