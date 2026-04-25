@@ -34,6 +34,8 @@ import '../presentation/screens/admin/announcement_admin_screen.dart';
 import '../presentation/screens/admin/timetable_admin_screen.dart';
 import '../presentation/screens/admin/results_admin_screen.dart';
 import '../presentation/screens/admin/config_admin_screen.dart';
+import '../presentation/screens/medical_submission_screen.dart';
+import '../presentation/screens/admin/medical_review_screen.dart';
 
 class AppRoutes {
   AppRoutes._(); // prevent instantiation — utility class
@@ -62,6 +64,8 @@ class AppRoutes {
   static const String adminResults    = '/admin/results';
   static const String adminAnnouncements = '/admin/announcements';
   static const String adminConfig     = '/admin/config';
+  static const String medicalSubmission = '/medical-submission';
+  static const String adminMedicalReview = '/admin/medical-review';
 
   // ---------------------------------------------------------------------------
   // Route map — passed to MaterialApp.routes
@@ -89,6 +93,8 @@ class AppRoutes {
       adminResults:   (context) => const ResultsAdminScreen(),
       adminAnnouncements: (context) => const AnnouncementAdminScreen(),
       adminConfig:    (context) => const ConfigAdminScreen(),
+      medicalSubmission: (context) => const MedicalSubmissionScreen(),
+      adminMedicalReview: (context) => const MedicalReviewScreen(),
     };
   }
 }

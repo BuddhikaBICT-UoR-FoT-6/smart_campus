@@ -17,6 +17,7 @@ import 'package:sqflite/sqflite.dart';
 
 import '../local/database_helper.dart';
 import '../../domain/models/timetable_entry.dart';
+import '../remote/mysql_sync_helper.dart';
 
 class TimetableDao {
   final DatabaseHelper _dbHelper;
@@ -57,6 +58,8 @@ class TimetableDao {
       entry.toMap(),
       conflictAlgorithm: ConflictAlgorithm.ignore,
     );
+    // Background Sync
+    MySqlSyncHelper.syncTimetableInsert(entry);
   }
 
   Future<void> updateEntry(TimetableEntry entry) async {
@@ -67,6 +70,8 @@ class TimetableDao {
       where: 'id = ?',
       whereArgs: [entry.id],
     );
+    // Background Sync
+    MySqlSyncHelper.syncTimetableInsert(entry);
   }
 
   Future<void> deleteEntry(String id) async {
@@ -76,5 +81,7 @@ class TimetableDao {
       where: 'id = ?',
       whereArgs: [id],
     );
+    // Background Sync
+    MySqlSyncHelper.syncTimetableDelete(id);
   }
 }
