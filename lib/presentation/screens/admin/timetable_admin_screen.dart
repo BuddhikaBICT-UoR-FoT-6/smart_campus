@@ -143,6 +143,8 @@ class _TimetableAdminScreenState extends State<TimetableAdminScreen> {
     final startCtrl = TextEditingController(text: entry?.startTime ?? '08:00');
     final endCtrl = TextEditingController(text: entry?.endTime ?? '10:00');
     String day = entry?.dayOfWeek ?? 'Monday';
+    int? selectedLevel = entry?.level ?? _selectedUser?.level ?? 1;
+    int? selectedSemester = entry?.semester ?? _selectedUser?.semester ?? 1;
 
     showDialog(
       context: context,
@@ -155,7 +157,7 @@ class _TimetableAdminScreenState extends State<TimetableAdminScreen> {
               children: [
                 TextField(controller: subjectCtrl, decoration: const InputDecoration(labelText: 'Subject')),
                 DropdownButtonFormField<String>(
-                  initialValue: day,
+                  value: day,
                   items: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
                       .map((d) => DropdownMenuItem(value: d, child: Text(d)))
                       .toList(),
@@ -165,6 +167,26 @@ class _TimetableAdminScreenState extends State<TimetableAdminScreen> {
                 TextField(controller: startCtrl, decoration: const InputDecoration(labelText: 'Start Time (HH:mm)')),
                 TextField(controller: endCtrl, decoration: const InputDecoration(labelText: 'End Time (HH:mm)')),
                 TextField(controller: roomCtrl, decoration: const InputDecoration(labelText: 'Room')),
+                if (_selectedUser?.role == UserRole.student) ...[
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<int>(
+                    value: selectedLevel,
+                    items: [1, 2, 3, 4]
+                        .map((l) => DropdownMenuItem(value: l, child: Text('Level $l')))
+                        .toList(),
+                    onChanged: (val) => setState(() => selectedLevel = val),
+                    decoration: const InputDecoration(labelText: 'Level / Year'),
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<int>(
+                    value: selectedSemester,
+                    items: [1, 2]
+                        .map((s) => DropdownMenuItem(value: s, child: Text('Semester $s')))
+                        .toList(),
+                    onChanged: (val) => setState(() => selectedSemester = val),
+                    decoration: const InputDecoration(labelText: 'Semester'),
+                  ),
+                ],
               ],
             ),
           ),
@@ -180,6 +202,8 @@ class _TimetableAdminScreenState extends State<TimetableAdminScreen> {
                   endTime: endCtrl.text,
                   room: roomCtrl.text,
                   userId: _selectedUser!.id,
+                  level: _selectedUser?.role == UserRole.student ? selectedLevel : null,
+                  semester: _selectedUser?.role == UserRole.student ? selectedSemester : null,
                 );
                 if (entry == null) {
                   context.read<TimetableProvider>().addEntry(newEntry);

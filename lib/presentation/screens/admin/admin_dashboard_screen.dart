@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../providers/auth_provider.dart';
+import '../../../providers/medical_provider.dart';
+import '../../../app/routes.dart';
 
 class AdminDashboardScreen extends StatelessWidget {
   const AdminDashboardScreen({super.key});
@@ -14,7 +16,10 @@ class AdminDashboardScreen extends StatelessWidget {
         title: const Text('Institutional Administration'),
         actions: [
           IconButton(
-            onPressed: () => context.read<AuthProvider>().logout(),
+            onPressed: () {
+              context.read<AuthProvider>().logout();
+              Navigator.pushReplacementNamed(context, AppRoutes.login);
+            },
             icon: const Icon(Icons.logout),
           ),
         ],
@@ -80,13 +85,26 @@ class AdminDashboardScreen extends StatelessWidget {
   }
 
   Widget _buildStatsOverview(BuildContext context) {
+    final medicals = context.watch<MedicalProvider>().submissions;
+    final pendingMedicals = medicals.where((m) => m.status == 'pending').length;
+
     return Row(
       children: [
         Expanded(child: _buildStatCard('Users', '12', Icons.people, Colors.blue)),
         const SizedBox(width: 12),
         Expanded(child: _buildStatCard('Events', '5', Icons.event, Colors.orange)),
         const SizedBox(width: 12),
-        Expanded(child: _buildStatCard('Alerts', '2', Icons.warning, Colors.red)),
+        Expanded(
+          child: InkWell(
+            onTap: () => Navigator.pushNamed(context, AppRoutes.adminMedicalReview),
+            child: _buildStatCard(
+              'Medicals',
+              pendingMedicals.toString(),
+              Icons.medical_services_rounded,
+              pendingMedicals > 0 ? Colors.red : Colors.green,
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -120,6 +138,7 @@ class AdminDashboardScreen extends StatelessWidget {
       {'title': 'Announcement Ctrl', 'icon': Icons.notification_important, 'color': Colors.red, 'route': '/admin/announcements'},
       {'title': 'System Config', 'icon': Icons.settings, 'color': Colors.grey, 'route': '/admin/config'},
       {'title': 'Reporting', 'icon': Icons.bar_chart, 'color': Colors.blueGrey, 'route': '/admin/reporting'},
+      {'title': 'Medical Approvals', 'icon': Icons.medical_services_outlined, 'color': Colors.pink, 'route': '/admin/medical-review'},
     ];
 
     return GridView.builder(

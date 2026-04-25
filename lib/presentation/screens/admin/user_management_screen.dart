@@ -82,6 +82,10 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     final nameController = TextEditingController(text: user?.name);
     final emailController = TextEditingController(text: user?.email);
     UserRole selectedRole = user?.role ?? UserRole.student;
+    int? selectedLevel = user?.level ?? 1;
+    int? selectedSemester = user?.semester ?? 1;
+
+    bool isRepeat = user?.isRepeat ?? false;
 
     showDialog(
       context: context,
@@ -102,7 +106,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<UserRole>(
-                  initialValue: selectedRole,
+                  value: selectedRole,
                   items: UserRole.values
                       .map((role) => DropdownMenuItem(
                             value: role,
@@ -112,6 +116,38 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                   onChanged: (val) => setState(() => selectedRole = val!),
                   decoration: const InputDecoration(labelText: 'Role'),
                 ),
+                if (selectedRole == UserRole.student) ...[
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<int>(
+                    value: selectedLevel,
+                    items: [1, 2, 3, 4]
+                        .map((l) => DropdownMenuItem(
+                              value: l,
+                              child: Text('Level $l'),
+                            ))
+                        .toList(),
+                    onChanged: (val) => setState(() => selectedLevel = val),
+                    decoration: const InputDecoration(labelText: 'Level/Year'),
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<int>(
+                    value: selectedSemester,
+                    items: [1, 2]
+                        .map((s) => DropdownMenuItem(
+                              value: s,
+                              child: Text('Semester $s'),
+                            ))
+                        .toList(),
+                    onChanged: (val) => setState(() => selectedSemester = val),
+                    decoration: const InputDecoration(labelText: 'Semester'),
+                  ),
+                  const SizedBox(height: 16),
+                  SwitchListTile(
+                    title: const Text('Repeat Student'),
+                    value: isRepeat,
+                    onChanged: (val) => setState(() => isRepeat = val),
+                  ),
+                ],
               ],
             ),
           ),
@@ -124,6 +160,9 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                   name: nameController.text,
                   email: emailController.text,
                   role: selectedRole,
+                  level: selectedRole == UserRole.student ? selectedLevel : null,
+                  semester: selectedRole == UserRole.student ? selectedSemester : null,
+                  isRepeat: selectedRole == UserRole.student ? isRepeat : false,
                 );
                 if (user == null) {
                   context.read<UserManagementProvider>().createUser(newUser);
