@@ -8,18 +8,18 @@
 
 A production-grade Flutter mobile application spanning architectures empowering university students and staff to comprehensively process timetables, campus announcements, and event registrations seamlessly.
 
-## Key Features (v3.1.0 Updates)
-- 📅 **Academic Calendar Tracking**: Structured 6-month semester calendar with academic weeks, exams, and vacations (DB v4).
+## Key Features (v3.2.0 Updates)
+- 📅 **Academic Level Assignment**: Levels (Years 1-4) & dual semesters mapped across users to filter institutional content.
+- 🩺 **Medical Approvals Engine**: Photographic document verification pipeline allowing admin status updates.
+- 🗄️ **Dual Database Synchronization**: Local SQLite queries with background remote MySQL updates.
 - 📊 **Performance Dashboard**: Real-time GPA calculation, semester-wise grading tables, and visual performance tracking.
 - 👤 **Profile Self-Management**: Comprehensive user profile editing including personal and emergency contact details.
 - 🏢 **Campus Directory**: Instant access to university contacts (Dean, AR, HODs) for ICT, BST, and ET departments.
-- 🗺️ **Interactive Campus Map**: Built with `flutter_map` and `geolocator` for real-time location tracking.
 - 🔍 **QR Verification**: Staff-facing scanner using `mobile_scanner` to validate event entries.
-- 🔔 **UX Refinements**: True-Black OLED dark mode support and pull-to-refresh announcement workflows.
 
-*The **1.0 Minimum Viable Product** execution explicitly established isolated SQLite primitives mapping internal functionality securely. As of **v3.1**, the app features advanced semester management and personal academic telemetry.*
+*The **3.2.0 Iteration** successfully transitions persistence pipelines securely.*
 
-👉 **[View the complete project CHANGELOG tracking structural modifications here](docs/CHANGELOG.md)**
+👉 **[View the complete project CHANGELOG tracking structural modifications here](CHANGELOG.md)**
 
 ---
 
@@ -47,16 +47,17 @@ lib/
 
 ---
 
-## Database (SQLite Offline v4)
+## Database (SQLite Offline v5 + MySQL Background Sync)
 
 | Table | Purpose |
 |-------|---------|
-| `users` | Authenticated internal memory users + Profile data |
-| `timetable` | Class schedule bounding FK targets + Attendance |
+| `users` | Authenticated users with Profile levels + semester tags |
+| `timetable` | Class schedule bounding level/semester targets |
 | `academic_calendar` | 20-week semester structure tracking |
 | `academic_results` | Student grades and GPA telemetry |
-| `events` | Campus events strictly loaded from Data Access Objects |
-| `registrations` | Safely tracked physical student bounds locking logic |
+| `medical_submissions` | Admin-facing health waiver storage bounds |
+| `events` | Campus events loaded via DAOs |
+| `registrations` | Safely tracked physical student bounds |
 
 ---
 
