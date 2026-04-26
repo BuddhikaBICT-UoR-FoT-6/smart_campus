@@ -54,6 +54,7 @@ class _CampusContactsScreenState extends State<CampusContactsScreen> {
                   }).toList(),
                 ),
       floatingActionButton: FloatingActionButton(
+        heroTag: null,
         onPressed: () => _showAddContactDialog(context, userRole),
         backgroundColor: AppTheme.primary,
         child: const Icon(Icons.add, color: Colors.white),

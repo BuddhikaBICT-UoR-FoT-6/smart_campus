@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:smart_campus/providers/system_config_provider.dart';
 
 class ConfigAdminScreen extends StatefulWidget {
   const ConfigAdminScreen({super.key});
@@ -15,6 +17,8 @@ class _ConfigAdminScreenState extends State<ConfigAdminScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final configProvider = context.watch<SystemConfigProvider>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('System Configuration'),
@@ -36,9 +40,31 @@ class _ConfigAdminScreenState extends State<ConfigAdminScreen> {
             onChanged: (val) => setState(() => _globalNotifications = val),
           ),
           const Divider(),
-          _buildHeader('Student Controls'),
+          _buildHeader('Student & Academic Controls'),
+          ListTile(
+            title: const Text('Course Registration Deadline'),
+            subtitle: Text('Deadline: ${configProvider.registrationDeadline}'),
+            trailing: const Icon(Icons.calendar_today, color: Colors.blue),
+            onTap: () async {
+              final picked = await showDatePicker(
+                context: context,
+                initialDate: DateTime.tryParse(configProvider.registrationDeadline) ?? DateTime.now(),
+                firstDate: DateTime.now().subtract(const Duration(days: 30)),
+                lastDate: DateTime(2100),
+              );
+              if (picked != null) {
+                final dateStr = picked.toIso8601String().split('T').first;
+                configProvider.updateDeadline(dateStr);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Deadline updated to $dateStr')),
+                  );
+                }
+              }
+            },
+          ),
           SwitchListTile(
-            title: const Text('Allow New Registrations'),
+            title: const Text('Allow New Event Registrations'),
             subtitle: const Text('Allow students to register for events.'),
             value: _allowStudentRegistration,
             onChanged: (val) => setState(() => _allowStudentRegistration = val),
@@ -49,18 +75,6 @@ class _ConfigAdminScreenState extends State<ConfigAdminScreen> {
             title: const Text('App Version'),
             subtitle: Text(_appVersion),
             trailing: const Icon(Icons.info_outline),
-          ),
-          const SizedBox(height: 32),
-          ElevatedButton(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Configuration saved successfully!')),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-            ),
-            child: const Text('Save Configuration'),
           ),
         ],
       ),

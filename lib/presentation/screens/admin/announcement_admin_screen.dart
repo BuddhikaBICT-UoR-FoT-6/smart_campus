@@ -61,6 +61,7 @@ class _AnnouncementAdminScreenState extends State<AnnouncementAdminScreen> {
                   },
                 ),
       floatingActionButton: FloatingActionButton(
+        heroTag: null,
         onPressed: () => _showDialog(null),
         child: const Icon(Icons.add),
       ),

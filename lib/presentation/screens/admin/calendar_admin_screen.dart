@@ -41,6 +41,7 @@ class CalendarAdminScreen extends StatelessWidget {
               },
             ),
       floatingActionButton: FloatingActionButton(
+        heroTag: null,
         onPressed: () => _showWeekDialog(context, null),
         child: const Icon(Icons.add),
       ),

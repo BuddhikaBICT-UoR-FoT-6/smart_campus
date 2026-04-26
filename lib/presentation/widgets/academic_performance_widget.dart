@@ -109,7 +109,6 @@ class AcademicPerformanceWidget extends StatelessWidget {
               DataColumn(label: Text('Level')),
               DataColumn(label: Text('Sem')),
               DataColumn(label: Text('Grade')),
-              DataColumn(label: Text('GPA')),
             ],
             rows: const [
               DataRow(cells: [
@@ -117,35 +116,30 @@ class AcademicPerformanceWidget extends StatelessWidget {
                 DataCell(Text('1')),
                 DataCell(Text('1')),
                 DataCell(Text('A')),
-                DataCell(Text('4.0')),
               ]),
               DataRow(cells: [
                 DataCell(Text('Programming')),
                 DataCell(Text('1')),
                 DataCell(Text('1')),
                 DataCell(Text('A-')),
-                DataCell(Text('3.7')),
               ]),
               DataRow(cells: [
                 DataCell(Text('Software Eng')),
                 DataCell(Text('1')),
                 DataCell(Text('2')),
                 DataCell(Text('B+')),
-                DataCell(Text('3.3')),
               ]),
               DataRow(cells: [
                 DataCell(Text('DB Systems')),
                 DataCell(Text('1')),
                 DataCell(Text('2')),
                 DataCell(Text('A')),
-                DataCell(Text('4.0')),
               ]),
               DataRow(cells: [
                 DataCell(Text('Networks')),
                 DataCell(Text('2')),
                 DataCell(Text('1')),
                 DataCell(Text('A')),
-                DataCell(Text('4.0')),
               ]),
             ],
           ),

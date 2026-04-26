@@ -76,6 +76,7 @@ class _EventAdminScreenState extends State<EventAdminScreen> {
                   },
                 ),
       floatingActionButton: FloatingActionButton(
+        heroTag: null,
         onPressed: () => _showEventDialog(null),
         child: const Icon(Icons.add),
       ),

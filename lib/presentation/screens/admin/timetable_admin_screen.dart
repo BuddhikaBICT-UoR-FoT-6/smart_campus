@@ -61,6 +61,7 @@ class _TimetableAdminScreenState extends State<TimetableAdminScreen> {
               : _buildTimetableEditor(timetableProvider),
       floatingActionButton: _selectedUser != null
           ? FloatingActionButton(
+              heroTag: null,
               onPressed: () => _showEntryDialog(null),
               child: const Icon(Icons.add),
             )

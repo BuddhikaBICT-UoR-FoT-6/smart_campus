@@ -61,6 +61,7 @@ class _ResultsAdminScreenState extends State<ResultsAdminScreen> {
               : _buildResultsEditor(provider),
       floatingActionButton: _selectedStudent != null
           ? FloatingActionButton(
+              heroTag: null,
               onPressed: () => _showResultDialog(null),
               child: const Icon(Icons.add),
             )
