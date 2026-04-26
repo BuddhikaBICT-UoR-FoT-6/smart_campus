@@ -1,23 +1,14 @@
-# Smart Campus Operations System (v3.1.0)
+# Smart Campus Operations System (v3.2.0)
 
-![Flutter Version](https://img.shields.io/badge/Flutter-3.x-blue.svg)
+![Flutter](https://img.shields.io/badge/Flutter-3.x-blue.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
-![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen.svg)
-![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS-lightgrey.svg)
-![Repo Size](https://img.shields.io/github/repo-size/BuddhikaBICT-UoR-FoT-6/smart_campus)
 
-A production-grade Flutter mobile application spanning architectures empowering university students and staff to comprehensively process timetables, campus announcements, and event registrations seamlessly.
+A production-grade Flutter platform empowering continuous university workflows comfortably.
 
-## Key Features (v3.2.0 Updates)
-- 📅 **Academic Level Assignment**: Levels (Years 1-4) & dual semesters mapped across users to filter institutional content.
-- 🩺 **Medical Approvals Engine**: Photographic document verification pipeline allowing admin status updates.
-- 🗄️ **Dual Database Synchronization**: Local SQLite queries with background remote MySQL updates.
-- 📊 **Performance Dashboard**: Real-time GPA calculation, semester-wise grading tables, and visual performance tracking.
-- 👤 **Profile Self-Management**: Comprehensive user profile editing including personal and emergency contact details.
-- 🏢 **Campus Directory**: Instant access to university contacts (Dean, AR, HODs) for ICT, BST, and ET departments.
-- 🔍 **QR Verification**: Staff-facing scanner using `mobile_scanner` to validate event entries.
-
-*The **3.2.0 Iteration** successfully transitions persistence pipelines securely.*
+## Roadmap & Milestone Updates
+- **MVP v1.0.0**: Initial baseline offline data access objects for user logic.
+- **v2.1.0**: Advanced academic GPA analytics telemetry.
+- **v3.2.0**: Dual backends sync capabilities and administrative medical waivers.
 
 👉 **[View the complete project CHANGELOG tracking structural modifications here](CHANGELOG.md)**
 
