@@ -4,6 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../providers/auth_provider.dart';
 import '../../domain/models/user.dart';
@@ -149,10 +150,24 @@ class ProfileScreen extends StatelessWidget {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
               ),
               IconButton.filledTonal(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Dialing ${user.emergencyPhone ?? "Emergency"}...')),
-                  );
+                onPressed: () async {
+                  final phone = user.emergencyPhone;
+                  if (phone != null && phone.isNotEmpty) {
+                    final uri = Uri.parse('tel:$phone');
+                    if (await canLaunchUrl(uri)) {
+                      await launchUrl(uri);
+                    } else {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Could not launch dialer for $phone')),
+                        );
+                      }
+                    }
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('No emergency contact number saved.')),
+                    );
+                  }
                 },
                 icon: const Icon(Icons.emergency_share, color: Colors.red),
                 tooltip: 'Emergency Call',
@@ -177,8 +192,49 @@ class ProfileScreen extends StatelessWidget {
 
           const SizedBox(height: 48),
 
-          // ---------- 5. Academic Performance Section (Student Only) ----------
+          // ---------- 5. Academic Portal Section (Student Only) ----------
           if (user.role == UserRole.student) ...[
+            const Text(
+              'Academic Portal',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.app_registration),
+                label: const Text('Course Registration'),
+                style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)),
+                onPressed: () {
+                  Navigator.pushNamed(context, AppRoutes.courseRegistration);
+                },
+              ),
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.laptop_chromebook),
+                label: const Text('Learning Management System (LMS)'),
+                style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)),
+                onPressed: () {
+                  Navigator.pushNamed(context, AppRoutes.lms);
+                },
+              ),
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.analytics_outlined),
+                label: const Text('Attendance Dashboard'),
+                style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)),
+                onPressed: () {
+                  Navigator.pushNamed(context, AppRoutes.attendanceDashboard);
+                },
+              ),
+            ),
+            const SizedBox(height: 24),
             const AcademicPerformanceWidget(),
             const SizedBox(height: 24),
             SizedBox(
