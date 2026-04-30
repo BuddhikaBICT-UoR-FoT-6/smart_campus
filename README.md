@@ -1,4 +1,4 @@
-# Smart Campus Operations System (v3.2.0)
+# Smart Campus Operations System (v4.0.0)
 
 ![Flutter](https://img.shields.io/badge/Flutter-3.x-blue.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
@@ -9,6 +9,7 @@ A production-grade Flutter platform empowering continuous university workflows c
 - **MVP v1.0.0**: Initial baseline offline data access objects for user logic.
 - **v2.1.0**: Advanced academic GPA analytics telemetry.
 - **v3.2.0**: Dual backends sync capabilities and administrative medical waivers.
+- **v4.0.0**: Academic Portal (Course Registration, LMS), Native API integrations, ABI build optimizations.
 
 👉 **[View the complete project CHANGELOG tracking structural modifications here](CHANGELOG.md)**
 
@@ -49,6 +50,8 @@ lib/
 | `medical_submissions` | Admin-facing health waiver storage bounds |
 | `events` | Campus events loaded via DAOs |
 | `registrations` | Safely tracked physical student bounds |
+| `modules` | Course registration curriculum |
+| `lms_materials` | Digital course material storage mappings |
 
 ---
 
@@ -61,4 +64,7 @@ flutter pub get
 
 # Launch software utilizing parameterized environment triggers securely
 flutter run --dart-define=ENV=dev
+
+# Build production optimized APK with ABI architecture splitting
+flutter build apk --split-per-abi --release --dart-define=ENV=prod
 ```

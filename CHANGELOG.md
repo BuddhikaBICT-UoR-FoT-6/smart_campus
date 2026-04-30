@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [4.0.0] - 2026-04-30
+### Added
+- Academic Portal (Course Registration, LMS, Attendance Analytics).
+- Integrated native device APIs (Camera for Medicals, Native Dialer/Mailer for Contacts).
+- UI/UX Refinements (Dark Mode theme fixes, interactive DatePickers).
+- CI/CD build optimizations (ABI Splitting reducing APK size).
+
 ## [3.2.0] - 2026-04-26
 ### Added
 - Superadmin student level assignment flows safely mapped across background SQL tables.
