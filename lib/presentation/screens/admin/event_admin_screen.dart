@@ -100,7 +100,25 @@ class _EventAdminScreenState extends State<EventAdminScreen> {
               TextField(controller: titleCtrl, decoration: const InputDecoration(labelText: 'Event Title')),
               TextField(controller: descCtrl, decoration: const InputDecoration(labelText: 'Description'), maxLines: 3),
               TextField(controller: venueCtrl, decoration: const InputDecoration(labelText: 'Venue')),
-              TextField(controller: dateCtrl, decoration: const InputDecoration(labelText: 'Date (YYYY-MM-DD)')),
+              TextField(
+                controller: dateCtrl,
+                readOnly: true,
+                decoration: const InputDecoration(
+                  labelText: 'Date (YYYY-MM-DD)',
+                  suffixIcon: Icon(Icons.calendar_today),
+                ),
+                onTap: () async {
+                  final picked = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.tryParse(dateCtrl.text) ?? DateTime.now(),
+                    firstDate: DateTime(2000),
+                    lastDate: DateTime(2100),
+                  );
+                  if (picked != null) {
+                    dateCtrl.text = picked.toIso8601String().split('T').first;
+                  }
+                },
+              ),
               TextField(controller: capacityCtrl, decoration: const InputDecoration(labelText: 'Capacity'), keyboardType: TextInputType.number),
             ],
           ),

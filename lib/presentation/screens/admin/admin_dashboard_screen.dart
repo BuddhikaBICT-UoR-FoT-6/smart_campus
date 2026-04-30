@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/medical_provider.dart';
+import '../../../providers/theme_provider.dart';
 import '../../../app/routes.dart';
 
 class AdminDashboardScreen extends StatelessWidget {
@@ -15,6 +16,16 @@ class AdminDashboardScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Institutional Administration'),
         actions: [
+          Consumer<ThemeProvider>(
+            builder: (context, themeProvider, child) {
+              return IconButton(
+                icon: Icon(themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode),
+                onPressed: () {
+                  themeProvider.toggleTheme(!themeProvider.isDarkMode);
+                },
+              );
+            },
+          ),
           IconButton(
             onPressed: () {
               context.read<AuthProvider>().logout();
@@ -135,10 +146,12 @@ class AdminDashboardScreen extends StatelessWidget {
       {'title': 'Timetable Admin', 'icon': Icons.schedule, 'color': Colors.purple, 'route': '/admin/timetable'},
       {'title': 'Event Admin', 'icon': Icons.campaign, 'color': Colors.orange, 'route': '/admin/events'},
       {'title': 'Results Management', 'icon': Icons.grade, 'color': Colors.green, 'route': '/admin/results'},
-      {'title': 'Announcement Ctrl', 'icon': Icons.notification_important, 'color': Colors.red, 'route': '/admin/announcements'},
+      {'title': 'Announcements', 'icon': Icons.notification_important, 'color': Colors.red, 'route': '/admin/announcements'},
       {'title': 'System Config', 'icon': Icons.settings, 'color': Colors.grey, 'route': '/admin/config'},
       {'title': 'Reporting', 'icon': Icons.bar_chart, 'color': Colors.blueGrey, 'route': '/admin/reporting'},
       {'title': 'Medical Approvals', 'icon': Icons.medical_services_outlined, 'color': Colors.pink, 'route': '/admin/medical-review'},
+      {'title': 'Campus Map', 'icon': Icons.map, 'color': Colors.amber, 'route': '/campus-map'},
+      {'title': 'QR Scanner', 'icon': Icons.qr_code_scanner, 'color': Colors.cyan, 'route': '/qr-scanner'},
     ];
 
     return GridView.builder(
@@ -153,14 +166,15 @@ class AdminDashboardScreen extends StatelessWidget {
       itemCount: modules.length,
       itemBuilder: (context, index) {
         final m = modules[index];
+        final isDark = Theme.of(context).brightness == Brightness.dark;
         return InkWell(
           onTap: () => Navigator.pushNamed(context, m['route'] as String),
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
-                BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4)),
+                if (!isDark) BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4)),
               ],
             ),
             child: Column(

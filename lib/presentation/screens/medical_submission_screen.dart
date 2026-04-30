@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../providers/auth_provider.dart';
 import '../../providers/medical_provider.dart';
@@ -31,16 +32,33 @@ class _MedicalSubmissionScreenState extends State<MedicalSubmissionScreen> {
     });
   }
 
-  Future<void> _pickMockPhoto() async {
+  Future<void> _pickPhoto() async {
     setState(() => _isUploading = true);
-    await Future.delayed(const Duration(seconds: 1)); // simulated loading
-    setState(() {
-      _mockPhotoPath = 'assets/mock/medical_upload_${DateTime.now().millisecondsSinceEpoch}.jpg';
-      _isUploading = false;
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Photo uploaded successfully!')),
-    );
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: ImageSource.camera);
+      
+      if (image != null) {
+        setState(() {
+          _mockPhotoPath = image.path;
+        });
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Photo attached successfully!')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to open camera: $e'), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isUploading = false);
+      }
+    }
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -158,9 +176,9 @@ class _MedicalSubmissionScreenState extends State<MedicalSubmissionScreen> {
                       child: _isUploading
                           ? const CircularProgressIndicator()
                           : ElevatedButton.icon(
-                              onPressed: _pickMockPhoto,
-                              icon: Icon(_mockPhotoPath.isNotEmpty ? Icons.check_circle : Icons.add_a_photo),
-                              label: Text(_mockPhotoPath.isNotEmpty ? 'Change Photo' : 'Upload Medical Photo'),
+                              onPressed: _pickPhoto,
+                              icon: Icon(_mockPhotoPath.isNotEmpty ? Icons.check_circle : Icons.camera_alt),
+                              label: Text(_mockPhotoPath.isNotEmpty ? 'Retake Photo' : 'Open Camera'),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: _mockPhotoPath.isNotEmpty ? Colors.green : AppTheme.primary,
                                 foregroundColor: Colors.white,

@@ -21,6 +21,7 @@ import '../../app/routes.dart';
 import '../../app/theme.dart';
 import '../../app/constants.dart'; // 1. Added structured production constants import
 import '../../providers/auth_provider.dart';
+import '../../providers/theme_provider.dart';
 import '../../domain/models/user.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -84,6 +85,22 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        actions: [
+          Consumer<ThemeProvider>(
+            builder: (context, themeProvider, child) {
+              return IconButton(
+                icon: Icon(themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode),
+                onPressed: () {
+                  themeProvider.toggleTheme(!themeProvider.isDarkMode);
+                },
+              );
+            },
+          ),
+        ],
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
             // 2. Refactored hardcoded numeric borders mapping to symmetric AppSpacing architectures
@@ -129,6 +146,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   // ---------- Email ----------
                   TextFormField(
                     controller: _emailCtrl,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
                     keyboardType: TextInputType.emailAddress,
                     decoration: const InputDecoration(
                       labelText: 'Email address',
@@ -157,6 +175,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 // ---------- Password ----------
                 TextFormField(
                   controller: _passCtrl,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   obscureText: _obscurePass,
                   decoration: InputDecoration(
                     labelText: 'Password',

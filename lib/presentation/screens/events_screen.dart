@@ -137,8 +137,23 @@ class EventsScreenState extends State<EventsScreen> {
                 ),
                 TextFormField(
                   controller: dateController,
-                  decoration: const InputDecoration(labelText: 'Date (YYYY-MM-DD)'),
+                  readOnly: true,
+                  decoration: const InputDecoration(
+                    labelText: 'Date (YYYY-MM-DD)',
+                    suffixIcon: Icon(Icons.calendar_today),
+                  ),
                   validator: (v) => v!.isEmpty ? 'Required' : null,
+                  onTap: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.tryParse(dateController.text) ?? DateTime.now(),
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2100),
+                    );
+                    if (picked != null) {
+                      dateController.text = picked.toIso8601String().split('T').first;
+                    }
+                  },
                 ),
               ],
             ),

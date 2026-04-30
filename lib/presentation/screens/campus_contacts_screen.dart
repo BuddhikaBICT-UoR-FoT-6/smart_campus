@@ -3,6 +3,7 @@
 // =============================================================================
 
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../app/theme.dart';
 
 class CampusContactsScreen extends StatelessWidget {
@@ -12,7 +13,7 @@ class CampusContactsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Campus Directory'),
+        title: const Text('Campus Details'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -74,28 +75,43 @@ class CampusContactsScreen extends StatelessWidget {
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Card(
-      child: ListTile(
-        title: Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: isDark ? AppTheme.primary : AppTheme.primary)),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(name, style: const TextStyle(fontSize: 16)),
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                const Icon(Icons.email_outlined, size: 14),
-                const SizedBox(width: 8),
-                Text(email),
-              ],
-            ),
-            Row(
-              children: [
-                const Icon(Icons.phone_outlined, size: 14),
-                const SizedBox(width: 8),
-                Text(phone),
-              ],
-            ),
-          ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 0),
+        child: ListTile(
+          title: Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: isDark ? AppTheme.primary : AppTheme.primary)),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(name, style: const TextStyle(fontSize: 16)),
+              const SizedBox(height: 8),
+              InkWell(
+                onTap: () => _launchUrl('mailto:$email'),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4.0),
+                  child: Row(
+                    children: [
+                      Icon(Icons.email_outlined, size: 16, color: AppTheme.primary),
+                      const SizedBox(width: 8),
+                      Text(email, style: TextStyle(color: AppTheme.primary, decoration: TextDecoration.underline)),
+                    ],
+                  ),
+                ),
+              ),
+              InkWell(
+                onTap: () => _launchUrl('tel:$phone'),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4.0),
+                  child: Row(
+                    children: [
+                      Icon(Icons.phone_outlined, size: 16, color: AppTheme.primary),
+                      const SizedBox(width: 8),
+                      Text(phone, style: TextStyle(color: AppTheme.primary, decoration: TextDecoration.underline)),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -112,10 +128,21 @@ class CampusContactsScreen extends StatelessWidget {
         subtitle: Text(c['email']!),
         leading: const Icon(Icons.person_outline),
         trailing: IconButton(
-          icon: const Icon(Icons.mail_outline),
-          onPressed: () {},
+          icon: Icon(Icons.mail_outline, color: AppTheme.primary),
+          onPressed: () => _launchUrl('mailto:${c['email']}'),
         ),
       )).toList(),
     );
+  }
+
+  Future<void> _launchUrl(String urlString) async {
+    final uri = Uri.parse(urlString);
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri);
+      }
+    } catch (e) {
+      debugPrint('Could not launch $urlString: $e');
+    }
   }
 }
