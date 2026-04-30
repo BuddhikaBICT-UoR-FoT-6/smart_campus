@@ -24,6 +24,11 @@ class MysqlTimetableDao {
       endTime: row['endTime'].toString(),
       room: row['room'].toString(),
       userId: row['userId'].toString(),
+      isAttended: row['isAttended'] == null ? null : (row['isAttended'].toString() == '1'),
+      lectureContent: row['lectureContent']?.toString(),
+      isAdditional: row['isAdditional']?.toString() == '1',
+      level: row['level'] != null ? int.tryParse(row['level'].toString()) : null,
+      semester: row['semester'] != null ? int.tryParse(row['semester'].toString()) : null,
     )).toList();
   }
 }

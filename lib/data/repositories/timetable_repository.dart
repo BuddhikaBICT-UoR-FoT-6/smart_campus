@@ -15,16 +15,27 @@
 // =============================================================================
 
 import '../../data/local/timetable_dao.dart';
+import '../../data/remote/mysql_timetable_dao.dart';
 import '../../domain/models/timetable_entry.dart';
+import 'package:flutter/foundation.dart';
 
 class TimetableRepository {
   final TimetableDao _dao;
+  final MysqlTimetableDao _mysqlDao = MysqlTimetableDao();
 
   TimetableRepository({TimetableDao? dao})
       : _dao = dao ?? TimetableDao();
 
   /// Delegates to [TimetableDao] to get all timetable entries for [userId].
-  Future<List<TimetableEntry>> getTimetableForUser(String userId) {
+  Future<List<TimetableEntry>> getTimetableForUser(String userId) async {
+    try {
+      final remoteEntries = await _mysqlDao.getEntriesForUser(userId);
+      for (final entry in remoteEntries) {
+        await _dao.insertEntryFromSync(entry);
+      }
+    } catch (e) {
+      debugPrint('[TimetableRepository] Remote sync failed: $e');
+    }
     return _dao.getEntriesForUser(userId);
   }
 

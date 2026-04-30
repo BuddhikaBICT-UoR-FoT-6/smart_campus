@@ -50,6 +50,16 @@ class TimetableDao {
   // Write (for completeness — seeding / future admin use)
   // ---------------------------------------------------------------------------
 
+  /// Inserts a new timetable entry from sync without triggering remote push again.
+  Future<void> insertEntryFromSync(TimetableEntry entry) async {
+    final db = await _dbHelper.database;
+    await db.insert(
+      'timetable',
+      entry.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
   /// Inserts a new timetable entry. Ignores duplicates (same primary key).
   Future<void> insertEntry(TimetableEntry entry) async {
     final db = await _dbHelper.database;
