@@ -1,4 +1,4 @@
-# Smart Campus Operations System (v4.0.0)
+# Smart Campus Operations System (v4.1.0)
 
 ![Flutter](https://img.shields.io/badge/Flutter-3.x-blue.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
@@ -10,6 +10,7 @@ A production-grade Flutter platform empowering continuous university workflows c
 - **v2.1.0**: Advanced academic GPA analytics telemetry.
 - **v3.2.0**: Dual backends sync capabilities and administrative medical waivers.
 - **v4.0.0**: Academic Portal (Course Registration, LMS), Native API integrations, ABI build optimizations.
+- **v4.1.0**: Automated Academic Grading Engine, SGPA/CGPA analytics, Admin dark mode theme fix.
 
 👉 **[View the complete project CHANGELOG tracking structural modifications here](CHANGELOG.md)**
 
@@ -46,7 +47,7 @@ lib/
 | `users` | Authenticated users with Profile levels + semester tags |
 | `timetable` | Class schedule bounding level/semester targets |
 | `academic_calendar` | 20-week semester structure tracking |
-| `academic_results` | Student grades and GPA telemetry |
+| `academic_results` | Student grades with level, marks, credits, auto-computed grade and GPA |
 | `medical_submissions` | Admin-facing health waiver storage bounds |
 | `events` | Campus events loaded via DAOs |
 | `registrations` | Safely tracked physical student bounds |

@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [4.1.0] - 2026-04-30
+### Added
+- Admin Results Management: Level, Marks, and Credits fields added to the result entry form.
+- Automated Grade and GPA calculation from raw marks using standard Sri Lankan grading scale (A+, A, A-, B+, ..., E).
+- Automated SGPA (Semester GPA) calculated per semester using weighted credit formula.
+- Automated CGPA (Cumulative GPA) across all semesters with live Degree Class determination (First Class, Second Upper, etc.).
+- Premium Academic Standing analytics card displayed in Admin Results screen.
+### Fixed
+- Admin Dashboard Management Module tiles: text now correctly switches to white in night mode.
+
 ## [4.0.0] - 2026-04-30
 ### Added
 - Academic Portal (Course Registration, LMS, Attendance Analytics).

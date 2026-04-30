@@ -184,7 +184,11 @@ class AdminDashboardScreen extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   m['title'] as String,
-                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600, 
+                    fontSize: 13,
+                    color: isDark ? Colors.white : Colors.black87,
+                  ),
                   textAlign: TextAlign.center,
                 ),
               ],
