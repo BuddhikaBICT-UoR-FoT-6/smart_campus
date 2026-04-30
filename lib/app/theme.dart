@@ -47,12 +47,13 @@ class AppTheme {
 
     // AppBar
     appBarTheme: const AppBarTheme(
-      backgroundColor: primary,
-      foregroundColor: onPrimary,
+      backgroundColor: surface,
+      foregroundColor: textPrimary,
       elevation: 0,
+      surfaceTintColor: Colors.transparent,
       centerTitle: false,
       titleTextStyle: TextStyle(
-        color: onPrimary,
+        color: textPrimary,
         fontSize: 20,
         fontWeight: FontWeight.w600,
       ),
@@ -63,7 +64,7 @@ class AppTheme {
       style: ElevatedButton.styleFrom(
         backgroundColor: primary,
         foregroundColor: onPrimary,
-        minimumSize: const Size.fromHeight(48),
+        minimumSize: const Size(88, 48),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
@@ -131,7 +132,7 @@ class AppTheme {
       style: ElevatedButton.styleFrom(
         backgroundColor: primary,
         foregroundColor: onPrimary,
-        minimumSize: const Size.fromHeight(48),
+        minimumSize: const Size(88, 48),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
