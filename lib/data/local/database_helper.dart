@@ -69,10 +69,10 @@ class DatabaseHelper {
 
     return openDatabase(
       fullPath,
-      version: 11,
+      version: 13,
       onCreate: _onCreate,
       onUpgrade: (db, oldV, newV) async {
-        if (oldV < 11) {
+        if (oldV < 13) {
           // Destructive upgrade for easy academic demonstration
           await db.execute('DROP TABLE IF EXISTS announcements');
           await db.execute('DROP TABLE IF EXISTS registrations');
@@ -135,7 +135,10 @@ class DatabaseHelper {
       CREATE TABLE IF NOT EXISTS academic_results (
         id      INTEGER PRIMARY KEY AUTOINCREMENT,
         subject TEXT NOT NULL,
+        level   INTEGER NOT NULL DEFAULT 1,
         semester INTEGER NOT NULL,
+        marks   INTEGER NOT NULL DEFAULT 0,
+        credits INTEGER NOT NULL DEFAULT 3,
         grade   TEXT NOT NULL,
         gpa     REAL NOT NULL,
         userId  TEXT NOT NULL,

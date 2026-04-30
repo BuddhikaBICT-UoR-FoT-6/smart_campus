@@ -91,6 +91,43 @@ class _ResultsAdminScreenState extends State<ResultsAdminScreen> {
           title: Text('Student: ${_selectedStudent!.name}', style: const TextStyle(fontWeight: FontWeight.bold)),
           subtitle: const Text('Enter and edit grades for this student.'),
         ),
+        if (provider.results.isNotEmpty) Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(colors: [Colors.blue.shade800, Colors.blue.shade500]),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Text('Academic Standing', style: TextStyle(color: Colors.white70, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('CGPA: ${provider.cgpa.toStringAsFixed(2)}', style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(20)),
+                      child: Text(provider.degreeClass, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                const Text('SGPA by Semester:', style: TextStyle(color: Colors.white70)),
+                Wrap(
+                  spacing: 8,
+                  children: provider.sgpaBySemester.entries.map((e) => Chip(
+                    label: Text('Sem ${e.key}: ${e.value.toStringAsFixed(2)}'),
+                    backgroundColor: Colors.white,
+                  )).toList(),
+                )
+              ],
+            ),
+          ),
+        ),
         Expanded(
           child: provider.isLoading
               ? const Center(child: CircularProgressIndicator())
@@ -104,7 +141,7 @@ class _ResultsAdminScreenState extends State<ResultsAdminScreen> {
                           margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           child: ListTile(
                             title: Text(res.subject, style: const TextStyle(fontWeight: FontWeight.bold)),
-                            subtitle: Text('Semester: ${res.semester} • Grade: ${res.grade} (GPA: ${res.gpa})'),
+                            subtitle: Text('Level: ${res.level} • Semester: ${res.semester}\nMarks: ${res.marks} • Credits: ${res.credits} • Grade: ${res.grade} (GPA: ${res.gpa})'),
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -114,7 +151,7 @@ class _ResultsAdminScreenState extends State<ResultsAdminScreen> {
                                 ),
                                 IconButton(
                                   icon: const Icon(Icons.delete, color: Colors.red),
-                                  onPressed: () => provider.deleteResult(res.id!),
+                                  onPressed: () => provider.deleteResult(res.id!, _selectedStudent!.id),
                                 ),
                               ],
                             ),
@@ -129,9 +166,10 @@ class _ResultsAdminScreenState extends State<ResultsAdminScreen> {
 
   void _showResultDialog(AcademicResult? result) {
     final subjectCtrl = TextEditingController(text: result?.subject);
+    final levelCtrl = TextEditingController(text: result?.level.toString() ?? '1');
     final semesterCtrl = TextEditingController(text: result?.semester.toString() ?? '1');
-    final gradeCtrl = TextEditingController(text: result?.grade ?? 'A');
-    final gpaCtrl = TextEditingController(text: result?.gpa.toString() ?? '4.0');
+    final marksCtrl = TextEditingController(text: result?.marks.toString() ?? '0');
+    final creditsCtrl = TextEditingController(text: result?.credits.toString() ?? '3');
 
     showDialog(
       context: context,
@@ -142,9 +180,10 @@ class _ResultsAdminScreenState extends State<ResultsAdminScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(controller: subjectCtrl, decoration: const InputDecoration(labelText: 'Subject')),
+              TextField(controller: levelCtrl, decoration: const InputDecoration(labelText: 'Level (e.g. 1, 2, 3)'), keyboardType: TextInputType.number),
               TextField(controller: semesterCtrl, decoration: const InputDecoration(labelText: 'Semester'), keyboardType: TextInputType.number),
-              TextField(controller: gradeCtrl, decoration: const InputDecoration(labelText: 'Grade (e.g. A-, B+)')),
-              TextField(controller: gpaCtrl, decoration: const InputDecoration(labelText: 'GPA (e.g. 3.7)'), keyboardType: TextInputType.number),
+              TextField(controller: marksCtrl, decoration: const InputDecoration(labelText: 'Marks (0-100)'), keyboardType: TextInputType.number),
+              TextField(controller: creditsCtrl, decoration: const InputDecoration(labelText: 'Credits (e.g. 2, 3)'), keyboardType: TextInputType.number),
             ],
           ),
         ),
@@ -152,12 +191,16 @@ class _ResultsAdminScreenState extends State<ResultsAdminScreen> {
           TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () {
+              final marks = int.tryParse(marksCtrl.text) ?? 0;
               final newResult = AcademicResult(
                 id: result?.id,
                 subject: subjectCtrl.text,
+                level: int.tryParse(levelCtrl.text) ?? 1,
                 semester: int.parse(semesterCtrl.text),
-                grade: gradeCtrl.text,
-                gpa: double.parse(gpaCtrl.text),
+                marks: marks,
+                credits: int.tryParse(creditsCtrl.text) ?? 3,
+                grade: ResultsProvider.calculateGrade(marks),
+                gpa: ResultsProvider.calculateGpa(marks),
                 userId: _selectedStudent!.id,
               );
               if (result == null) {
