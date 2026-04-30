@@ -2,6 +2,7 @@ import 'package:sqflite/sqflite.dart';
 import '../local/database_helper.dart';
 import '../../domain/models/user.dart';
 import '../remote/mysql_sync_helper.dart';
+import '../../utils/security_helper.dart';
 
 class UserDao {
   final DatabaseHelper _dbHelper;
@@ -17,20 +18,33 @@ class UserDao {
 
   Future<void> insertUser(User user) async {
     final db = await _dbHelper.database;
+    // Apply default password if not provided
+    final rawPassword = (user.password == null || user.password!.isEmpty) ? '1234' : user.password!;
+    final hashed = SecurityHelper.hashPassword(rawPassword);
+    
+    final userWithPassword = user.copyWith(password: hashed);
+        
     await db.insert(
       'users',
-      user.toMap(),
+      userWithPassword.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
     // Background Sync
-    MySqlSyncHelper.syncUserInsert(user);
+    MySqlSyncHelper.syncUserInsert(userWithPassword);
   }
 
   Future<void> updateUser(User user) async {
     final db = await _dbHelper.database;
+    
+    // Convert to map and remove password if it's null to avoid overwriting existing password
+    final data = user.toMap();
+    if (user.password == null) {
+      data.remove('password');
+    }
+
     await db.update(
       'users',
-      user.toMap(),
+      data,
       where: 'id = ?',
       whereArgs: [user.id],
     );
@@ -68,5 +82,16 @@ class UserDao {
     final rows = await db.query('users', where: 'id = ?', whereArgs: [id]);
     if (rows.isEmpty) return null;
     return User.fromMap(rows.first);
+  }
+
+  Future<void> resetPassword(String id, String newPassword) async {
+    final db = await _dbHelper.database;
+    final hashed = SecurityHelper.hashPassword(newPassword);
+    await db.update(
+      'users',
+      {'password': hashed},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
 }

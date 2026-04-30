@@ -13,6 +13,7 @@ class User {
   final String name;
   final String email;
   final UserRole role;
+  final String? password;
   final String? address;
   final String? emergencyName;
   final String? emergencyPhone;
@@ -32,6 +33,7 @@ class User {
     required this.name,
     required this.email,
     required this.role,
+    this.password,
     this.address,
     this.emergencyName,
     this.emergencyPhone,
@@ -52,6 +54,7 @@ class User {
       'name': name,
       'email': email,
       'role': role.name,
+      'password': password,
       'address': address,
       'emergencyName': emergencyName,
       'emergencyPhone': emergencyPhone,
@@ -69,6 +72,7 @@ class User {
       name: map['name'] as String,
       email: map['email'] as String,
       role: UserRole.values.byName(map['role'] as String),
+      password: map['password'] as String?,
       address: map['address'] as String?,
       emergencyName: map['emergencyName'] as String?,
       emergencyPhone: map['emergencyPhone'] as String?,
@@ -87,6 +91,7 @@ class User {
     String? name,
     String? email,
     UserRole? role,
+    String? password,
     String? address,
     String? emergencyName,
     String? emergencyPhone,
@@ -101,6 +106,7 @@ class User {
       name: name ?? this.name,
       email: email ?? this.email,
       role: role ?? this.role,
+      password: password ?? this.password,
       address: address ?? this.address,
       emergencyName: emergencyName ?? this.emergencyName,
       emergencyPhone: emergencyPhone ?? this.emergencyPhone,

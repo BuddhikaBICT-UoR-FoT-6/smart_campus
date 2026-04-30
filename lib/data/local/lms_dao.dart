@@ -20,4 +20,12 @@ class LmsDao {
     );
     return rows.map((row) => LmsMaterial.fromMap(row)).toList();
   }
+
+  Future<void> insertMaterial(LmsMaterial material) async {
+    final db = await _dbHelper.database;
+    await db.insert(
+      'lms_materials',
+      material.toMap(),
+    );
+  }
 }

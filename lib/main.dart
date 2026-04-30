@@ -23,6 +23,8 @@ import 'providers/medical_provider.dart';
 import 'providers/module_provider.dart';
 import 'providers/lms_provider.dart';
 import 'providers/campus_contact_provider.dart';
+import 'providers/reporting_provider.dart';
+import 'providers/system_config_provider.dart';
 import 'data/remote/mysql_database.dart';
 
 void main() async {
@@ -57,6 +59,8 @@ class SmartCampusApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ModuleProvider()),
         ChangeNotifierProvider(create: (_) => LmsProvider()),
         ChangeNotifierProvider(create: (_) => CampusContactProvider()..loadContacts()),
+        ChangeNotifierProvider(create: (_) => ReportingProvider()),
+        ChangeNotifierProvider(create: (_) => SystemConfigProvider()..loadConfig()),
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {
