@@ -48,7 +48,7 @@ class AuthProvider extends ChangeNotifier {
   bool get isLoggedIn => _currentUser != null;
 
   // ---------------------------------------------------------------------------
-  // Mock credentials (hardcoded — no real server needed for offline Viva execution)
+  // Mock credentials (hardcoded — no real server needed
   // ---------------------------------------------------------------------------
 
   /// Mock user database. In a real app this would hit a backend API.
@@ -64,6 +64,9 @@ class AuthProvider extends ChangeNotifier {
       'email': 'student@campus.lk',
       'password': '1234',
       'role': 'student',
+      'level': 4,
+      'semester': 1,
+      'emailAlerts': true,
     },
     {
       'id': 'usr-002',
@@ -88,7 +91,7 @@ class AuthProvider extends ChangeNotifier {
   /// Checks local secure storage for a saved session token.
   /// If found, parses the JWT payload, checks its expiry, and restores the user.
   Future<bool> checkLoginStatus() async {
-    // Asynchronously read the encrypted 'auth_token' key from device keychain/keystore. 
+    // Asynchronously read the encrypted 'auth_token' key from device keychain/keystore.
     // In production, tokens are fundamentally safer than caching raw username/emails.
     final savedToken = await _secureStorage.read(key: 'auth_token');
 
@@ -98,10 +101,10 @@ class AuthProvider extends ChangeNotifier {
         // Step 1: Decode the Base64Url formatted JWT string back into raw bytes
         // In a real app we'd split the header.payload.signature, but here we mock the payload directly
         final payloadString = utf8.decode(base64Url.decode(savedToken));
-        
+
         // Step 2: Parse the decoded JSON string securely into a Dart Map
         final payload = jsonDecode(payloadString);
-        
+
         // Step 3: Extract the securely embedded expiry timestamp (in milliseconds since epoch)
         final exp = payload['exp'] as int;
         final now = DateTime.now().millisecondsSinceEpoch;
@@ -117,12 +120,20 @@ class AuthProvider extends ChangeNotifier {
         // Token is computationally valid. Reconstruct the User profile directly from the JWT payload claims.
         // This is a major production feature: it avoids hammering the database/API for user details on startup.
         _currentUser = User(
-          id: payload['userId'] as String,             // Safely cast extracted ID to String
-          name: payload['name'] as String,             // Safely cast extracted Name to String
-          email: payload['email'] as String,           // Safely cast extracted Email to String
-          role: UserRole.values.byName(payload['role'] as String), // Parse String back into strictly-typed Enum
+          id: payload['userId'] as String, // Safely cast extracted ID to String
+          name:
+              payload['name'] as String, // Safely cast extracted Name to String
+          email:
+              payload['email']
+                  as String, // Safely cast extracted Email to String
+          role: UserRole.values.byName(
+            payload['role'] as String,
+          ), // Parse String back into strictly-typed Enum
+          level: payload['level'] as int?,
+          semester: payload['semester'] as int?,
+          emailAlerts: (payload['emailAlerts'] as bool?) ?? true,
         );
-        
+
         // Trigger a reactive rebuild across the entire app so routers instantly transition away from Splash
         notifyListeners();
         // Return true indicating the session was fully and safely restored
@@ -164,16 +175,24 @@ class AuthProvider extends ChangeNotifier {
       name: match['name'] as String,
       email: match['email'] as String,
       role: UserRole.values.byName(match['role'] as String),
+      level: match['level'] as int?,
+      semester: match['semester'] as int?,
+      emailAlerts: (match['emailAlerts'] as bool?) ?? true,
     );
 
     // 4. Construct the payload mimicking standard JWT claims structure structurally binding to Offline properties
     final mockJwtPayload = {
-      'userId': match['id'],             
-      'name': match['name'],             
-      'email': match['email'],           
+      'userId': match['id'],
+      'name': match['name'],
+      'email': match['email'],
       'role': match['role'],
+      'level': match['level'],
+      'semester': match['semester'],
+      'emailAlerts': match['emailAlerts'] ?? true,
       // 5. Compute an explicit expiration timestamp set strictly to 1 hour from this exact moment
-      'exp': DateTime.now().add(const Duration(hours: 1)).millisecondsSinceEpoch,
+      'exp': DateTime.now()
+          .add(const Duration(hours: 1))
+          .millisecondsSinceEpoch,
     };
 
     // 3. Serialize the payload to a JSON string, encode it to raw bytes, then to Base64Url standard
@@ -184,7 +203,7 @@ class AuthProvider extends ChangeNotifier {
     await _secureStorage.write(key: 'auth_token', value: mockToken);
 
     // Notify all UI listeners to switch from LoginScreen to HomeScreen
-    notifyListeners(); 
+    notifyListeners();
     // Return success
     return true;
   }
@@ -196,7 +215,7 @@ class AuthProvider extends ChangeNotifier {
   Future<void> logout() async {
     // 1. Wipe the in-memory user object
     _currentUser = null;
-    
+
     // 2. Cryptographically delete the session authorization token from secure hardware storage
     await _secureStorage.delete(key: 'auth_token');
 
@@ -213,11 +232,11 @@ class AuthProvider extends ChangeNotifier {
 
     // Update in-memory state
     _currentUser = updatedUser;
-    
+
     // We should also theoretically update the JWT in the secure storage here,
     // but since the mock JWT only stores name, email, role, and ID (which aren't changing),
     // it can remain as is. If we allowed changing the name, we should recreate the JWT.
-    
+
     notifyListeners();
   }
 }
