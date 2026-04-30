@@ -82,6 +82,9 @@ class DatabaseHelper {
           await db.execute('DROP TABLE IF EXISTS academic_results');
           await db.execute('DROP TABLE IF EXISTS academic_calendar');
           await db.execute('DROP TABLE IF EXISTS medical_submissions');
+          await db.execute('DROP TABLE IF EXISTS modules');
+          await db.execute('DROP TABLE IF EXISTS module_enrollments');
+          await db.execute('DROP TABLE IF EXISTS lms_materials');
           await _createTables(db);
           await _seedMockData(db);
         }
@@ -236,6 +239,7 @@ class DatabaseHelper {
       )
     ''');
 
+    // Table: medical_submissions
     await db.execute('''
       CREATE TABLE IF NOT EXISTS medical_submissions (
         id TEXT PRIMARY KEY,
@@ -245,6 +249,43 @@ class DatabaseHelper {
         photoPath TEXT NOT NULL,
         status TEXT NOT NULL,
         FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
+      )
+    ''');
+
+    // Table: modules
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS modules (
+        id TEXT PRIMARY KEY,
+        code TEXT NOT NULL,
+        name TEXT NOT NULL,
+        credits INTEGER NOT NULL,
+        level INTEGER NOT NULL,
+        semester INTEGER NOT NULL
+      )
+    ''');
+
+    // Table: module_enrollments
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS module_enrollments (
+        userId TEXT NOT NULL,
+        moduleId TEXT NOT NULL,
+        PRIMARY KEY (userId, moduleId),
+        FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (moduleId) REFERENCES modules(id) ON DELETE CASCADE
+      )
+    ''');
+
+    // Table: lms_materials
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS lms_materials (
+        id TEXT PRIMARY KEY,
+        moduleId TEXT NOT NULL,
+        title TEXT NOT NULL,
+        description TEXT NOT NULL,
+        fileUrl TEXT NOT NULL,
+        type TEXT NOT NULL,
+        deadline TEXT,
+        FOREIGN KEY (moduleId) REFERENCES modules(id) ON DELETE CASCADE
       )
     ''');
   }
@@ -494,6 +535,37 @@ class DatabaseHelper {
     ];
     for (final a in announcementList) {
       await db.insert('announcements', a.toMap());
+    }
+
+    // --- Modules (Course Registration) ---
+    final modules = [
+      {'id': 'mod-001', 'code': 'SE101', 'name': 'Software Engineering', 'credits': 3, 'level': 1, 'semester': 1},
+      {'id': 'mod-002', 'code': 'CS102', 'name': 'Computer Systems', 'credits': 3, 'level': 1, 'semester': 1},
+      {'id': 'mod-003', 'code': 'MD201', 'name': 'Mobile Application Development', 'credits': 4, 'level': 4, 'semester': 1},
+      {'id': 'mod-004', 'code': 'WD202', 'name': 'Web Technologies', 'credits': 3, 'level': 4, 'semester': 1},
+      {'id': 'mod-005', 'code': 'AI301', 'name': 'Artificial Intelligence', 'credits': 4, 'level': 4, 'semester': 1},
+    ];
+    for (final m in modules) {
+      await db.insert('modules', m, conflictAlgorithm: ConflictAlgorithm.ignore);
+    }
+
+    // --- Module Enrollments (usr-001 is a Level 4 student, so enroll in some modules) ---
+    final enrollments = [
+      {'userId': 'usr-001', 'moduleId': 'mod-003'},
+      {'userId': 'usr-001', 'moduleId': 'mod-004'},
+    ];
+    for (final e in enrollments) {
+      await db.insert('module_enrollments', e, conflictAlgorithm: ConflictAlgorithm.ignore);
+    }
+
+    // --- LMS Materials ---
+    final lmsMaterials = [
+      {'id': 'lms-001', 'moduleId': 'mod-003', 'title': 'Week 1: Intro to Flutter', 'description': 'Slides from the first lecture.', 'fileUrl': 'https://example.com/flutter_intro.pdf', 'type': 'pdf', 'deadline': null},
+      {'id': 'lms-002', 'moduleId': 'mod-003', 'title': 'Assignment 1: UI Layouts', 'description': 'Build a basic profile screen.', 'fileUrl': 'https://example.com/assignment1.pdf', 'type': 'assignment', 'deadline': '2026-05-15'},
+      {'id': 'lms-003', 'moduleId': 'mod-004', 'title': 'Week 1: HTML & CSS', 'description': 'Web layout fundamentals.', 'fileUrl': 'https://example.com/web_intro.pdf', 'type': 'pdf', 'deadline': null},
+    ];
+    for (final l in lmsMaterials) {
+      await db.insert('lms_materials', l, conflictAlgorithm: ConflictAlgorithm.ignore);
     }
   }
 }

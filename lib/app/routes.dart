@@ -36,6 +36,10 @@ import '../presentation/screens/admin/results_admin_screen.dart';
 import '../presentation/screens/admin/config_admin_screen.dart';
 import '../presentation/screens/medical_submission_screen.dart';
 import '../presentation/screens/admin/medical_review_screen.dart';
+import '../presentation/screens/edit_profile_screen.dart';
+import '../presentation/screens/course_registration_screen.dart';
+import '../presentation/screens/lms_screen.dart';
+import '../presentation/screens/attendance_dashboard_screen.dart';
 
 class AppRoutes {
   AppRoutes._(); // prevent instantiation — utility class
@@ -63,9 +67,12 @@ class AppRoutes {
   static const String adminEvents     = '/admin/events';
   static const String adminResults    = '/admin/results';
   static const String adminAnnouncements = '/admin/announcements';
-  static const String adminConfig     = '/admin/config';
+  static const String configAdmin     = '/admin/config';
   static const String medicalSubmission = '/medical-submission';
   static const String adminMedicalReview = '/admin/medical-review';
+  static const String courseRegistration = '/course-registration';
+  static const String lms              = '/lms';
+  static const String attendanceDashboard = '/attendance-dashboard';
 
   // ---------------------------------------------------------------------------
   // Route map — passed to MaterialApp.routes
@@ -92,9 +99,12 @@ class AppRoutes {
       adminEvents:    (context) => const EventAdminScreen(),
       adminResults:   (context) => const ResultsAdminScreen(),
       adminAnnouncements: (context) => const AnnouncementAdminScreen(),
-      adminConfig:    (context) => const ConfigAdminScreen(),
+      configAdmin:    (_) => const ConfigAdminScreen(),
       medicalSubmission: (context) => const MedicalSubmissionScreen(),
       adminMedicalReview: (context) => const MedicalReviewScreen(),
+      courseRegistration: (_) => const CourseRegistrationScreen(),
+      lms:              (_) => const LmsScreen(),
+      attendanceDashboard: (_) => const AttendanceDashboardScreen(),
     };
   }
 }
