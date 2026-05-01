@@ -141,8 +141,7 @@ class _TimetableScreenState extends State<TimetableScreen> with SingleTickerProv
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Level ${user.level} • Semester ${user.semester}' + 
-                    (user.isRepeat ? ' (Repeat Student)' : ''),
+                    'Level ${user.level} • Semester ${user.semester}${user.isRepeat ? ' (Repeat Student)' : ''}',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 14,
