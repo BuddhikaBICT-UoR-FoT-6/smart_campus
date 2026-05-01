@@ -26,7 +26,7 @@ import '../../domain/models/user.dart';
 import '../../domain/models/timetable_entry.dart';
 import '../../domain/models/event.dart';
 import '../../domain/models/announcement.dart';
-import '../../domain/models/academic_result.dart';
+
 
 class DatabaseHelper {
   // ---------------------------------------------------------------------------
@@ -69,10 +69,10 @@ class DatabaseHelper {
 
     return openDatabase(
       fullPath,
-      version: 13,
+      version: 17,
       onCreate: _onCreate,
       onUpgrade: (db, oldV, newV) async {
-        if (oldV < 13) {
+        if (oldV < 17) {
           // Destructive upgrade for easy academic demonstration
           await db.execute('DROP TABLE IF EXISTS announcements');
           await db.execute('DROP TABLE IF EXISTS registrations');
@@ -85,6 +85,7 @@ class DatabaseHelper {
           await db.execute('DROP TABLE IF EXISTS modules');
           await db.execute('DROP TABLE IF EXISTS module_enrollments');
           await db.execute('DROP TABLE IF EXISTS lms_materials');
+          await db.execute('DROP TABLE IF EXISTS campus_contacts');
           await _createTables(db);
           await _seedMockData(db);
         }
@@ -126,7 +127,8 @@ class DatabaseHelper {
         profilePic TEXT,
         level INTEGER,
         semester INTEGER,
-        isRepeat INTEGER DEFAULT 0
+        isRepeat INTEGER DEFAULT 0,
+        emailAlerts INTEGER DEFAULT 1
       )
     ''');
 
@@ -222,6 +224,7 @@ class DatabaseHelper {
       CREATE TABLE IF NOT EXISTS academic_results (
         id       INTEGER PRIMARY KEY AUTOINCREMENT,
         subject  TEXT NOT NULL,
+        level    INTEGER NOT NULL,
         semester INTEGER NOT NULL,
         grade    TEXT NOT NULL,
         gpa      REAL NOT NULL,
@@ -291,6 +294,19 @@ class DatabaseHelper {
         FOREIGN KEY (moduleId) REFERENCES modules(id) ON DELETE CASCADE
       )
     ''');
+
+    // Table: campus_contacts
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS campus_contacts (
+        id      TEXT PRIMARY KEY,
+        name    TEXT NOT NULL,
+        title   TEXT NOT NULL,
+        email   TEXT NOT NULL,
+        phone   TEXT NOT NULL,
+        category TEXT NOT NULL,
+        addedByRole TEXT NOT NULL
+      )
+    ''');
   }
 
   // ---------------------------------------------------------------------------
@@ -312,6 +328,8 @@ class DatabaseHelper {
         address: 'No 45, Flower Road, Colombo 07',
         emergencyName: 'Sumanasiri Perera (Father)',
         emergencyPhone: '0712345678',
+        level: 4,
+        semester: 1,
       ),
       User(
         id: 'usr-002',
@@ -463,14 +481,14 @@ class DatabaseHelper {
 
     // --- Academic Results (usr-001) ---
     final academic = [
-      {'subject': 'Mathematics for Computing', 'semester': 1, 'grade': 'A', 'gpa': 4.0},
-      {'subject': 'Programming Fundamentals', 'semester': 1, 'grade': 'A-', 'gpa': 3.7},
-      {'subject': 'Information Systems', 'semester': 1, 'grade': 'B+', 'gpa': 3.3},
-      {'subject': 'Database Systems', 'semester': 2, 'grade': 'A', 'gpa': 4.0},
-      {'subject': 'Object Oriented Programming', 'semester': 2, 'grade': 'B', 'gpa': 3.0},
-      {'subject': 'Software Engineering', 'semester': 2, 'grade': 'A-', 'gpa': 3.7},
-      {'subject': 'Computer Networks', 'semester': 3, 'grade': 'B+', 'gpa': 3.3},
-      {'subject': 'Operating Systems', 'semester': 3, 'grade': 'A', 'gpa': 4.0},
+      {'subject': 'Mathematics for Computing', 'level': 1, 'semester': 1, 'grade': 'A', 'gpa': 4.0},
+      {'subject': 'Programming Fundamentals', 'level': 1, 'semester': 1, 'grade': 'A-', 'gpa': 3.7},
+      {'subject': 'Information Systems', 'level': 1, 'semester': 1, 'grade': 'B+', 'gpa': 3.3},
+      {'subject': 'Database Systems', 'level': 1, 'semester': 2, 'grade': 'A', 'gpa': 4.0},
+      {'subject': 'Object Oriented Programming', 'level': 1, 'semester': 2, 'grade': 'B', 'gpa': 3.0},
+      {'subject': 'Software Engineering', 'level': 1, 'semester': 2, 'grade': 'A-', 'gpa': 3.7},
+      {'subject': 'Computer Networks', 'level': 2, 'semester': 1, 'grade': 'B+', 'gpa': 3.3},
+      {'subject': 'Operating Systems', 'level': 2, 'semester': 1, 'grade': 'A', 'gpa': 4.0},
     ];
     for (final res in academic) {
       await db.insert('academic_results', {
@@ -569,6 +587,58 @@ class DatabaseHelper {
     ];
     for (final l in lmsMaterials) {
       await db.insert('lms_materials', l, conflictAlgorithm: ConflictAlgorithm.ignore);
+    }
+
+    // --- Campus Contacts ---
+    final campusContacts = [
+      {
+        'id': 'cc-001',
+        'name': 'Prof. J.K. Abeysekara',
+        'title': 'Dean',
+        'email': 'dean@fot.uor.lk',
+        'phone': '+94 41 222 3344',
+        'category': 'Administration',
+        'addedByRole': 'superadmin'
+      },
+      {
+        'id': 'cc-002',
+        'name': 'Mr. Sarath Gamage',
+        'title': 'Assistant Registrar',
+        'email': 'ar@fot.uor.lk',
+        'phone': '+94 41 222 3456',
+        'category': 'Administration',
+        'addedByRole': 'superadmin'
+      },
+      {
+        'id': 'cc-003',
+        'name': 'Dr. K. Silva',
+        'title': 'Senior Lecturer',
+        'email': 'ksilva@ict.uor.lk',
+        'phone': '+94 41 222 1111',
+        'category': 'ICT Department',
+        'addedByRole': 'staff'
+      },
+      {
+        'id': 'cc-004',
+        'name': 'Mr. P. Gamage',
+        'title': 'Lecturer',
+        'email': 'pgamage@ict.uor.lk',
+        'phone': '+94 41 222 2222',
+        'category': 'ICT Department',
+        'addedByRole': 'staff'
+      },
+      {
+        'id': 'cc-005',
+        'name': 'Student Union Pres.',
+        'title': 'President',
+        'email': 'union@uor.lk',
+        'phone': '+94 41 222 9999',
+        'category': 'Student Union',
+        'addedByRole': 'student'
+      },
+    ];
+    for (final c in campusContacts) {
+      await db.insert('campus_contacts', c, conflictAlgorithm: ConflictAlgorithm.ignore);
     }
   }
 }
