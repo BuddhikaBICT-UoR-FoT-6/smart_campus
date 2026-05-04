@@ -1,5 +1,8 @@
 // =============================================================================
-// providers/module_provider.dart
+// This file acts as the state controller for the Academic Portal's course
+// registration system. It manages the global catalog of university modules, tracks
+// which specific modules the active student has enrolled in, and handles the
+//database transactions for enrolling or dropping a course.
 // =============================================================================
 
 import 'package:flutter/material.dart';

@@ -75,7 +75,7 @@ class _MedicalSubmissionScreenState extends State<MedicalSubmissionScreen> {
     }
   }
 
-  void _submitMedical() {
+  Future<void> _submitMedical() async {
     if (!_formKey.currentState!.validate()) return;
     if (_mockPhotoPath.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -83,10 +83,10 @@ class _MedicalSubmissionScreenState extends State<MedicalSubmissionScreen> {
       );
       return;
     }
-
+ 
     final user = context.read<AuthProvider>().currentUser;
     if (user == null) return;
-
+ 
     final submission = MedicalSubmission(
       id: 'med-${DateTime.now().millisecondsSinceEpoch}',
       userId: user.id,
@@ -95,23 +95,25 @@ class _MedicalSubmissionScreenState extends State<MedicalSubmissionScreen> {
       photoPath: _mockPhotoPath,
       status: 'pending',
     );
-
-    context.read<MedicalProvider>().addSubmission(submission).then((_) {
-      final error = context.read<MedicalProvider>().errorMessage;
-      if (error != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(error), backgroundColor: Colors.red),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Medical submitted successfully. Waiting for Admin approval.')),
-        );
-        setState(() {
-          _mockPhotoPath = '';
-          _selectedWeek = 1;
-        });
-      }
-    });
+ 
+    await context.read<MedicalProvider>().addSubmission(submission);
+    
+    if (!mounted) return;
+ 
+    final error = context.read<MedicalProvider>().errorMessage;
+    if (error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error), backgroundColor: Colors.red),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Medical submitted successfully. Waiting for Admin approval.')),
+      );
+      setState(() {
+        _mockPhotoPath = '';
+        _selectedWeek = 1;
+      });
+    }
   }
 
   Color _getStatusColor(String status) {
@@ -156,7 +158,7 @@ class _MedicalSubmissionScreenState extends State<MedicalSubmissionScreen> {
                     const Text('Submit New Medical', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 16),
                     DropdownButtonFormField<int>(
-                      value: _selectedWeek,
+                      initialValue: _selectedWeek,
                       decoration: const InputDecoration(labelText: 'Academic Week'),
                       items: List.generate(15, (index) => index + 1)
                           .map((w) => DropdownMenuItem(value: w, child: Text('Week $w')))

@@ -7,6 +7,8 @@ import 'package:provider/provider.dart';
 
 import '../../providers/auth_provider.dart';
 import '../../providers/module_provider.dart';
+import '../../domain/models/module.dart';
+import '../../providers/theme_provider.dart';
 import '../../app/theme.dart';
 
 class CourseRegistrationScreen extends StatefulWidget {
@@ -33,69 +35,154 @@ class _CourseRegistrationScreenState extends State<CourseRegistrationScreen> {
     final moduleProvider = context.watch<ModuleProvider>();
     final user = context.read<AuthProvider>().currentUser;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Course Registration'),
-      ),
-      body: moduleProvider.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : moduleProvider.allModules.isEmpty
-              ? const Center(child: Text('No modules available for registration.'))
-              : ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: moduleProvider.allModules.length,
-                  itemBuilder: (context, index) {
-                    final module = moduleProvider.allModules[index];
-                    final isEnrolled = moduleProvider.isEnrolled(module.id);
+    if (user == null) return const Scaffold(body: Center(child: Text('Please login first')));
 
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      elevation: 2,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    '${module.code} - ${module.name}',
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'Credits: ${module.credits} • Lvl: ${module.level} • Sem: ${module.semester}',
-                                    style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: isEnrolled ? Colors.red.shade100 : AppTheme.primary,
-                                foregroundColor: isEnrolled ? Colors.red : Colors.white,
-                              ),
-                              onPressed: () {
-                                if (user != null) {
-                                  if (isEnrolled) {
-                                    moduleProvider.drop(user.id, module.id);
-                                  } else {
-                                    moduleProvider.enroll(user.id, module.id);
-                                  }
-                                }
-                              },
-                              child: Text(isEnrolled ? 'Drop' : 'Enroll'),
-                            ),
-                          ],
-                        ),
+    // Filtering logic
+    final availableModules = moduleProvider.allModules.where((m) {
+      final isEnrolled = moduleProvider.isEnrolled(m.id);
+      final isCorrectLevel = m.level == user.level;
+      final isCorrectSemester = m.semester == user.semester;
+      return !isEnrolled && isCorrectLevel && isCorrectSemester;
+    }).toList();
+
+    final registeredModules = moduleProvider.enrolledModules;
+
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Course Registration'),
+          actions: [
+            Consumer<ThemeProvider>(
+              builder: (context, themeProvider, child) {
+                return IconButton(
+                  icon: Icon(themeProvider.isDarkMode 
+                      ? Icons.light_mode_rounded 
+                      : Icons.dark_mode_rounded),
+                  tooltip: 'Toggle Theme',
+                  onPressed: () => themeProvider.toggleTheme(!themeProvider.isDarkMode),
+                );
+              },
+            ),
+            const SizedBox(width: 8),
+          ],
+          bottom: TabBar(
+            tabs: const [
+              Tab(text: 'Available'),
+              Tab(text: 'Registered'),
+            ],
+            indicatorColor: Theme.of(context).brightness == Brightness.light ? Colors.black : AppTheme.primary,
+            labelColor: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white,
+            unselectedLabelColor: Theme.of(context).brightness == Brightness.light ? Colors.black54 : Colors.grey,
+          ),
+        ),
+        body: TabBarView(
+          children: [
+            _buildModuleList(context, availableModules, isAvailable: true),
+            _buildModuleList(context, registeredModules, isAvailable: false),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildModuleList(BuildContext context, List<Module> modules, {required bool isAvailable}) {
+    final moduleProvider = context.read<ModuleProvider>();
+    final user = context.read<AuthProvider>().currentUser;
+
+    if (moduleProvider.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (modules.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                isAvailable ? Icons.auto_stories_outlined : Icons.app_registration,
+                size: 64,
+                color: Theme.of(context).colorScheme.outlineVariant,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                isAvailable
+                    ? 'No new modules available for your level/semester.'
+                    : 'You have not registered for any modules yet.',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: modules.length,
+      itemBuilder: (context, index) {
+        final module = modules[index];
+
+        return Card(
+          margin: const EdgeInsets.only(bottom: 12),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          elevation: 2,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${module.code} - ${module.name}',
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                       ),
-                    );
-                  },
+                      const SizedBox(height: 8),
+                      Text(
+                        'Credits: ${module.credits} • Lvl: ${module.level} • Sem: ${module.semester}',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
                 ),
+                const SizedBox(width: 12),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: isAvailable 
+                        ? AppTheme.primary 
+                        : Theme.of(context).colorScheme.errorContainer,
+                    foregroundColor: isAvailable 
+                        ? Colors.white 
+                        : Theme.of(context).colorScheme.onErrorContainer,
+                  ),
+                  onPressed: () {
+                    if (user != null) {
+                      if (isAvailable) {
+                        moduleProvider.enroll(user.id, module.id);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Enrolled in ${module.code}')),
+                        );
+                      } else {
+                        moduleProvider.drop(user.id, module.id);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Dropped ${module.code}')),
+                        );
+                      }
+                    }
+                  },
+                  child: Text(isAvailable ? 'Enroll' : 'Drop'),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
