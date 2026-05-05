@@ -21,6 +21,11 @@ class User {
   final int? level;
   final int? semester;
   final bool isRepeat;
+  final bool? _emailAlerts; // Use a private nullable field for hot-reload safety
+
+  /// Getter ensures we never return null even if the underlying field is null
+  /// (which can happen during hot reloads when adding new fields to objects in memory).
+  bool get emailAlerts => _emailAlerts ?? true;
 
   const User({
     required this.id,
@@ -34,7 +39,8 @@ class User {
     this.level,
     this.semester,
     this.isRepeat = false,
-  });
+    bool? emailAlerts = true,
+  }) : _emailAlerts = emailAlerts;
 
   // ---------------------------------------------------------------------------
   // SQLite helpers
@@ -53,6 +59,7 @@ class User {
       'level': level,
       'semester': semester,
       'isRepeat': isRepeat ? 1 : 0,
+      'emailAlerts': emailAlerts ? 1 : 0,
     };
   }
 
@@ -69,11 +76,12 @@ class User {
       level: map['level'] as int?,
       semester: map['semester'] as int?,
       isRepeat: (map['isRepeat'] as int? ?? 0) == 1,
+      emailAlerts: (map['emailAlerts'] as int? ?? 1) == 1,
     );
   }
 
   @override
-  String toString() => 'User(id: $id, name: $name, role: ${role.name}, level: $level, semester: $semester, isRepeat: $isRepeat)';
+  String toString() => 'User(id: $id, name: $name, role: ${role.name}, level: $level, semester: $semester, emailAlerts: $emailAlerts)';
 
   User copyWith({
     String? name,
@@ -86,6 +94,7 @@ class User {
     int? level,
     int? semester,
     bool? isRepeat,
+    bool? emailAlerts,
   }) {
     return User(
       id: id,
@@ -99,6 +108,7 @@ class User {
       level: level ?? this.level,
       semester: semester ?? this.semester,
       isRepeat: isRepeat ?? this.isRepeat,
+      emailAlerts: emailAlerts ?? this.emailAlerts,
     );
   }
 }
