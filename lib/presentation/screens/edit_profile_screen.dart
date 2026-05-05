@@ -2,8 +2,10 @@
 // presentation/screens/edit_profile_screen.dart
 // =============================================================================
 
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../providers/auth_provider.dart';
 import '../../app/theme.dart';
 
@@ -21,6 +23,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController _addressController;
   late TextEditingController _emergencyNameController;
   late TextEditingController _emergencyPhoneController;
+  String? _profilePicPath;
+
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -32,6 +37,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _addressController = TextEditingController(text: user?.address ?? '');
     _emergencyNameController = TextEditingController(text: user?.emergencyName ?? '');
     _emergencyPhoneController = TextEditingController(text: user?.emergencyPhone ?? '');
+    _profilePicPath = user?.profilePic;
+  }
+
+  Future<void> _pickImage() async {
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      setState(() {
+        _profilePicPath = image.path;
+      });
+    }
   }
 
   @override
@@ -54,6 +69,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         address: _addressController.text.trim(),
         emergencyName: _emergencyNameController.text.trim(),
         emergencyPhone: _emergencyPhoneController.text.trim(),
+        profilePic: _profilePicPath,
       );
 
       await auth.updateUserProfile(updatedUser);
@@ -93,6 +109,35 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Center(
+                child: Stack(
+                  alignment: Alignment.bottomRight,
+                  children: [
+                    CircleAvatar(
+                      radius: 60,
+                      backgroundColor: AppTheme.primary.withValues(alpha: 0.1),
+                      backgroundImage: _profilePicPath != null && _profilePicPath!.isNotEmpty
+                          ? FileImage(File(_profilePicPath!))
+                          : null,
+                      child: _profilePicPath == null || _profilePicPath!.isEmpty
+                          ? Text(
+                              user.name.substring(0, 1).toUpperCase(),
+                              style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: AppTheme.primary),
+                            )
+                          : null,
+                    ),
+                    InkWell(
+                      onTap: _pickImage,
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: const BoxDecoration(color: AppTheme.primary, shape: BoxShape.circle),
+                        child: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 32),
               _buildSectionTitle(context, 'Immutable Details'),
               _buildLockedField('Student ID', user.id),
               const SizedBox(height: 12),

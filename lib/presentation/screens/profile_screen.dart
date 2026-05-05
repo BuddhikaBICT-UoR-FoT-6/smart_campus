@@ -2,11 +2,13 @@
 // presentation/screens/profile_screen.dart
 // =============================================================================
 
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../providers/auth_provider.dart';
+
 import '../../domain/models/user.dart';
 import '../../providers/event_provider.dart';
 import '../../app/routes.dart';
@@ -37,13 +39,18 @@ class ProfileScreen extends StatelessWidget {
                     CircleAvatar(
                       radius: 54,
                       backgroundColor: AppTheme.primary.withValues(alpha: 0.1),
-                      child: Text(
-                        user.name.substring(0, 1).toUpperCase(),
-                        style: const TextStyle(
-                            fontSize: 48,
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.primary),
-                      ),
+                      backgroundImage: user.profilePic != null && user.profilePic!.isNotEmpty
+                          ? FileImage(File(user.profilePic!))
+                          : null,
+                      child: user.profilePic == null || user.profilePic!.isEmpty
+                        ? Text(
+                            user.name.substring(0, 1).toUpperCase(),
+                            style: const TextStyle(
+                                fontSize: 48,
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.primary),
+                          )
+                        : null,
                     ),
                     Container(
                       decoration: const BoxDecoration(color: AppTheme.secondary, shape: BoxShape.circle),
@@ -178,19 +185,7 @@ class ProfileScreen extends StatelessWidget {
           _buildInfoRow(context, Icons.person_outline, 'Contact Person', user.emergencyName ?? 'Not specified'),
           _buildInfoRow(context, Icons.phone_outlined, 'Phone', user.emergencyPhone ?? 'Not specified'),
 
-          const SizedBox(height: 48),
-          
-          // ---------- 4. Settings Section ----------
-          const Text(
-            'Settings',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 12),
-          _buildToggleRow(context, Icons.notifications_active_outlined, 'Push Notifications', true),
-          _buildToggleRow(context, Icons.email_outlined, 'Email Alerts', false),
-          _buildToggleRow(context, Icons.vibration, 'Haptic Feedback', true),
-
-          const SizedBox(height: 48),
+          const SizedBox(height: 16),
 
           // ---------- 5. Academic Portal Section (Student Only) ----------
           if (user.role == UserRole.student) ...[
@@ -255,6 +250,24 @@ class ProfileScreen extends StatelessWidget {
             const SizedBox(height: 64),
           ],
           
+          // ---------- 6. Notifications & Settings ----------
+          const Text(
+            'Settings',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          _buildToggleRow(
+            context,
+            Icons.email_outlined,
+            'Email Alerts',
+            user.emailAlerts,
+            (val) {
+              final updatedUser = user.copyWith(emailAlerts: val);
+              context.read<AuthProvider>().updateUserProfile(updatedUser);
+            },
+          ),
+          const SizedBox(height: 12),
+          
           // ---------- 6. Session Actions ----------
           SizedBox(
             width: double.infinity,
@@ -309,7 +322,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildToggleRow(BuildContext context, IconData icon, String label, bool value) {
+  Widget _buildToggleRow(BuildContext context, IconData icon, String label, bool value, ValueChanged<bool> onChanged) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -319,7 +332,7 @@ class ProfileScreen extends StatelessWidget {
           Expanded(child: Text(label, style: const TextStyle(fontSize: 15))),
           Switch(
             value: value,
-            onChanged: (val) {},
+            onChanged: onChanged,
             activeThumbColor: AppTheme.primary,
           ),
         ],

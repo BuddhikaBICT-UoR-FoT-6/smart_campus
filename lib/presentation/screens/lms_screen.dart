@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/module_provider.dart';
 import '../../providers/lms_provider.dart';
+import '../../providers/theme_provider.dart';
 import '../../app/theme.dart';
 
 class LmsScreen extends StatefulWidget {
@@ -46,14 +47,17 @@ class _LmsScreenState extends State<LmsScreen> {
               children: [
                 Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: Text(moduleName, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  child: Text(
+                    moduleName, 
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                  ),
                 ),
                 const Divider(),
                 Expanded(
                   child: lmsProvider.isLoading
                       ? const Center(child: CircularProgressIndicator())
                       : lmsProvider.materials.isEmpty
-                          ? const Center(child: Text('No materials uploaded yet.'))
+                          ? Center(child: Text('No materials uploaded yet.', style: Theme.of(context).textTheme.bodyMedium))
                           : ListView.builder(
                               controller: controller,
                               itemCount: lmsProvider.materials.length,
@@ -71,7 +75,10 @@ class _LmsScreenState extends State<LmsScreen> {
                                     children: [
                                       Text(mat.description),
                                       if (mat.deadline != null)
-                                        Text('Due: ${mat.deadline}', style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                                        Text(
+                                          'Due: ${mat.deadline}', 
+                                          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12),
+                                        ),
                                     ],
                                   ),
                                   trailing: IconButton(
@@ -101,6 +108,20 @@ class _LmsScreenState extends State<LmsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Learning Management System'),
+        actions: [
+          Consumer<ThemeProvider>(
+            builder: (context, themeProvider, child) {
+              return IconButton(
+                icon: Icon(themeProvider.isDarkMode 
+                    ? Icons.light_mode_rounded 
+                    : Icons.dark_mode_rounded),
+                tooltip: 'Toggle Theme',
+                onPressed: () => themeProvider.toggleTheme(!themeProvider.isDarkMode),
+              );
+            },
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: moduleProvider.isLoading
           ? const Center(child: CircularProgressIndicator())
