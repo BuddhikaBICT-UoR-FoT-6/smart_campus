@@ -106,7 +106,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<UserRole>(
-                  value: selectedRole,
+                  initialValue: selectedRole,
                   items: UserRole.values
                       .map((role) => DropdownMenuItem(
                             value: role,
@@ -119,7 +119,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                 if (selectedRole == UserRole.student) ...[
                   const SizedBox(height: 16),
                   DropdownButtonFormField<int>(
-                    value: selectedLevel,
+                    initialValue: selectedLevel,
                     items: [1, 2, 3, 4]
                         .map((l) => DropdownMenuItem(
                               value: l,
@@ -131,7 +131,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<int>(
-                    value: selectedSemester,
+                    initialValue: selectedSemester,
                     items: [1, 2]
                         .map((s) => DropdownMenuItem(
                               value: s,

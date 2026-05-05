@@ -157,7 +157,7 @@ class _TimetableAdminScreenState extends State<TimetableAdminScreen> {
               children: [
                 TextField(controller: subjectCtrl, decoration: const InputDecoration(labelText: 'Subject')),
                 DropdownButtonFormField<String>(
-                  value: day,
+                  initialValue: day,
                   items: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
                       .map((d) => DropdownMenuItem(value: d, child: Text(d)))
                       .toList(),
@@ -170,7 +170,7 @@ class _TimetableAdminScreenState extends State<TimetableAdminScreen> {
                 if (_selectedUser?.role == UserRole.student) ...[
                   const SizedBox(height: 16),
                   DropdownButtonFormField<int>(
-                    value: selectedLevel,
+                    initialValue: selectedLevel,
                     items: [1, 2, 3, 4]
                         .map((l) => DropdownMenuItem(value: l, child: Text('Level $l')))
                         .toList(),
@@ -179,7 +179,7 @@ class _TimetableAdminScreenState extends State<TimetableAdminScreen> {
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<int>(
-                    value: selectedSemester,
+                    initialValue: selectedSemester,
                     items: [1, 2]
                         .map((s) => DropdownMenuItem(value: s, child: Text('Semester $s')))
                         .toList(),

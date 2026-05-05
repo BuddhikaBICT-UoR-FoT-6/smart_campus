@@ -8,7 +8,8 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/timetable_provider.dart';
 import '../../domain/models/timetable_entry.dart';
-import '../../app/theme.dart';
+import '../../providers/theme_provider.dart';
+
 
 class AttendanceDashboardScreen extends StatefulWidget {
   const AttendanceDashboardScreen({super.key});
@@ -48,6 +49,20 @@ class _AttendanceDashboardScreenState extends State<AttendanceDashboardScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Attendance Dashboard'),
+        actions: [
+          Consumer<ThemeProvider>(
+            builder: (context, themeProvider, child) {
+              return IconButton(
+                icon: Icon(themeProvider.isDarkMode 
+                    ? Icons.light_mode_rounded 
+                    : Icons.dark_mode_rounded),
+                tooltip: 'Toggle Theme',
+                onPressed: () => themeProvider.toggleTheme(!themeProvider.isDarkMode),
+              );
+            },
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: timetableProvider.isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -64,8 +79,11 @@ class _AttendanceDashboardScreenState extends State<AttendanceDashboardScreen> {
                     final percentage = total > 0 ? (attended / total) * 100 : 0.0;
                     
                     Color statusColor = Colors.green;
-                    if (percentage < 80) statusColor = Colors.red;
-                    else if (percentage < 90) statusColor = Colors.orange;
+                    if (percentage < 80) {
+                      statusColor = Colors.red;
+                    } else if (percentage < 90) {
+                      statusColor = Colors.orange;
+                    }
 
                     return Card(
                       margin: const EdgeInsets.only(bottom: 12),
@@ -84,7 +102,7 @@ class _AttendanceDashboardScreenState extends State<AttendanceDashboardScreen> {
                                   child: CircularProgressIndicator(
                                     value: total > 0 ? (attended / total) : 0,
                                     color: statusColor,
-                                    backgroundColor: Colors.grey.shade200,
+                                    backgroundColor: Theme.of(context).colorScheme.outlineVariant,
                                     strokeWidth: 6,
                                   ),
                                 ),
@@ -98,7 +116,10 @@ class _AttendanceDashboardScreenState extends State<AttendanceDashboardScreen> {
                                 children: [
                                   Text(subject, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                                   const SizedBox(height: 4),
-                                  Text('Attended: $attended / $total classes', style: const TextStyle(color: AppTheme.textSecondary)),
+                                  Text(
+                                    'Attended: $attended / $total classes', 
+                                    style: Theme.of(context).textTheme.bodySmall,
+                                  ),
                                 ],
                               ),
                             ),
