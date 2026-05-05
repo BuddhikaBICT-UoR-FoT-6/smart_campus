@@ -36,7 +36,7 @@ import '../presentation/screens/admin/results_admin_screen.dart';
 import '../presentation/screens/admin/config_admin_screen.dart';
 import '../presentation/screens/medical_submission_screen.dart';
 import '../presentation/screens/admin/medical_review_screen.dart';
-import '../presentation/screens/edit_profile_screen.dart';
+
 import '../presentation/screens/course_registration_screen.dart';
 import '../presentation/screens/lms_screen.dart';
 import '../presentation/screens/attendance_dashboard_screen.dart';

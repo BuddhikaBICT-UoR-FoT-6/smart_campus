@@ -22,15 +22,18 @@ import 'providers/results_provider.dart';
 import 'providers/medical_provider.dart';
 import 'providers/module_provider.dart';
 import 'providers/lms_provider.dart';
+import 'providers/campus_contact_provider.dart';
 import 'data/remote/mysql_database.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   // Initialize MySQL background pathways seamlessly
-  MySqlDatabase.getConnection().catchError((e) {
+  try {
+    await MySqlDatabase.getConnection();
+  } catch (e) {
     debugPrint('[MySQL Startup] Failed to connect: $e');
-  });
+  }
 
   runApp(const SmartCampusApp());
 }
@@ -42,7 +45,7 @@ class SmartCampusApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()..loadTheme()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => AnnouncementProvider()),
         ChangeNotifierProvider(create: (_) => EventProvider()),
@@ -53,6 +56,7 @@ class SmartCampusApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => MedicalProvider()),
         ChangeNotifierProvider(create: (_) => ModuleProvider()),
         ChangeNotifierProvider(create: (_) => LmsProvider()),
+        ChangeNotifierProvider(create: (_) => CampusContactProvider()..loadContacts()),
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {
