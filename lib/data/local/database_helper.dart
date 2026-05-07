@@ -21,6 +21,8 @@
 
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart' as p;
+import 'package:flutter/foundation.dart';
+import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 
 import '../../domain/models/user.dart';
 import '../../domain/models/timetable_entry.dart';
@@ -64,9 +66,16 @@ class DatabaseHelper {
   // ---------------------------------------------------------------------------
 
   Future<Database> _initDb() async {
-    // getDatabasesPath() returns the correct path on both Android and iOS.
-    final dbPath = await getDatabasesPath();
-    final fullPath = p.join(dbPath, 'smart_campus.db');
+    String fullPath;
+    if (kIsWeb) {
+      // Use the WebAssembly FFI factory for Flutter Web
+      databaseFactory = databaseFactoryFfiWeb;
+      fullPath = 'smart_campus.db';
+    } else {
+      // getDatabasesPath() returns the correct path on both Android and iOS.
+      final dbPath = await getDatabasesPath();
+      fullPath = p.join(dbPath, 'smart_campus.db');
+    }
 
     return openDatabase(
       fullPath,
