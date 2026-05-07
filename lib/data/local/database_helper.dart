@@ -22,7 +22,7 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart' as p;
 import 'package:flutter/foundation.dart';
-import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
+import 'web_factory.dart' if (dart.library.html) 'web_factory_web.dart';
 
 import '../../domain/models/user.dart';
 import '../../domain/models/timetable_entry.dart';
@@ -69,7 +69,7 @@ class DatabaseHelper {
     String fullPath;
     if (kIsWeb) {
       // Use the WebAssembly FFI factory for Flutter Web
-      databaseFactory = databaseFactoryFfiWeb;
+      databaseFactory = getWebFactory;
       fullPath = 'smart_campus.db';
     } else {
       // getDatabasesPath() returns the correct path on both Android and iOS.
