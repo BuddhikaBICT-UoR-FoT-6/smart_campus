@@ -25,6 +25,11 @@ jobs:
       - name: Setup WebAssembly SQLite
         run: dart run sqflite_common_ffi_web:setup
 
+      - name: Configure Web Template
+        run: |
+          flutter config --enable-web
+          flutter create . --platforms web
+
       - name: Build Web App
         run: flutter build web --release
 

@@ -58,32 +58,7 @@ class AuthProvider extends ChangeNotifier {
   ///   student@campus.lk  / 1234   → Student role
   ///   staff@campus.lk    / 1234   → Staff role
   ///   admin@campus.lk    / 1234   → Superadmin role
-  static const List<Map<String, dynamic>> _mockUsers = [
-    {
-      'id': 'usr-001',
-      'name': 'Ashan Perera',
-      'email': 'student@campus.lk',
-      'password': '1234',
-      'role': 'student',
-      'level': 4,
-      'semester': 1,
-      'emailAlerts': true,
-    },
-    {
-      'id': 'usr-002',
-      'name': 'Dr. Nilufar Silva',
-      'email': 'staff@campus.lk',
-      'password': '1234',
-      'role': 'staff',
-    },
-    {
-      'id': 'usr-003',
-      'name': 'Campus Admin',
-      'email': 'admin@campus.lk',
-      'password': '1234',
-      'role': 'superadmin',
-    },
-  ];
+
 
   // ---------------------------------------------------------------------------
   // Auth operations
